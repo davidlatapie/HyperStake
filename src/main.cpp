@@ -959,20 +959,42 @@ int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash)
 
 int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight)
 {
-	int64 nRewardCoinYear, nSubsidyLimit = 1000 * COIN;
-
-	if(nTime < FORK_TIME)
-		nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
+	int64 nSubsidy = 0;
+	
+	if ( nTime > FORK_TIME )
+		nSubsidy = GetProofOfStakeRewardV2(nCoinAge, nBits, nTime,nHeight);
 	else
-		nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE_V2;
+		nSubsidy = GetProofOfStakeRewardV1(nCoinAge, nBits, nTime, nHeight);
+		
+	return nSubsidy;
+}	
+	
+int64 GetProofOfStakeRewardV1(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight)
+{
+    int64 nRewardCoinYear;
+
+	nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
     int64 nSubsidy = nCoinAge * nRewardCoinYear / 365;
 
-	if(nTime > FORK_TIME)
-	nSubsidy = min(nSubsidy, nSubsidyLimit);
-	
 	if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%"PRI64d" nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
+    return nSubsidy;
+}	
+
+int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight)
+{
+    int64 nRewardCoinYear, nSubsidyLimit = 1000 * COIN;
+
+	nRewardCoinYear = MAX_MINT_PROOF_OF_STAKEV2;
+
+    int64 nSubsidy = nCoinAge * nRewardCoinYear / 365;
+
+	if (fDebug && GetBoolArg("-printcreation"))
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%"PRI64d" nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
+		
+	nSubsidy = min(nSubsidy, nSubsidyLimit);
+	 
     return nSubsidy;
 }
 

@@ -40,7 +40,7 @@ static const int64 MAX_MONEY = 60000000 * COIN;
 static const int64 MAX_MONEY2 = 60000000 * COIN;			// 60 mil
 static const int64 MAX_MINT_PROOF_OF_STAKE = 2.00 * COIN;	// 200% annual interest
 
-static const int64 MAX_MINT_PROOF_OF_STAKE_V2 = 7.50 * COIN;	// 750% annual interest
+static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 7.50 * COIN;	// 750% annual interest
 static const unsigned int FORK_TIME = 1404678625; // Sun, 06 Jul 2014 20:30:25 GMT
 
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
@@ -120,6 +120,8 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash);
 int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight);
+int64 GetProofOfStakeRewardV1(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight);
+int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight);
 unsigned int ComputeMinWork(unsigned int nBase, int64 nTime);
 unsigned int ComputeMinStake(unsigned int nBase, int64 nTime, unsigned int nBlockTime);
 int GetNumBlocksOfPeers();
