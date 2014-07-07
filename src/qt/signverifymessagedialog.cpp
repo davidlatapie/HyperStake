@@ -24,11 +24,11 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
 
 #if (QT_VERSION >= 0x040700)
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->addressIn_SM->setPlaceholderText(tr("Enter a valid Truckcoin address"));
+    ui->addressIn_SM->setPlaceholderText(tr("Enter a valid HyperStake address"));
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
 
-    ui->addressIn_VM->setPlaceholderText(tr("Enter a valid Truckcoin address"));
-    ui->signatureIn_VM->setPlaceholderText(tr("Enter Truckcoin signature"));
+    ui->addressIn_VM->setPlaceholderText(tr("Enter a valid HyperStake address"));
+    ui->signatureIn_VM->setPlaceholderText(tr("Enter HyperStake signature"));
 #endif
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
