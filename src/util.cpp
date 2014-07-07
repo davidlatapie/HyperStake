@@ -1006,7 +1006,7 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "Truckcoin";
+    const char* pszModule = "HyperStake";
 #endif
     if (pex)
         return strprintf(
@@ -1055,13 +1055,13 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Truckcoin
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Truckcoin
-    // Mac: ~/Library/Application Support/Truckcoin
-    // Unix: ~/.Truckcoin
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\HyperStake
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\HyperStake
+    // Mac: ~/Library/Application Support/HyperStake
+    // Unix: ~/.HyperStake
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Truckcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "HyperStake";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -1073,10 +1073,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "Truckcoin";
+    return pathRet / "HyperStake";
 #else
     // Unix
-    return pathRet / ".Truckcoin";
+    return pathRet / ".HyperStake";
 #endif
 #endif
 }
@@ -1118,7 +1118,7 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 
 boost::filesystem::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", "Truckcoin.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-conf", "HyperStake.conf"));
     if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(false) / pathConfigFile;
     return pathConfigFile;
 }
@@ -1149,7 +1149,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
 boost::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "Truckcoind.pid"));
+    boost::filesystem::path pathPidFile(GetArg("-pid", "HyperStaked.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
@@ -1289,10 +1289,10 @@ void AddTimeData(const CNetAddr& ip, int64 nTime)
                 if (!fMatch)
                 {
                     fDone = true;
-                    string strMessage = _("Warning: Please check that your computer's date and time are correct! If your clock is wrong Truckcoin will not work properly.");
+                    string strMessage = _("Warning: Please check that your computer's date and time are correct! If your clock is wrong HyperStake will not work properly.");
                     strMiscWarning = strMessage;
                     printf("*** %s\n", strMessage.c_str());
-                    uiInterface.ThreadSafeMessageBox(strMessage+" ", string("Truckcoin"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION);
+                    uiInterface.ThreadSafeMessageBox(strMessage+" ", string("HyperStake"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION);
                 }
             }
         }
