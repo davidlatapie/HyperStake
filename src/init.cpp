@@ -81,7 +81,7 @@ void Shutdown(void* parg)
         delete pwalletMain;
         NewThread(ExitTimeout, NULL);
         Sleep(50);
-        printf("Truckcoin exited\n\n");
+        printf("HyperStake exited\n\n");
         fExit = true;
 #ifndef QT_GUI
         // ensure non-UI client gets exited here, but let Bitcoin-Qt reach 'return 0;' in bitcoin.cpp
@@ -136,12 +136,12 @@ bool AppInit(int argc, char* argv[])
         if (mapArgs.count("-?") || mapArgs.count("--help"))
         {
             // First part of help message is specific to bitcoind / RPC client
-            std::string strUsage = _("Truckcoin version") + " " + FormatFullVersion() + "\n\n" +
+            std::string strUsage = _("HyperStake version") + " " + FormatFullVersion() + "\n\n" +
                 _("Usage:") + "\n" +
-                  "  Truckcoind [options]                     " + "\n" +
-                  "  Truckcoind [options] <command> [params]  " + _("Send command to -server or Truckcoind") + "\n" +
-                  "  Truckcoind [options] help                " + _("List commands") + "\n" +
-                  "  Truckcoind [options] help <command>      " + _("Get help for a command") + "\n";
+                  "  HyperStaked [options]                     " + "\n" +
+                  "  HyperStaked [options] <command> [params]  " + _("Send command to -server or HyperStaked") + "\n" +
+                  "  HyperStaked [options] help                " + _("List commands") + "\n" +
+                  "  HyperStaked [options] help <command>      " + _("Get help for a command") + "\n";
 
             strUsage += "\n" + HelpMessage();
 
@@ -151,7 +151,7 @@ bool AppInit(int argc, char* argv[])
 
         // Command-line RPC
         for (int i = 1; i < argc; i++)
-            if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "Truckcoin:"))
+            if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "HyperStake:"))
                 fCommandLine = true;
 
         if (fCommandLine)
@@ -191,13 +191,13 @@ int main(int argc, char* argv[])
 
 bool static InitError(const std::string &str)
 {
-    uiInterface.ThreadSafeMessageBox(str, _("Truckcoin"), CClientUIInterface::OK | CClientUIInterface::MODAL);
+    uiInterface.ThreadSafeMessageBox(str, _("HyperStake"), CClientUIInterface::OK | CClientUIInterface::MODAL);
     return false;
 }
 
 bool static InitWarning(const std::string &str)
 {
-    uiInterface.ThreadSafeMessageBox(str, _("Truckcoin"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION | CClientUIInterface::MODAL);
+    uiInterface.ThreadSafeMessageBox(str, _("HyperStake"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION | CClientUIInterface::MODAL);
     return true;
 }
 
@@ -219,8 +219,8 @@ std::string HelpMessage()
 {
     string strUsage = _("Options:") + "\n" +
         "  -?                     " + _("This help message") + "\n" +
-        "  -conf=<file>           " + _("Specify configuration file (default: Truckcoin.conf)") + "\n" +
-        "  -pid=<file>            " + _("Specify pid file (default: Truckcoind.pid)") + "\n" +
+        "  -conf=<file>           " + _("Specify configuration file (default: HyperStake.conf)") + "\n" +
+        "  -pid=<file>            " + _("Specify pid file (default: HyperStaked.pid)") + "\n" +
         "  -gen                   " + _("Generate coins") + "\n" +
         "  -gen=0                 " + _("Don't generate coins") + "\n" +
         "  -datadir=<dir>         " + _("Specify data directory") + "\n" +
@@ -451,7 +451,7 @@ bool AppInit2()
     if (file) fclose(file);
     static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
     if (!lock.try_lock())
-        return InitError(strprintf(_("Cannot obtain a lock on data directory %s.  Truckcoin is probably already running."), strDataDir.c_str()));
+        return InitError(strprintf(_("Cannot obtain a lock on data directory %s.  HyperStake is probably already running."), strDataDir.c_str()));
 
 #if !defined(WIN32) && !defined(QT_GUI)
     if (fDaemon)
@@ -478,7 +478,7 @@ bool AppInit2()
     if (GetBoolArg("-shrinkdebugfile", !fDebug))
         ShrinkDebugFile();
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    printf("Truckcoin version %s (%s)\n", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
+    printf("HyperStake version %s (%s)\n", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
     printf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
     if (!fLogTimestamps)
         printf("Startup time: %s\n", DateTimeStrFormat("%x %H:%M:%S", GetTime()).c_str());
@@ -487,7 +487,7 @@ bool AppInit2()
     std::ostringstream strErrors;
 
     if (fDaemon)
-        fprintf(stdout, "Truckcoin server starting\n");
+        fprintf(stdout, "HyperStake server starting\n");
 
     int64 nStart;
 
@@ -519,7 +519,7 @@ bool AppInit2()
                                      " Original wallet.dat saved as wallet.{timestamp}.bak in %s; if"
                                      " your balance or transactions are incorrect you should"
                                      " restore from a backup."), strDataDir.c_str());
-            uiInterface.ThreadSafeMessageBox(msg, _("Truckcoin"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION | CClientUIInterface::MODAL);
+            uiInterface.ThreadSafeMessageBox(msg, _("HyperStake"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION | CClientUIInterface::MODAL);
         }
         if (r == CDBEnv::RECOVER_FAIL)
             return InitError(_("wallet.dat corrupt, salvage failed"));
@@ -729,13 +729,13 @@ bool AppInit2()
         {
             string msg(_("Warning: error reading wallet.dat! All keys read correctly, but transaction data"
                          " or address book entries might be missing or incorrect."));
-            uiInterface.ThreadSafeMessageBox(msg, _("Truckcoin"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION | CClientUIInterface::MODAL);
+            uiInterface.ThreadSafeMessageBox(msg, _("HyperStake"), CClientUIInterface::OK | CClientUIInterface::ICON_ETRKLAMATION | CClientUIInterface::MODAL);
         }
         else if (nLoadWalletRet == DB_TOO_NEW)
-            strErrors << _("Error loading wallet.dat: Wallet requires newer version of Truckcoin") << "\n";
+            strErrors << _("Error loading wallet.dat: Wallet requires newer version of HyperStake") << "\n";
         else if (nLoadWalletRet == DB_NEED_REWRITE)
         {
-            strErrors << _("Wallet needed to be rewritten: restart Truckcoin to complete") << "\n";
+            strErrors << _("Wallet needed to be rewritten: restart HyperStake to complete") << "\n";
             printf("%s", strErrors.str().c_str());
             return InitError(strErrors.str());
         }
