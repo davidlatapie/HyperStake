@@ -163,7 +163,7 @@ Value moneysupply(const Array& params, bool fHelp)
     obj.push_back(Pair("projected money supply 30 days from now (960 rate)", ms0 * pow(1 + r1 * 8, 30 / 8)));
     obj.push_back(Pair("projected money supply 30 days from now (6,720 rate)", ms0 * pow(1 + r7 * 8, 30 / 8)));
     obj.push_back(Pair("projected money supply 30 days from now (28,800 rate)", ms0 * pow(1 + r30 * 8, 30 / 8)));
-    obj.push_back(Pair("projected money supply 365 days from now (using avg of 3 rates)", ms0 * pow (1 + (r1 + r7 +r30) / 3 * 8, 365 / 8)));
+    //obj.push_back(Pair("projected money supply 365 days from now (using avg of 3 rates)", ms0 * pow (1 + (r1 + r7 +r30) / 3 * 8, 365 / 8)));
 	return obj;
 }
 
