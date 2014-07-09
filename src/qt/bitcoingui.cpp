@@ -578,7 +578,7 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
     }
 
     // Set icon state: spinning if catching up, tick otherwise
-    if(secs < 90*60 && count >= nTotalBlocks)
+    if(secs < 60*60*24 && count >= nTotalBlocks) //add more time before syncing is triggered
     {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
         labelBlocksIcon->setPixmap(QIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
