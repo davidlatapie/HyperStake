@@ -3984,7 +3984,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
     int64 nMinTxFee = MIN_TX_FEE;
     if (mapArgs.count("-mintxfee"))
         ParseMoney(mapArgs["-mintxfee"], nMinTxFee);
-
+	
     // ppcoin: if coinstake available add coinstake tx
     static int64 nLastCoinStakeSearchTime = GetAdjustedTime();  // only initialized at startup
     CBlockIndex* pindexPrev = pindexBest;
