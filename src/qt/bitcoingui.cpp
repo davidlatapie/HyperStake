@@ -994,7 +994,7 @@ void BitcoinGUI::updateMintingWeights()
         nWeight = 0;
 
         if (pwalletMain)
-            pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight);
+            pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight);
 
         nNetworkWeight = GetPoSKernelPS();
     }
