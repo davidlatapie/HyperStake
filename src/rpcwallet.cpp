@@ -7,7 +7,10 @@
 #include "walletdb.h"
 #include "bitcoinrpc.h"
 #include "init.h"
+#include "main.h"
 #include "base58.h"
+
+#include <sstream>
 
 using namespace json_spirit;
 using namespace std;
@@ -92,6 +95,89 @@ Value getinfo(const Array& params, bool fHelp)
     return obj;
 }
 
+
+//presstab
+double GetMoneySupply(int nHeight)
+{
+	CBlockIndex* pindex = FindBlockByHeight(nHeight);
+	double nSupply = pindex->nMoneySupply;	
+	return nSupply / COIN;	
+}
+
+//presstab
+double GetSupplyChange(int nHeight, int pHeight)
+{
+	double nSupply = GetMoneySupply(nHeight); //present supply
+	double pSupply = GetMoneySupply(pHeight); //previous supply
+	double nChange = nSupply - pSupply; //difference
+	return nChange;
+}
+
+//presstab
+double GetBlockSpeed(int nHeight, int pHeight)
+{
+	CBlockIndex* pIndex = FindBlockByHeight(nHeight);
+	CBlockIndex* ppIndex = FindBlockByHeight(pHeight);
+	double nTime = pIndex->nTime;
+	double pTime = ppIndex->nTime;
+	double nTimeChange = (nTime - pTime) / 60 / 60 / 24; //in days
+	return nTimeChange;
+}
+
+//presstab
+double GetRate(int nHeight, int pHeight)
+{
+	double nSupplyChange = GetSupplyChange(nHeight, pHeight);
+	double nTimeChange = GetBlockSpeed(nHeight, pHeight);
+	double nMoneySupply = GetMoneySupply(nHeight);
+	double nRate = nSupplyChange / nMoneySupply / nTimeChange;
+	
+	return nRate;
+}
+
+//presstab
+double PredictFutureSupply(int nHeight, int pHeight, int nDays)
+{
+	double nRate = GetRate(nHeight, pHeight);
+	double nSupply = GetMoneySupply(nHeight);
+	double fSupply = nSupply * pow( 1 + nRate, nDays ); //compounds daily
+	
+	return fSupply;
+}
+
+//new rpccommand presstab
+Value getmoneysupply(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+            "getmoneysupply [height]\n"
+            "Returns money supply at certain block, current money supply as default");
+	
+	GetLastBlockIndex(pindexBest, false);
+
+	int nHeight = 0;
+	double nMoneySupply = 0;
+	
+    if (params.size() > 0)
+	{
+		nHeight = pindexBest->nHeight;
+		int pHeight = params[0].get_int();
+		if (pHeight > nHeight || pHeight < 0)
+			nMoneySupply = 0;
+		else
+			nMoneySupply = GetMoneySupply(pHeight);
+	}
+	else
+	{
+		nHeight = pindexBest->nHeight;
+		nMoneySupply = GetMoneySupply(nHeight);
+	}	
+	Object obj;
+	obj.push_back(Pair("money supply", nMoneySupply));
+    return obj;
+}
+
+
 //Presstab's Preferred Money Supply Information
 Value moneysupply(const Array& params, bool fHelp)
 {
@@ -104,65 +190,37 @@ Value moneysupply(const Array& params, bool fHelp)
 	GetLastBlockIndex(pindexBest, false);
 	
 	//height of blocks
-	float h0 = pindexBest->nHeight; //present
-	float h1 = h0 - 960; // day -- 960 blocks should be about 1 day if blocks have 90 sec spacing
-	float h7 = h0 - 960 * 7; // week
-	float h30 = h0 - 960 * 30; // month
+	int64 nHeight = pindexBest->nHeight; //present
+	int64 n1Height = nHeight - 960; // day -- 960 blocks should be about 1 day if blocks have 90 sec spacing
+	int64 n7Height = nHeight - 960 * 7; // week
+	int64 n30Height = nHeight - 960 * 30; // month
+	int64 forkHeight = 31781;
 	
-	//grab block index of past blocks
-	CBlockIndex* dayblockindex = FindBlockByHeight(h1);
-	CBlockIndex* weekblockindex = FindBlockByHeight(h7);
-	CBlockIndex* monthblockindex = FindBlockByHeight(h30);
-	
-	// money supply of blocks
-	float ms0 = pindexBest->nMoneySupply / 1000000;  //divide to convert from min divisible unit to coins
-	float ms1 = dayblockindex->nMoneySupply / 1000000;
-	float ms7 = weekblockindex->nMoneySupply / 1000000;
-	float ms30 = monthblockindex->nMoneySupply / 1000000;
-	
-	// time of blocks
-	float t0 = pindexBest->GetBlockTime();
-	float t1 = dayblockindex->GetBlockTime();
-	float t7 = weekblockindex->GetBlockTime();
-	float t30 = monthblockindex->GetBlockTime();
-	
-	// time change
-	float tc1 = (t0 - t1) / 60 / 60 / 24; // time change in days
-	float tc7 = (t0 - t7) / 60 / 60 / 24; // time change in days
-	float tc30 = (t0 - t30) / 60 / 60 / 24; // time change in days
-	
-	// money supply change 
-	float mc1 = ms0 - ms1;
-	float mc7 = ms0 - ms7;
-	float mc30 = ms0 - ms30;
-	
-	// rates of change
-	float r1 = mc1 / ms0 / tc1; //average daily money supply growth over last 1,440 blocks (~day)
-	float r7 = mc7 / ms0 / tc7; //average daily money supply growth over last 10,080 block (~7 days)
-	float r30 = mc30 / ms0 / tc30; //average daily money supply growth over last 43,200 blocks (~30 days)
-	
+
 	//print to console
 	Object obj;
-	obj.push_back(Pair("moneysupply - present", ms0));
-	obj.push_back(Pair("moneysupply - 960 blocks ago", ms1));
-	obj.push_back(Pair("moneysupply - 6,720 blocks ago", ms7));
-	obj.push_back(Pair("moneysupply - 28,800 blocks ago", ms30));
+	obj.push_back(Pair("moneysupply - present", GetMoneySupply(n1Height)));
+	obj.push_back(Pair("moneysupply - 960 blocks ago", GetMoneySupply(n1Height)));
+	obj.push_back(Pair("moneysupply - 6,720 blocks ago", GetMoneySupply(n1Height)));
+	obj.push_back(Pair("moneysupply - 28,800 blocks ago", GetMoneySupply(n1Height)));
 	
-	obj.push_back(Pair("time change in days (last 960 blocks)", tc1));
-	obj.push_back(Pair("time change in days (last 6,720 blocks)", tc7));
-	obj.push_back(Pair("time change in days (last 28,800 blocks)", tc30));
+	obj.push_back(Pair("supply change(last 960 blocks)", GetSupplyChange(nHeight, n1Height)));
+	obj.push_back(Pair("supply change(last 6,720 blocks)", GetSupplyChange(nHeight, n7Height)));
+	obj.push_back(Pair("supply change(last 28,800 blocks)", GetSupplyChange(nHeight, n30Height)));
+	obj.push_back(Pair("supply change since fork (block 31781)", GetSupplyChange(nHeight, forkHeight - 1)));
 	
-	obj.push_back(Pair("ms change (last 960 blocks)", mc1));
-	obj.push_back(Pair("ms change (last 6,720 blocks)", mc7));
-	obj.push_back(Pair("ms change (last 28,800 blocks)", mc30));
+	obj.push_back(Pair("time change over 960 blocks", GetBlockSpeed(nHeight, n1Height)));
+	obj.push_back(Pair("time change over 6,720 blocks", GetBlockSpeed(nHeight, n7Height)));
+	obj.push_back(Pair("time change over 28,800 blocks", GetBlockSpeed(nHeight, n30Height)));
 	
-	obj.push_back(Pair("avg daily rate of change (last 960 blocks)", r1));
-	obj.push_back(Pair("avg daily rate of change (last 6,720 blocks)", r7));
-	obj.push_back(Pair("avg daily rate of change (last 28,800 blocks)", r30));
+	obj.push_back(Pair("avg daily rate of change (last 960 blocks)", GetRate(nHeight, n1Height)));
+	obj.push_back(Pair("avg daily rate of change (last 6,720 blocks)", GetRate(nHeight, n7Height)));
+	obj.push_back(Pair("avg daily rate of change (last 28,800 blocks)", GetRate(nHeight, n30Height)));
 	
-    obj.push_back(Pair("projected money supply 30 days from now (960 rate)", ms0 * pow(1 + r1 * 8, 30 / 8)));
-    obj.push_back(Pair("projected money supply 30 days from now (6,720 rate)", ms0 * pow(1 + r7 * 8, 30 / 8)));
-    obj.push_back(Pair("projected money supply 30 days from now (28,800 rate)", ms0 * pow(1 + r30 * 8, 30 / 8)));
+    obj.push_back(Pair("projected money supply 1 day from now (daily compound)", PredictFutureSupply(nHeight, n1Height, 1)));
+    obj.push_back(Pair("projected money supply 7 days from now (daily compound)", PredictFutureSupply(nHeight, n7Height, 7)));
+    obj.push_back(Pair("projected money supply 30  days from now (daily compound)", PredictFutureSupply(nHeight, n30Height, 30)));
+	
     //obj.push_back(Pair("projected money supply 365 days from now (using avg of 3 rates)", ms0 * pow (1 + (r1 + r7 +r30) / 3 * 8, 365 / 8)));
 	return obj;
 }
