@@ -199,10 +199,10 @@ Value moneysupply(const Array& params, bool fHelp)
 
 	//print to console
 	Object obj;
-	obj.push_back(Pair("moneysupply - present", GetMoneySupply(n1Height)));
+	obj.push_back(Pair("moneysupply - present", GetMoneySupply(nHeight)));
 	obj.push_back(Pair("moneysupply - 960 blocks ago", GetMoneySupply(n1Height)));
-	obj.push_back(Pair("moneysupply - 6,720 blocks ago", GetMoneySupply(n1Height)));
-	obj.push_back(Pair("moneysupply - 28,800 blocks ago", GetMoneySupply(n1Height)));
+	obj.push_back(Pair("moneysupply - 6,720 blocks ago", GetMoneySupply(n7Height)));
+	obj.push_back(Pair("moneysupply - 28,800 blocks ago", GetMoneySupply(n30Height)));
 	
 	obj.push_back(Pair("supply change(last 960 blocks)", GetSupplyChange(nHeight, n1Height)));
 	obj.push_back(Pair("supply change(last 6,720 blocks)", GetSupplyChange(nHeight, n7Height)));
