@@ -315,6 +315,16 @@ void WalletModel::getStakeWeightFromValue(const int64& nTime, const int64& nValu
 	wallet->GetStakeWeightFromValue(nTime, nValue, nWeight);
 }
 
+void WalletModel::checkWallet(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound)
+{
+	wallet->FixSpentCoins(nMismatchSpent, nBalanceInQuestion, nOrphansFound, true);
+}
+
+void WalletModel::repairWallet(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound)
+{
+	wallet->FixSpentCoins(nMismatchSpent, nBalanceInQuestion, nOrphansFound);
+}
+
 // Handlers for core signals
 static void NotifyKeyStoreStatusChanged(WalletModel *walletmodel, CCryptoKeyStore *wallet)
 {
