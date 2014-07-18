@@ -1005,22 +1005,22 @@ void BitcoinGUI::updateMintingIcon()
 {
     if (pwalletMain && pwalletMain->IsLocked())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is locked."));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1").arg(nNetworkWeight));
         labelMintingIcon->setEnabled(false);
     }
     else if (vNodes.empty())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is offline."));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1").arg(nNetworkWeight));
         labelMintingIcon->setEnabled(false);
     }
     else if (IsInitialBlockDownload())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing."));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1").arg(nNetworkWeight));
         labelMintingIcon->setEnabled(false);
     }
     else if (!nWeight)
     {
-        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins."));
+        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Network weight is %1").arg(nNetworkWeight));
         labelMintingIcon->setEnabled(false);
     }
     else if (nLastCoinStakeSearchInterval)
