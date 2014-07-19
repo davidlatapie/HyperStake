@@ -444,6 +444,54 @@ Value sendtoaddress(const Array& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+
+Value splitblock(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 3 || params.size() > 3)
+        throw runtime_error(
+		"splitblock <HyperStakeaddress> <amount> <howmanyblocks>\n"
+            "<amount> is a real and is rounded to the nearest 0.000001"
+            + HelpRequiringPassphrase());
+
+    CBitcoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake address");
+
+    // Amount
+	double dAmount = params[1].get_real();
+	double dBlocks = params[2].get_real();
+	dAmount = dAmount / dBlocks;
+    int64 nAmount = roundint64(dAmount * COIN);
+
+    if (nAmount < MIN_TXOUT_AMOUNT)
+        throw JSONRPCError(-101, "Send amount too small");
+
+    // Wallet transaction
+    
+	/*
+	vector<CBitcoinAddress> vecAddress; //vector containing the single address that will be sent to
+	
+	for(int nIndex = 0; nIndex < dBlocks; ++nIndex)
+	{
+		vecAddress.push_back (address.Get());
+	}*/
+
+    //if (pwalletMain->IsLocked())
+      //  throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+	
+	
+	for(int nIndex = 0; nIndex < dBlocks; ++nIndex)
+	{
+	CWalletTx wtx;
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+    if (strError != "")
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+	}
+	
+    return nAmount;
+}
+
+
 Value listaddressgroupings(const Array& params, bool fHelp)
 {
     if (fHelp)
