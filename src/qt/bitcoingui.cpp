@@ -882,12 +882,12 @@ void BitcoinGUI::checkWallet()
     walletModel->checkWallet(nMismatchSpent, nBalanceInQuestion, nOrphansFound);
 
     if (nMismatchSpent == 0 && nOrphansFound == 0)
-        QString strMessage =
+        notificator->notify(Notificator::Warning,
 		tr("Check Wallet Information"),
                 tr("Wallet passed integrity test!\n"
-                   "Nothing found to fix.");
+                   "Nothing found to fix."));
   else
-		notificator->notify(Notificator::Warning, //tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid HyperStake address or malformed URI parameters."));
+		notificator->notify(Notificator::Warning, 
 			tr("Check Wallet Information"), tr("Wallet failed integrity test!\n\n"
                   "Mismatched coin(s) found: %1.\n"
                   "Amount in question: %2.\n"
