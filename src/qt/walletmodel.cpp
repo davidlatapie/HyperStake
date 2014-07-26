@@ -310,6 +310,19 @@ bool WalletModel::backupWallet(const QString &filename)
     return BackupWallet(*wallet, filename.toLocal8Bit().data());
 }
 
+int WalletModel::getStakeForCharityPercent()
+{
+	return wallet->nStakeForCharityPercent;
+}
+
+QString WalletModel::getStakeForCharityAddress()
+{
+	if (!wallet->StakeForCharityAddress.IsValid())
+		return "Not Saving";
+	else
+		return wallet->StakeForCharityAddress.ToString().c_str();
+}
+
 void WalletModel::getStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight)
 {
 	wallet->GetStakeWeightFromValue(nTime, nValue, nWeight);

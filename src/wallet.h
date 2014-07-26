@@ -85,7 +85,10 @@ public:
 
     bool fFileBacked;
     std::string strWalletFile;
-
+	bool fStakeForCharity;
+	int nStakeForCharityPercent;
+	CBitcoinAddress StakeForCharityAddress;
+	
     std::set<int64> setKeyPool;
 
 
@@ -101,6 +104,9 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
+		fStakeForCharity = false;
+        nStakeForCharityPercent = 0;
+        StakeForCharityAddress = "";
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -111,6 +117,9 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
+		fStakeForCharity = false;
+        nStakeForCharityPercent = 0;
+        StakeForCharityAddress = "";
     }
 
     std::map<uint256, CWalletTx> mapWallet;
@@ -175,6 +184,7 @@ public:
     int64 GetImmatureBalance() const;
     int64 GetStake() const;
     int64 GetNewMint() const;
+	bool StakeForCharity();
     bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, const CCoinControl *coinControl=NULL);
     bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, const CCoinControl *coinControl=NULL);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
@@ -182,8 +192,8 @@ public:
 	bool GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight);
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64 nSearchInterval, CTransaction& txNew);
 	bool GetStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight);
-    std::string SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
-    std::string SendMoneyToDestination(const CTxDestination &address, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
+    std::string SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false, bool fAllowStakeForCharity=false);
+    std::string SendMoneyToDestination(const CTxDestination &address, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false, bool fAllowStakeForCharity=false);
 
     bool NewKeyPool();
     bool TopUpKeyPool();

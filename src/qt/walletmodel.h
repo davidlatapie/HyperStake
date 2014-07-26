@@ -100,6 +100,9 @@ public:
 	void repairWallet(int& nMismatchSpent, qint64& nBalanceInQuestion, int& nOrphansFound);
 	//Stake Weight for coin control dialog
 	void getStakeWeightFromValue(const qint64& nTime, const qint64& nValue, quint64& nWeight);
+	//Wallet Information about StakeForCharity
+	int getStakeForCharityPercent();
+	QString getStakeForCharityAddress();
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
     {
