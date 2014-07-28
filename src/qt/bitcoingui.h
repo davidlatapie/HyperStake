@@ -110,6 +110,7 @@ private:
     uint64 nMinMax;
     uint64 nWeight;
     uint64 nNetworkWeight;
+	uint64 nHoursToMaturity;
 
     /** Create the main UI actions. */
     void createActions();

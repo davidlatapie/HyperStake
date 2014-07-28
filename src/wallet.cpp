@@ -1478,11 +1478,12 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint
 }
 
 //This is added for informational purposes since staking takes 8.8 days min approx. because of bug
-bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight)
+bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nHoursToMaturity)
 {
     // Choose coins to use
     int64 nBalance = GetBalance();
-
+	
+	
     int64 nReserveBalance = 0;
     if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
         return error("CreateCoinStake : invalid reserve balance amount");
@@ -1498,7 +1499,11 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 
     if (setCoins.empty())
         return false;
-
+	
+	// variables for next stake calculation
+	uint64 nPrevAge = 0;
+	uint64 nStakeAge = 60 * 60 * 24 * 88 / 10;
+	
     CTxDB txdb("r");
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
@@ -1508,7 +1513,14 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
             if (!txdb.ReadTxIndex(pcoin.first->GetHash(), txindex))
                 continue;
         }
-
+		
+		// Time Until Next Maturity
+		uint64 nCurrentAge = (int64)GetTime() - (int64)pcoin.first->nTime;
+		if (nCurrentAge > nPrevAge)
+		{
+			nPrevAge = nCurrentAge;
+			nHoursToMaturity = ((nStakeAge - nPrevAge) / 60 / 60) + 1;
+		}
         int64 nTimeWeight = GetWeight2((int64)pcoin.first->nTime, (int64)GetTime());
         CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
 

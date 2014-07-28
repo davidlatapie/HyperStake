@@ -162,7 +162,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     timerMintingWeights->start(30 * 1000);
     connect(timerMintingWeights, SIGNAL(timeout()), this, SLOT(updateMintingWeights()));
     // Set initial values for user and network weights
-    nWeight, nNetworkWeight = 0;
+    nWeight, nHoursToMaturity, nNetworkWeight = 0;
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -1047,7 +1047,7 @@ void BitcoinGUI::updateMintingIcon()
     }
     else if (!nWeight)
     {
-        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Network weight is %1").arg(nNetworkWeight));
+        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1").arg(nNetworkWeight).arg(nHoursToMaturity));
         labelMintingIcon->setEnabled(false);
     }
     else if (nLastCoinStakeSearchInterval)
@@ -1090,7 +1090,7 @@ void BitcoinGUI::updateMintingWeights()
         nWeight = 0;
 
         if (pwalletMain)
-            pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight);
+            pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
 
         nNetworkWeight = GetPoSKernelPS();
     }
