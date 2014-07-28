@@ -10,6 +10,8 @@
 #include "main.h"
 #include "init.h"
 
+#include <QMessageBox>
+
 charityDialog::charityDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::charityDialog)
@@ -29,30 +31,30 @@ void charityDialog::setModel(ClientModel *model)
 
 void charityDialog::on_buttonBox_accepted()
 {
+    QMessageBox msgBox;
     CBitcoinAddress address = ui->charityAddressEdit->text().toStdString();
+    QString str = ui->charityPercentEdit->text();
+    bool fIntConversion;
+    unsigned int nCharityPercent = str.toInt(&fIntConversion, 10);
+
 
                    if (!address.IsValid())
                    {
-                       //notificator->notify(Notificator::Warning, tr("Invalid HyperStake address"));
-                       close();
+                       msgBox.setText("Invalid HyperStake address");
+                       msgBox.exec();
+                       return;
                    }
-
-
-                    QString str = ui->charityPercentEdit->text();
-                    bool fIntConversion;
-                    unsigned int nCharityPercent = str.toInt(&fIntConversion, 10);
-
-                   //if (nCharityPercent < 0)
-                 //  {
-                   //notificator->notify(Notificator::Warning, tr("Invalid parameter, expected valid percentage"));
-                 //  close();
-              //     }
-
-
+                   if (nCharityPercent < 1)
+                   {
+                        msgBox.setText("Invalid parameter, expected valid percentage");
+                        msgBox.exec();
+                        return;
+                   }
                    if (pwalletMain->IsLocked())
                    {
-                      // notificator->notify(Notificator::Warning, tr("Error: Please enter the wallet passphrase with walletpassphrase first."));
-                       close();
+                       msgBox.setText("Error: Please enter the wallet passphrase with walletpassphrase first.");
+                       msgBox.exec();
+                       return;
                    }
 
                    //Turn off if we set to zero.
@@ -62,9 +64,12 @@ void charityDialog::on_buttonBox_accepted()
                        pwalletMain->fStakeForCharity = false;
                        pwalletMain->StakeForCharityAddress = "";
                        pwalletMain->nStakeForCharityPercent = 0;
-                      // notificator->notify(Notificator::Warning, tr("0 Percent Selected, void"));
-                       close();
+
+                       msgBox.setText("0 Percent Selected, void");
+                       msgBox.exec();
+                       return;
                    }
+
 
                    //For now max percentage is 50.
                    if (nCharityPercent > 50 )
@@ -74,7 +79,8 @@ void charityDialog::on_buttonBox_accepted()
                    pwalletMain->nStakeForCharityPercent = nCharityPercent;
                    pwalletMain->fStakeForCharity = true;
 
-                  // notificator->notify(Notificator::Warning, tr("Stake For Charity Set"));
+                   msgBox.setText("Stake For Charity Set");
+                   msgBox.exec();
                    close();
 }
 
