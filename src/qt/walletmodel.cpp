@@ -318,7 +318,7 @@ int WalletModel::getStakeForCharityPercent()
 QString WalletModel::getStakeForCharityAddress()
 {
 	if (!wallet->StakeForCharityAddress.IsValid())
-		return "Not Saving";
+		return "Not Set";
 	else
 		return wallet->StakeForCharityAddress.ToString().c_str();
 }

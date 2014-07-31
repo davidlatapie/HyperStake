@@ -111,6 +111,8 @@ private:
     uint64 nWeight;
     uint64 nNetworkWeight;
 	uint64 nHoursToMaturity;
+	int nCharityPercent;
+	QString strCharityAddress;
 
     /** Create the main UI actions. */
     void createActions();

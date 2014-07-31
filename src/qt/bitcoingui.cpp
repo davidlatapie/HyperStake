@@ -1032,22 +1032,22 @@ void BitcoinGUI::updateMintingIcon()
 {
     if (pwalletMain && pwalletMain->IsLocked())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1").arg(nNetworkWeight));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
     }
     else if (vNodes.empty())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1").arg(nNetworkWeight));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
     }
     else if (IsInitialBlockDownload())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1").arg(nNetworkWeight));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
     }
     else if (!nWeight)
     {
-        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1").arg(nNetworkWeight).arg(nHoursToMaturity));
+        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1<br>S4C %: %3<br>S4C Address: %4").arg(nNetworkWeight).arg(nHoursToMaturity).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
     }
     else if (nLastCoinStakeSearchInterval)
@@ -1073,7 +1073,7 @@ void BitcoinGUI::updateMintingIcon()
         }
 
         labelMintingIcon->setEnabled(true);
-        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br>Expected time to earn reward is %3.").arg(nWeight).arg(nNetworkWeight).arg(text));
+        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br>Expected time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
     }
     else
     {
@@ -1088,10 +1088,15 @@ void BitcoinGUI::updateMintingWeights()
     if ((clientModel && clientModel->getNumBlocks() == clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
     {
         nWeight = 0;
-
+		nCharityPercent = 0;
+		
         if (pwalletMain)
-            pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
+			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
 			
+		nCharityPercent = walletModel->getStakeForCharityPercent();
+		strCharityAddress = walletModel->getStakeForCharityAddress();
+		
+		
 		if (nHoursToMaturity > 212)
 			nHoursToMaturity = 0;
         nNetworkWeight = GetPoSKernelPS();
