@@ -1052,7 +1052,7 @@ void BitcoinGUI::updateMintingIcon()
     }
     else if (nLastCoinStakeSearchInterval)
     {
-        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight;
+        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
 
         QString text;
         if (nEstimateTime < 60)
