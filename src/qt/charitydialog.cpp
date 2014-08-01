@@ -88,3 +88,15 @@ void charityDialog::on_buttonBox_rejected()
 {
     close();
 }
+
+void charityDialog::on_pushButton_clicked()
+{
+    QMessageBox msgBox;
+    pwalletMain->fStakeForCharity = false;
+    pwalletMain->StakeForCharityAddress = "";
+    pwalletMain->nStakeForCharityPercent = 0;
+
+    msgBox.setText("Stake For Charity Disabled");
+    msgBox.exec();
+
+}
