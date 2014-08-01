@@ -159,7 +159,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(timerMintingIcon, SIGNAL(timeout()), this, SLOT(updateMintingIcon()));
     // Add timer to update minting weights
     QTimer *timerMintingWeights = new QTimer(labelMintingIcon);
-    timerMintingWeights->start(30 * 1000);
+    timerMintingWeights->start(MODEL_UPDATE_DELAY);
     connect(timerMintingWeights, SIGNAL(timeout()), this, SLOT(updateMintingWeights()));
     // Set initial values for user and network weights
     nWeight, nHoursToMaturity, nNetworkWeight = 0;

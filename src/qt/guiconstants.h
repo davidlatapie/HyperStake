@@ -2,7 +2,7 @@
 #define GUICONSTANTS_H
 
 /* Milliseconds between model updates */
-static const int MODEL_UPDATE_DELAY = 30; //update every 30 seconds
+static const int MODEL_UPDATE_DELAY = 30 * 1000; //update every 30 seconds
 
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
