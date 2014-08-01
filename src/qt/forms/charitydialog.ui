@@ -32,9 +32,9 @@
   <widget class="QLineEdit" name="charityPercentEdit">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>10</x>
      <y>190</y>
-     <width>171</width>
+     <width>231</width>
      <height>20</height>
     </rect>
    </property>
@@ -45,11 +45,16 @@
   <widget class="QLineEdit" name="charityAddressEdit">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>10</x>
      <y>220</y>
-     <width>171</width>
+     <width>231</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>7</pointsize>
+    </font>
    </property>
    <property name="placeholderText">
     <string>Enter Address to Send to</string>
