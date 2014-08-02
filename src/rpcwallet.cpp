@@ -1502,9 +1502,9 @@ Value getstaketx(const Array& params, bool fHelp)
 				double dDaysToStake = nTimeToStake / 60.00 / 60 / 24;
 				
 				//entry.push_back(Pair("txid", txin.prevout.hash.GetHex())); previous txid - not necessary to display right now
-				entry.push_back(Pair("stake tx time", nTime));
-				entry.push_back(Pair("previous time", nPrevTime));
-				entry.push_back(Pair("days to stake", dDaysToStake));
+				entry.push_back(Pair("Stake TX Time", nTime));
+				entry.push_back(Pair("Previous Time", nPrevTime));
+				entry.push_back(Pair("Days To Stake", dDaysToStake));
 
 				int64 nDebit = wtx.GetDebit();
 				int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
