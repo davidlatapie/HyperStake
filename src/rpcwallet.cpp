@@ -1471,6 +1471,61 @@ Value listsinceblock(const Array& params, bool fHelp)
     return ret;
 }
 
+Value getstaketx(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getstaketx <txid>\n"
+            "Get detailed information about a specific stake <txid>");
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+
+    Object entry;
+	Array vin;
+
+    if (pwalletMain->mapWallet.count(hash))
+    {
+        const CWalletTx& wtx = pwalletMain->mapWallet[hash];
+		
+		 BOOST_FOREACH(const CTxIn& txin, wtx.vin)
+		{
+			Object in;
+			if (wtx.IsCoinBase())
+				entry.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
+			else
+			{
+				CTransaction& txPrev = pwalletMain->mapWallet[txin.prevout.hash]; //first transaction
+				uint64 nTime = wtx.nTime; //stake tx time
+				uint64 nPrevTime = txPrev.nTime; //previous tx time
+				uint64 nTimeToStake = nTime - nPrevTime; // time to stake in seconds
+				double dDaysToStake = nTimeToStake / 60.00 / 60 / 24;
+				
+				//entry.push_back(Pair("txid", txin.prevout.hash.GetHex())); previous txid - not necessary to display right now
+				entry.push_back(Pair("stake tx time", nTime));
+				entry.push_back(Pair("previous time", nPrevTime));
+				entry.push_back(Pair("days to stake", dDaysToStake));
+
+				int64 nDebit = wtx.GetDebit();
+				int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
+				
+				int64 nGeneratedImmature, nGeneratedMature, nFee2;
+				string strSentAccount;
+				list<pair<CTxDestination, int64> > listReceived;
+				list<pair<CTxDestination, int64> > listSent;
+				wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount);
+				uint64 nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
+				
+				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
+				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
+				entry.push_back(Pair("Total New Amount", ValueFromAmount(nGeneratedAmount)));
+				entry.push_back(Pair("Size of Each New Block", ValueFromAmount(nGeneratedAmount/2)));
+			}
+		}
+    }
+    return entry;
+}
+
 Value gettransaction(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
