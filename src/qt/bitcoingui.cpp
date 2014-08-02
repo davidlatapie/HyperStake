@@ -159,7 +159,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(timerMintingIcon, SIGNAL(timeout()), this, SLOT(updateMintingIcon()));
     // Add timer to update minting weights
     QTimer *timerMintingWeights = new QTimer(labelMintingIcon);
-    timerMintingWeights->start(30 * 1000);
+    timerMintingWeights->start(1 * 1000);
     connect(timerMintingWeights, SIGNAL(timeout()), this, SLOT(updateMintingWeights()));
     // Set initial values for user and network weights
     nWeight, nHoursToMaturity, nNetworkWeight = 0;
@@ -1092,10 +1092,11 @@ void BitcoinGUI::updateMintingWeights()
 		
         if (pwalletMain)
 			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
-			
+		if(walletModel)
+		{
 		nCharityPercent = walletModel->getStakeForCharityPercent();
 		strCharityAddress = walletModel->getStakeForCharityAddress();
-		
+		}
 		
 		if (nHoursToMaturity > 212)
 			nHoursToMaturity = 0;
