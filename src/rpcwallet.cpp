@@ -1496,9 +1496,9 @@ Value getstaketx(const Array& params, bool fHelp)
 			else
 			{
 				CTransaction& txPrev = pwalletMain->mapWallet[txin.prevout.hash]; //first transaction
-				uint64 nTime = wtx.nTime; //stake tx time
-				uint64 nPrevTime = txPrev.nTime; //previous tx time
-				uint64 nTimeToStake = nTime - nPrevTime; // time to stake in seconds
+				uint64_t nTime = wtx.nTime; //stake tx time
+				uint64_t nPrevTime = txPrev.nTime; //previous tx time
+				uint64_t nTimeToStake = nTime - nPrevTime; // time to stake in seconds
 				double dDaysToStake = nTimeToStake / 60.00 / 60 / 24;
 				
 				//entry.push_back(Pair("txid", txin.prevout.hash.GetHex())); previous txid - not necessary to display right now
@@ -1514,7 +1514,7 @@ Value getstaketx(const Array& params, bool fHelp)
 				list<pair<CTxDestination, int64> > listReceived;
 				list<pair<CTxDestination, int64> > listSent;
 				wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount);
-				uint64 nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
+				uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
 				
 				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
 				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
