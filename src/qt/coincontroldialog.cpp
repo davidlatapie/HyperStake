@@ -104,13 +104,14 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     // (un)select all
     connect(ui->pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(buttonSelectAllClicked()));
 
-    ui->treeWidget->setColumnWidth(COLUMN_CHECKBOX, 84);
+    ui->treeWidget->setColumnWidth(COLUMN_CHECKBOX, 45);
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
-	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 100);
-	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 100);
-    ui->treeWidget->setColumnWidth(COLUMN_LABEL, 170);
-    ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 290);
-    ui->treeWidget->setColumnWidth(COLUMN_DATE, 110);
+	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 80);
+	ui->treeWidget->setColumnWidth(COLUMN_AGE, 50);
+	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 75);
+    ui->treeWidget->setColumnWidth(COLUMN_LABEL, 125);
+    ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 275);
+    ui->treeWidget->setColumnWidth(COLUMN_DATE, 100);
     ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
     ui->treeWidget->setColumnHidden(COLUMN_TXHASH, true);         // store transacton hash in this column, but dont show it
     ui->treeWidget->setColumnHidden(COLUMN_VOUT_INDEX, true);     // store vout index in this column, but dont show it
@@ -698,6 +699,10 @@ void CoinControlDialog::updateView()
             
 			// List Mode Weight
 			itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nTxWeight), 8, " "));
+			
+			// Age
+			float age = (GetTime() - out.tx->GetTxTime()) / (float)(1440 * 60);
+			itemOutput->setText(COLUMN_AGE, QString::number(age, 'g', 3));
 			
             // transaction hash
             uint256 txhash = out.tx->GetHash();
