@@ -1092,14 +1092,17 @@ void BitcoinGUI::updateMintingWeights()
 		
         if (pwalletMain)
 			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
-		if(walletModel)
-		{
-		nCharityPercent = walletModel->getStakeForCharityPercent();
-		strCharityAddress = walletModel->getStakeForCharityAddress();
-		}
 		
 		if (nHoursToMaturity > 212)
 			nHoursToMaturity = 0;
         nNetworkWeight = GetPoSKernelPS();
     }
+	
+	//stake for charity check
+	if(walletModel)
+	{
+		nCharityPercent = walletModel->getStakeForCharityPercent();
+		strCharityAddress = walletModel->getStakeForCharityAddress();
+	}
+		
 }
