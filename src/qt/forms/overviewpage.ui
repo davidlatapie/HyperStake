@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>OverviewPage</class>
+ 
  <widget class="QWidget" name="OverviewPage">
+ 
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -72,6 +74,9 @@
           </item>
          </layout>
         </item>
+		
+		
+		
         <item>
          <layout class="QFormLayout" name="formLayout_2">
           <property name="fieldGrowthPolicy">

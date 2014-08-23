@@ -127,7 +127,7 @@ Value getblockcount(const Array& params, bool fHelp)
     return nBestHeight;
 }
 
-
+//comment
 Value getdifficulty(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
