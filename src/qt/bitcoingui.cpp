@@ -98,15 +98,15 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     // Create the toolbars
     createToolBars();
 
-    // Create the tray icon (or setup the dock icon)
+    // Create the tray icon (or setup the dock icon) abffaaassffffa
     createTrayIcon();
 	
 	QPalette p;
-	p.setColor(QPalette::Window, QColor(0x22, 0x22, 0x22));
-	p.setColor(QPalette::Button, QColor(0x22, 0x22, 0x22));
-	p.setColor(QPalette::Mid, QColor(0x22, 0x22, 0x22));
-	p.setColor(QPalette::Base, QColor(0x22, 0x22, 0x22));
-	p.setColor(QPalette::AlternateBase, QColor(0x22, 0x22, 0x22));
+	p.setColor(QPalette::Window, QColor(0x17, 0x63, 0x82));
+	p.setColor(QPalette::Button, QColor(0x17, 0x63, 0x82));
+	p.setColor(QPalette::Mid, QColor(0x17, 0x63, 0x82));
+	p.setColor(QPalette::Base, QColor(0x17, 0x63, 0x82));
+	p.setColor(QPalette::AlternateBase, QColor(0x17, 0x63, 0x82));
 	setPalette(p);
 	QFile style(":/text/res/text/style.qss");
 	style.open(QFile::ReadOnly);
@@ -242,13 +242,13 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send coins"), this);
+    sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send"), this);
     sendCoinsAction->setToolTip(tr("Send coins to a HyperStake address"));
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(sendCoinsAction);
 
-    receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive coins"), this);
+    receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setToolTip(tr("Show the list of addresses for receiving payments"));
     receiveCoinsAction->setCheckable(true);
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
