@@ -382,7 +382,7 @@
         <height>41</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0,0,0,0">
        <property name="spacing">
         <number>14</number>
        </property>
@@ -431,9 +431,12 @@
        <item>
         <widget class="QPushButton" name="pushButtonCustomCC">
          <property name="text">
-          <string>Select Coins Less Than</string>
+          <string>Select Coins</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="QComboBoxFilterCoins"/>
        </item>
        <item>
         <widget class="QLineEdit" name="lineEditCustomCC">

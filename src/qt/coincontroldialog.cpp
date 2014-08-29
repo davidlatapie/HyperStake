@@ -7,6 +7,7 @@
 #include "addresstablemodel.h"
 #include "optionsmodel.h"
 #include "coincontrol.h"
+#include "qcomboboxfiltercoins.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -123,6 +124,14 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
 
     // default view is sorted by amount desc
     sortView(COLUMN_CONFIRMATIONS, Qt::DescendingOrder);
+	
+	// combo box to select coin filter
+	ui->QComboBoxFilterCoins->addItem("< Amount");
+	ui->QComboBoxFilterCoins->addItem("> Amount");
+	ui->QComboBoxFilterCoins->addItem("< Weight");
+	ui->QComboBoxFilterCoins->addItem("> Weight");
+	ui->QComboBoxFilterCoins->addItem("> Age");
+	ui->QComboBoxFilterCoins->addItem("< Age");
 }
 
 CoinControlDialog::~CoinControlDialog()
@@ -181,43 +190,98 @@ void CoinControlDialog::buttonSelectAllClicked()
 void CoinControlDialog::customSelectCoins()
 {
 	QString strUserAmount = ui->lineEditCustomCC->text();
-	double dUserAmount = QString(strUserAmount).toDouble();
+	QString strComboText = ui->QComboBoxFilterCoins->currentText();
 	
+	double dUserAmount = QString(strUserAmount).toDouble();
 	bool treeMode = ui->radioTreeMode->isChecked();
 	
-	QFlags<Qt::ItemFlag> flgCheckbox=Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+	
+		QFlags<Qt::ItemFlag> flgCheckbox=Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
         
-    map<QString, vector<COutput> > mapCoins;
-    model->listCoins(mapCoins);
+		map<QString, vector<COutput> > mapCoins;
+		model->listCoins(mapCoins);
 
-    BOOST_FOREACH(PAIRTYPE(QString, vector<COutput>) coins, mapCoins)
-    {
-        QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
+		BOOST_FOREACH(PAIRTYPE(QString, vector<COutput>) coins, mapCoins)
+		{
+			QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
 		
-		QTreeWidgetItem *itemOutput;
-        if (treeMode)    itemOutput = new QTreeWidgetItem(itemWalletAddress);
-        else             itemOutput = new QTreeWidgetItem(ui->treeWidget);
-        itemOutput->setFlags(flgCheckbox);
-        itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Unchecked);
-		
-        BOOST_FOREACH(const COutput& out, coins.second)
-        {
-			// transaction hash
-            uint256 txhash = out.tx->GetHash();
+			QTreeWidgetItem *itemOutput;
+			if (treeMode)    itemOutput = new QTreeWidgetItem(itemWalletAddress);
+			else             itemOutput = new QTreeWidgetItem(ui->treeWidget);
+			itemOutput->setFlags(flgCheckbox);
+			itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Unchecked);
+			BOOST_FOREACH(const COutput& out, coins.second)
+			{
+				// transaction hash
+				uint256 txhash = out.tx->GetHash();
 			
-			//Getting the coin amount
-			double nCoinAmount = out.tx->vout[out.i].nValue;
+				//Getting the coin amount
+				double dCoinAmount = out.tx->vout[out.i].nValue;
+					
+				//Coin Weight
+				uint64 nTxWeight = 0;
+				model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight);
+					
+				//Age
+				double dAge = (GetTime() - out.tx->GetTxTime()) / (double)(1440 * 60);
 			
-			//selecting the coins
-			if ((nCoinAmount) < dUserAmount * COIN)
-			{			
-					COutPoint outpt(txhash, out.i);
-					coinControl->Select(outpt);
-					itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
-			}	
-        }
-	}
-	CoinControlDialog::updateLabels(model, this);
+				//selecting the coins
+				if (strComboText == "< Amount")
+				{
+					if (dCoinAmount < dUserAmount * COIN)
+					{			
+						COutPoint outpt(txhash, out.i);
+						coinControl->Select(outpt);
+						itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+					}	
+				}
+				else if (strComboText == "> Amount")
+				{
+					if (dCoinAmount > dUserAmount * COIN)
+					{			
+						COutPoint outpt(txhash, out.i);
+						coinControl->Select(outpt);
+						itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+					}
+				}
+				else if (strComboText == "< Weight")
+				{
+					if (nTxWeight < dUserAmount)
+					{			
+						COutPoint outpt(txhash, out.i);
+						coinControl->Select(outpt);
+						itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+					}
+				}
+				else if (strComboText == "> Weight")
+				{
+					if (nTxWeight > dUserAmount)
+					{			
+						COutPoint outpt(txhash, out.i);
+						coinControl->Select(outpt);
+						itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+					}
+				}
+				else if (strComboText == "< Age")
+				{
+					if (dAge < dUserAmount)
+					{			
+						COutPoint outpt(txhash, out.i);
+						coinControl->Select(outpt);
+						itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+					}
+				}
+				else if (strComboText == "> Age")
+				{
+					if (dAge > dUserAmount)
+					{			
+						COutPoint outpt(txhash, out.i);
+						coinControl->Select(outpt);
+						itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+					}
+				}
+			}
+		}	
 	updateView();
 }
 
