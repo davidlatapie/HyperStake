@@ -104,6 +104,9 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     // (un)select all
     connect(ui->pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(buttonSelectAllClicked()));
 
+	// custom Coin Control Selection Button (select less than)
+    connect(ui->pushButtonCustomCC, SIGNAL(clicked()), this, SLOT(customSelectCoins()));
+	
     ui->treeWidget->setColumnWidth(COLUMN_CHECKBOX, 45);
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
 	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 80);
@@ -174,6 +177,50 @@ void CoinControlDialog::buttonSelectAllClicked()
     ui->treeWidget->setEnabled(true);
     CoinControlDialog::updateLabels(model, this);
 }
+
+void CoinControlDialog::customSelectCoins()
+{
+	QString strUserAmount = ui->lineEditCustomCC->text();
+	double dUserAmount = QString(strUserAmount).toDouble();
+	
+	bool treeMode = ui->radioTreeMode->isChecked();
+	
+	QFlags<Qt::ItemFlag> flgCheckbox=Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        
+    map<QString, vector<COutput> > mapCoins;
+    model->listCoins(mapCoins);
+
+    BOOST_FOREACH(PAIRTYPE(QString, vector<COutput>) coins, mapCoins)
+    {
+        QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
+		
+		QTreeWidgetItem *itemOutput;
+        if (treeMode)    itemOutput = new QTreeWidgetItem(itemWalletAddress);
+        else             itemOutput = new QTreeWidgetItem(ui->treeWidget);
+        itemOutput->setFlags(flgCheckbox);
+        itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Unchecked);
+		
+        BOOST_FOREACH(const COutput& out, coins.second)
+        {
+			// transaction hash
+            uint256 txhash = out.tx->GetHash();
+			
+			//Getting the coin amount
+			double nCoinAmount = out.tx->vout[out.i].nValue;
+			
+			//selecting the coins
+			if ((nCoinAmount) < dUserAmount * COIN)
+			{			
+					COutPoint outpt(txhash, out.i);
+					coinControl->Select(outpt);
+					itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
+			}	
+        }
+	}
+	CoinControlDialog::updateLabels(model, this);
+	updateView();
+}
+
 
 // context menu
 void CoinControlDialog::showMenu(const QPoint &point)
