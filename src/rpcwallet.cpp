@@ -1508,16 +1508,20 @@ Value getstaketx(const Array& params, bool fHelp)
 
 				int64 nDebit = wtx.GetDebit();
 				int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
-				
+
 				int64 nGeneratedImmature, nGeneratedMature, nFee2;
 				string strSentAccount;
 				list<pair<CTxDestination, int64> > listReceived;
 				list<pair<CTxDestination, int64> > listSent;
 				wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount);
 				uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
+				double nGeneratedAmount2 = max (nGeneratedMature, nGeneratedImmature); //uint64_t math not working
+				
+				double percentReward = nFee / (nGeneratedAmount2 - nFee);
 				
 				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
 				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
+				entry.push_back(Pair("Reward %", percentReward));
 				entry.push_back(Pair("Total New Amount", ValueFromAmount(nGeneratedAmount)));
 				entry.push_back(Pair("Size of Each New Block", ValueFromAmount(nGeneratedAmount/2)));
 			}
