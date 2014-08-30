@@ -110,14 +110,16 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
 	
     ui->treeWidget->setColumnWidth(COLUMN_CHECKBOX, 45);
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
-	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 80);
-	ui->treeWidget->setColumnWidth(COLUMN_AGE, 50);
-	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 50);
-	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 75);
-    ui->treeWidget->setColumnWidth(COLUMN_LABEL, 125);
-    ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 275);
+	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 85);
+	ui->treeWidget->setColumnWidth(COLUMN_AGE, 45);
+	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 85);
+	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 70);
+    ui->treeWidget->setColumnWidth(COLUMN_LABEL, 85);
+    ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 150);
     ui->treeWidget->setColumnWidth(COLUMN_DATE, 100);
     ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
+	ui->treeWidget->setColumnHidden(COLUMN_AGE_INT64, true);
+	ui->treeWidget->setColumnHidden(COLUMN_POTENTIALSTAKE_INT64, true);
     ui->treeWidget->setColumnHidden(COLUMN_TXHASH, true);         // store transacton hash in this column, but dont show it
     ui->treeWidget->setColumnHidden(COLUMN_VOUT_INDEX, true);     // store vout index in this column, but dont show it
     ui->treeWidget->setColumnHidden(COLUMN_AMOUNT_INT64, true);   // store amount int64 in this column, but dont show it
@@ -429,7 +431,7 @@ void CoinControlDialog::sortView(int column, Qt::SortOrder order)
     sortColumn = column;
     sortOrder = order;
     ui->treeWidget->sortItems(column, order);
-    ui->treeWidget->header()->setSortIndicator((sortColumn == COLUMN_AMOUNT_INT64 ? COLUMN_AMOUNT : (sortColumn == COLUMN_PRIORITY_INT64 ? COLUMN_PRIORITY : sortColumn)), sortOrder);
+    ui->treeWidget->header()->setSortIndicator((sortColumn == COLUMN_AMOUNT_INT64 ? COLUMN_AMOUNT : (sortColumn == COLUMN_PRIORITY_INT64 ? COLUMN_PRIORITY : (sortColumn == COLUMN_POTENTIALSTAKE_INT64 ? COLUMN_POTENTIALSTAKE :(sortColumn == COLUMN_AGE_INT64 ? COLUMN_AGE : sortColumn)))), sortOrder);
 }
 
 // treeview: clicked on header
@@ -443,7 +445,13 @@ void CoinControlDialog::headerSectionClicked(int logicalIndex)
     {
         if (logicalIndex == COLUMN_AMOUNT) // sort by amount
             logicalIndex = COLUMN_AMOUNT_INT64;
+			
+		if (logicalIndex == COLUMN_AGE) // sort by age
+            logicalIndex = COLUMN_AGE_INT64;	
 
+		if (logicalIndex == COLUMN_POTENTIALSTAKE) // sort by potential stake
+            logicalIndex = COLUMN_POTENTIALSTAKE_INT64;
+			
         if (logicalIndex == COLUMN_PRIORITY) // sort by priority
             logicalIndex = COLUMN_PRIORITY_INT64;
 
@@ -452,7 +460,7 @@ void CoinControlDialog::headerSectionClicked(int logicalIndex)
         else
         {
             sortColumn = logicalIndex;
-            sortOrder = ((sortColumn == COLUMN_AMOUNT_INT64 || sortColumn == COLUMN_PRIORITY_INT64 || sortColumn == COLUMN_DATE || sortColumn == COLUMN_CONFIRMATIONS) ? Qt::DescendingOrder : Qt::AscendingOrder); // if amount,date,conf,priority then default => desc, else default => asc
+            sortOrder = ((sortColumn == COLUMN_AMOUNT_INT64 || sortColumn == COLUMN_PRIORITY_INT64 || sortColumn == COLUMN_DATE || sortColumn == COLUMN_CONFIRMATIONS || sortColumn == COLUMN_AGE_INT64 || sortColumn == COLUMN_POTENTIALSTAKE_INT64) ? Qt::DescendingOrder : Qt::AscendingOrder); // if amount,date,conf,priority then default => desc, else default => asc
         }
 
         sortView(sortColumn, sortOrder);
@@ -813,12 +821,14 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nTxWeight), 8, " "));
 			
 			// Age
-			float age = (GetTime() - out.tx->GetTxTime()) / (float)(1440 * 60);
-			itemOutput->setText(COLUMN_AGE, QString::number(age, 'g', 3));
+			int64 age = COIN * (GetTime() - out.tx->GetTxTime()) / (1440 * 60);
+			itemOutput->setText(COLUMN_AGE, BitcoinUnits::formatAge(nDisplayUnit, age));
+			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
 			// Potential Stake
-			float potentialStake = 7.5 / 365 * age * out.tx->vout[out.i].nValue / COIN;
-			itemOutput->setText(COLUMN_POTENTIALSTAKE, QString::number(potentialStake, 'g', 3));
+			int64 nPotentialStake = 7.5 / 365 * age * out.tx->vout[out.i].nValue;
+			itemOutput->setText(COLUMN_POTENTIALSTAKE, BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake / COIN));
+			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number(nPotentialStake), 15, " "));
 			
             // transaction hash
             uint256 txhash = out.tx->GetHash();

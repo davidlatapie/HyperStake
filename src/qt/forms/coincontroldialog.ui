@@ -483,7 +483,7 @@
       <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>13</number>
+      <number>16</number>
      </property>
      <attribute name="headerShowSortIndicator" stdset="0">
       <bool>true</bool>
@@ -493,17 +493,17 @@
      </attribute>
      <column>
       <property name="text">
-       <string>Select</string>
+       <string>Select</string> /** checkbox **/
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Amount</string>
+       <string>Amount</string> /** amount **/
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Confirmations</string>
+       <string>Confirmations</string> /** confs **/
       </property>
       <property name="toolTip">
        <string>Confirmed</string>
@@ -511,37 +511,49 @@
      </column>
      <column>
       <property name="text">
-       <string>Age</string>
+       <string>Age</string> /** age **/
+      </property>
+     </column>
+	 
+	 <column>
+      <property name="text">
+       <string>Potential Stake</string> /** potential stake **/
+      </property>
+     </column>
+	 
+     <column>
+      <property name="text">
+       <string>Weight</string> /** weight **/
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Label</string> /** label **/
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Address</string> /** address **/
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Date</string> /** date **/
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Priority</string> /** priority **/
       </property>
      </column>
 	 <column>
-      <property name="text">
-       <string>Potential Stake</string>
+      <property name="text"> /** age int 64 invisible **/
+       <string/>
       </property>
      </column>
-     <column>
-      <property name="text">
-       <string>Weight</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Label</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Address</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Date</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Priority</string>
+	 <column>
+      <property name="text"> /** pot stake int 64 invisible **/
+       <string/>
       </property>
      </column>
      <column>
