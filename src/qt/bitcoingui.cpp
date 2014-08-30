@@ -100,7 +100,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create the tray icon (or setup the dock icon) abffaaassffffa
     createTrayIcon();
-	
+	/*
 	QPalette p;
 	p.setColor(QPalette::Window, QColor(0x17, 0x63, 0x82));
 	p.setColor(QPalette::Button, QColor(0x17, 0x63, 0x82));
@@ -110,7 +110,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 	setPalette(p);
 	QFile style(":/text/res/text/style.qss");
 	style.open(QFile::ReadOnly);
-	setStyleSheet(QString::fromUtf8(style.readAll()));
+	setStyleSheet(QString::fromUtf8(style.readAll()));*/
 
     /* don't override the background color of the toolbar on mac os x due to
        the whole component it resides on not being paintable
@@ -392,6 +392,7 @@ void BitcoinGUI::createToolBars()
 
     QToolBar *toolbar2 = addToolBar(tr("Actions toolbar"));
     toolbar2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	toolbar2->addAction(openRPCConsoleAction);
     toolbar2->addAction(lockWalletToggleAction);
     toolbar2->addAction(exportAction);
 }
