@@ -822,12 +822,12 @@ void CoinControlDialog::updateView()
 			
 			// Age
 			int64 age = COIN * (GetTime() - out.tx->GetTxTime()) / (1440 * 60);
-			itemOutput->setText(COLUMN_AGE, BitcoinUnits::formatAge(nDisplayUnit, age));
+			itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " "));
 			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
 			// Potential Stake
 			int64 nPotentialStake = 7.5 / 365 * age * out.tx->vout[out.i].nValue;
-			itemOutput->setText(COLUMN_POTENTIALSTAKE, BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake / COIN));
+			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake / COIN), 15, " "));
 			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number(nPotentialStake), 15, " "));
 			
             // transaction hash
