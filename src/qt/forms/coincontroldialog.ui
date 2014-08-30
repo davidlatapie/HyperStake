@@ -514,6 +514,11 @@
        <string>Age</string>
       </property>
      </column>
+	 <column>
+      <property name="text">
+       <string>Potential Stake</string>
+      </property>
+     </column>
      <column>
       <property name="text">
        <string>Weight</string>

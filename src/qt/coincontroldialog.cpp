@@ -112,6 +112,7 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
 	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 80);
 	ui->treeWidget->setColumnWidth(COLUMN_AGE, 50);
+	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 50);
 	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 75);
     ui->treeWidget->setColumnWidth(COLUMN_LABEL, 125);
     ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 275);
@@ -814,6 +815,10 @@ void CoinControlDialog::updateView()
 			// Age
 			float age = (GetTime() - out.tx->GetTxTime()) / (float)(1440 * 60);
 			itemOutput->setText(COLUMN_AGE, QString::number(age, 'g', 3));
+			
+			// Potential Stake
+			float potentialStake = 7.5 / 365 * age * out.tx->vout[out.i].nValue / COIN;
+			itemOutput->setText(COLUMN_POTENTIALSTAKE, QString::number(potentialStake, 'g', 3));
 			
             // transaction hash
             uint256 txhash = out.tx->GetHash();
