@@ -9,6 +9,7 @@ CONFIG += static
 QT += core gui xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+win32{
 #uncomment the following section to enable building on windows:
 windows:LIBS += -lshlwapi
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
@@ -26,7 +27,7 @@ MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 MINIUPNPC_INCLUDE_PATH=c:/deps
 QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
 QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
-
+}
 
 OBJECTS_DIR = build
 MOC_DIR = build
