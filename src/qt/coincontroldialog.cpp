@@ -744,7 +744,9 @@ void CoinControlDialog::updateView()
         double dPrioritySum = 0;
         int nChildren = 0;
         int nInputSum = 0;
-		uint64 nTxWeight = 0, nTxWeightSum = 0;
+		uint64 nTxWeight = 0;
+		uint64 nTxWeightSum = 0;
+		uint64 nPotentialStakeSum = 0;
         BOOST_FOREACH(const COutput& out, coins.second)
         {
             int nInputSize = 148; // 180 if uncompressed public key
@@ -830,6 +832,9 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake / COIN), 15, " "));
 			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number(nPotentialStake), 15, " "));
 			
+			// Potential Stake Sum for Tree View
+			nPotentialStakeSum += nPotentialStake / COIN;
+			
             // transaction hash
             uint256 txhash = out.tx->GetHash();
             itemOutput->setText(COLUMN_TXHASH, txhash.GetHex().c_str());
@@ -858,6 +863,8 @@ void CoinControlDialog::updateView()
             itemWalletAddress->setText(COLUMN_CHECKBOX, "(" + QString::number(nChildren) + ")");
             itemWalletAddress->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, nSum));
             itemWalletAddress->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(nSum), 15, " "));
+			itemWalletAddress->setText(COLUMN_POTENTIALSTAKE, BitcoinUnits::formatAge(nDisplayUnit, nPotentialStakeSum));
+			itemWalletAddress->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number(nPotentialStakeSum), 20, " "));
             itemWalletAddress->setText(COLUMN_PRIORITY, CoinControlDialog::getPriorityLabel(dPrioritySum));
             itemWalletAddress->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64)dPrioritySum), 20, " "));
 			
