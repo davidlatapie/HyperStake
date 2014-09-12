@@ -198,7 +198,6 @@ HEADERS += src/qt/bitcoingui.h \
     src/ui_interface.h \
     src/qt/rpcconsole.h \
     src/version.h \
-	src/qt/blockbrowser.h \
     src/netbase.h \
     src/clientversion.h \
     src/hashblock.h \
@@ -277,7 +276,6 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/notificator.cpp \
     src/qt/qtipcserver.cpp \
     src/qt/rpcconsole.cpp \
-	src/qt/blockbrowser.cpp \
     src/noui.cpp \
     src/kernel.cpp \
     src/pbkdf2.cpp \
@@ -302,7 +300,6 @@ FORMS += \
     src/qt/forms/addressbookpage.ui \
     src/qt/forms/signverifymessagedialog.ui \
     src/qt/forms/aboutdialog.ui \
-	src/qt/forms/blockbrowser.ui \
 	src/qt/forms/charitydialog.ui \
     src/qt/forms/editaddressdialog.ui \
     src/qt/forms/transactiondescdialog.ui \

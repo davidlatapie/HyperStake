@@ -42,18 +42,15 @@ double GetDifficulty(const CBlockIndex* blockindex)
     return dDiff;
 }
 
-double GetPoSKernelPS(const CBlockIndex* blockindex)
+double GetPoSKernelPS()
 {
     int nPoSInterval = 72;
     double dStakeKernelsTriedAvg = 0;
     int nStakesHandled = 0, nStakesTime = 0;
 
-    const CBlockIndex* pindex = pindexBest;
-	const CBlockIndex* pindexPrevStake = NULL;
+    CBlockIndex* pindex = pindexBest;;
+    CBlockIndex* pindexPrevStake = NULL;
 
-	if (blockindex != NULL)
-		pindex = blockindex;
-		
     while (pindex && nStakesHandled < nPoSInterval)
     {
         if (pindex->IsProofOfStake())

@@ -64,7 +64,6 @@ private slots:
     void on_copyToClipboard_clicked();
     void on_signMessage_clicked();
     void on_verifyMessage_clicked();
-	void on_S4CPushButton_clicked();
     void selectionChanged();
     void on_showQRCode_clicked();
     /** Spawn contextual menu (right mouse menu) for address book entry */
@@ -81,7 +80,6 @@ private slots:
 signals:
     void signMessage(QString addr);
     void verifyMessage(QString addr);
-	void S4CSignal(QString addr);
 };
 
 #endif // ADDRESSBOOKDIALOG_H

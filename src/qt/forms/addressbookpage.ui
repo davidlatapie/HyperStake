@@ -125,20 +125,6 @@
       </widget>
      </item>
      <item>
-		<widget class="QPushButton" name="S4CPushButton">
-		<property name="toolTip">
-		<string>Send a percentage of stake to a specified BottleCaps address</string>
-		</property>
-		<property name="text">
-		<string>&amp;Stake For Charity</string>
-		</property>
-		<property name="icon">
-		<iconset resource="../bitcoin.qrc">
-		<normaloff>:/icons/send</normaloff>:/icons/send</iconset>
-		</property>
-		 </widget>
-		 </item>
-	<item>
       <widget class="QPushButton" name="deleteButton">
        <property name="toolTip">
         <string>Delete the currently selected address from the list</string>

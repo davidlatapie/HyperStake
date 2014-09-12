@@ -28,7 +28,6 @@
 #include "rpcconsole.h"
 #include "wallet.h"
 #include "bitcoinrpc.h"
-#include "blockbrowser.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -137,17 +136,12 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     signVerifyMessageDialog = new SignVerifyMessageDialog(this);
 
-	charityDialog = new StakeForCharityDialog(this);
-	
-	blockBrowser = new BlockBrowser((this));
-	
     centralWidget = new QStackedWidget(this);
     centralWidget->addWidget(overviewPage);
     centralWidget->addWidget(transactionsPage);
     centralWidget->addWidget(addressBookPage);
     centralWidget->addWidget(receiveCoinsPage);
     centralWidget->addWidget(sendCoinsPage);
-	centralWidget->addWidget(charityDialog);
     setCentralWidget(centralWidget);
 
     // Create status bar
@@ -226,12 +220,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     // Clicking on "Sign Message" in the receive coins page sends you to the sign message tab
     connect(receiveCoinsPage, SIGNAL(signMessage(QString)), this, SLOT(gotoSignMessageTab(QString)));
 
-	// Clicking on stake for charity button in the address book sends you to the S4C page
-	//connect(receiveCoinsPage, SIGNAL(S4CSignal(QString), this, SLOT(S4CClicked(QString))));
-	
-	// Clicking on "Block Browser" in the transaction page sends you to the blockbrowser
-	connect(transactionView, SIGNAL(blockBrowserSignal(QString)), this, SLOT(gotoBlockBrowser(QString)));
-	
     gotoOverviewPage();
 }
 
@@ -299,24 +287,7 @@ void BitcoinGUI::createActions()
 	
 	charityAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Stake For Charity"), this);
     charityAction->setToolTip(tr("Enable Stake For Charity"));
-    charityAction->setCheckable(true);
-	tabGroup->addAction(charityAction);
-	
-	blockAction = new QAction(QIcon(":/icons/blexp"), tr("Block Bro&wser"), this);
-	blockAction->setStatusTip(tr("Explore the BlockChain"));
-	blockAction->setToolTip(blockAction->statusTip());
-	
-	blocksIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Block Info"), this);
-	blocksIconAction->setStatusTip(tr("Get Current Block Information"));
-	blocksIconAction->setToolTip(blocksIconAction->statusTip());
-	
-	stakingIconAction = new QAction(QIcon(":/icons/info"), tr("Current &PoS Block Info"), this);
-	stakingIconAction->setStatusTip(tr("Get Current PoS Block Information"));
-	stakingIconAction->setToolTip(stakingIconAction->statusTip());
-	
-	connectionIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Node Info"), this);
-	connectionIconAction->setStatusTip(tr("Get Current Peer Information"));
-	connectionIconAction->setToolTip(connectionIconAction->statusTip());
+    charityAction->setMenuRole(QAction::AboutRole);
 	
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
@@ -353,7 +324,6 @@ void BitcoinGUI::createActions()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
 	
-	connect(charityAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
 	connect(charityAction, SIGNAL(triggered()), this, SLOT(charityClicked()));
 	
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -368,11 +338,6 @@ void BitcoinGUI::createActions()
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
 	connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
-	
-	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
-	connect(blocksIconAction, SIGNAL(triggered()), this, SLOT(blocksIconClicked()));
-	connect(connectionIconAction, SIGNAL(triggered()), this, SLOT(connectionIconClicked()));
-	connect(stakingIconAction, SIGNAL(triggered()), this, SLOT(stakingIconClicked()));
 }
 
 void BitcoinGUI::createMenuBar()
@@ -393,13 +358,6 @@ void BitcoinGUI::createMenuBar()
     file->addAction(verifyMessageAction);
     file->addSeparator();
     file->addAction(quitAction);
-	
-	QMenu *network = appMenuBar->addMenu(tr("&Network"));
-	network->addAction(blockAction);
-	network->addSeparator();
-	network->addAction(blocksIconAction);
-	network->addAction(stakingIconAction);
-	network->addAction(connectionIconAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Tools"));
     settings->addAction(encryptWalletAction);
@@ -496,7 +454,6 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
         signVerifyMessageDialog->setModel(walletModel);
-		charityDialog->setModel(walletModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -576,14 +533,9 @@ void BitcoinGUI::aboutClicked()
 
 void BitcoinGUI::charityClicked()
 {
-	charityAction->setChecked(true);
-	centralWidget->setCurrentWidget(autoSavingsDialog);
-	
-	if(!addr.isEmpty())
-		autoSavingsDialog->setAddress(addr);
-		
-	exportAction->setEnabled(false);
-	disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+    charityDialog dlg;
+    dlg.setModel(clientModel);
+    dlg.exec();
 }
 
 void BitcoinGUI::setNumConnections(int count)
@@ -828,14 +780,6 @@ void BitcoinGUI::gotoAddressBookPage()
     exportAction->setEnabled(true);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     connect(exportAction, SIGNAL(triggered()), addressBookPage, SLOT(exportClicked()));
-}
-
-void BitcoinGUI::gotoBlockBrowser(QString transactionId)
-{
-	if(!transactionId.isEmpty())
-		blockBrowser->setTransactionId(transactionId);
-	
-	blockBrowser->show();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

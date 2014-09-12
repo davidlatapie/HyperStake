@@ -1126,17 +1126,15 @@ bool CWallet::StakeForCharity()
                 // Calculate Amount for Savings
                 nNet = ( ( pcoin->GetCredit() - pcoin->GetDebit() ) * nStakeForCharityPercent )/100;
 
-                // Do not send if amount is too low or high
-                if (nNet <= nStakeForCharityMin || nNet >= nStakeForCharityMax )
+                // Do not send if amount is too low
+                if (nNet < MIN_TXOUT_AMOUNT )
                 {
-                    printf("StakeForCharity: Amount: %s is not in range of Min: %s and Max:%s\n",FormatMoney(nNet).c_str(),FormatMoney
-						(nStakeForCharityMin).c_str(),FormatMoney
-						(nStakeForCharityMax).c_str());
+                    printf("StakeForCharity: Amount: %s is below MIN_TXOUT_AMOUNT: %s\n",FormatMoney(nNet).c_str(),FormatMoney(MIN_TXOUT_AMOUNT).c_str());
                     return false;
                 }
 
-                printf("StakeForCharity Sending: %s to Address: %s\n", FormatMoney(nNet).c_str(), strStakeForCharityAddress.ToString().c_str());
-                SendMoneyToDestination(strStakeForCharityAddress.Get(), nNet, wtx, false,true);
+                printf("StakeForCharity Sending: %s to Address: %s\n", FormatMoney(nNet).c_str(), StakeForCharityAddress.ToString().c_str());
+                SendMoneyToDestination(StakeForCharityAddress.Get(), nNet, wtx, false,true);
             }
         }
     }

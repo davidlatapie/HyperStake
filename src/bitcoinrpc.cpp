@@ -1198,8 +1198,6 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "signrawtransaction"     && n > 1) ConvertTo<Array>(params[1], true);
     if (strMethod == "signrawtransaction"     && n > 2) ConvertTo<Array>(params[2], true);
 	if (strMethod == "stakeforcharity"        && n > 1) ConvertTo<int>(params[1]);
-	if (strMethod == "stakeforcharity"        && n > 2) ConvertTo<double>(params[2]);
-	if (strMethod == "stakeforcharity"        && n > 3) ConvertTo<double>(params[3]);
 
     return params;
 }

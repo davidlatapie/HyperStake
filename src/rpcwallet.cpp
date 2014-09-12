@@ -339,12 +339,11 @@ Value getaccountaddress(const Array& params, bool fHelp)
 
 Value stakeforcharity(const Array &params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (fHelp || params.size() != 2)
         throw runtime_error(
-            "stakeforcharity <HyperStake address> <percent>[min amount] [max amount]\n"
+            "stakeforcharity <HyperStake address> <percent>\n"
             "Gives a percentage of a found stake to a different address, after stake matures\n"
             "Percent is a whole number 1 to 50.\n"
-			"Min and Max Amount are optional\n"
             "Set percentage to zero to turn off"
             + HelpRequiringPassphrase());
 
@@ -360,67 +359,24 @@ Value stakeforcharity(const Array &params, bool fHelp)
 
     unsigned int nPer = (unsigned int) params[1].get_int();
 
-    int64 nMinAmount = MIN_TXOUT_AMOUNT;
-	int64 nMaxAmount = MAX_MONEY;
-	
-	// Optional Min Amount
-	if (params.size() > 2)
+    //Turn off if we set to zero.
+    //Future: After we allow multiple addresses, only turn of this address
+    if(nPer == 0)
     {
-		int64 nAmount = AmountFromValue(params[2]);
-		if (nAmount < MIN_TXOUT_AMOUNT)
-			throw JSONRPCError(-101, "Send amount too small");
-		else
-			nMinAmount = nAmount;
+        pwalletMain->fStakeForCharity = false;
+        pwalletMain->StakeForCharityAddress = "";
+        pwalletMain->nStakeForCharityPercent = 0;
+        return Value::null;
     }
 
-   // Optional Max Amount
-    if (params.size() > 3)
-	{
-		int64 nAmount = AmountFromValue(params[3]);
-		if (nAmount < MIN_TXOUT_AMOUNT)
-			throw JSONRPCError(-101, "Send amount too small");
-		else
-			nMaxAmount = nAmount;
-	}
+    //For now max percentage is 50.
+    if (nPer > 50 )
+       nPer = 50;
 
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-	
-	LOCK(pwalletMain->cs_wallet);
-	{
-		bool fFileBacked = pwalletMain->fFileBacked;
-		//Turn off if we set to zero.
-		//Future: After we allow multiple addresses, only turn of this address
-		if(nPer == 0)
-		{
-			pwalletMain->fStakeForCharity = false;
-            pwalletMain->nStakeForCharity = 0;
-            pwalletMain->nStakeForCharityMin = nMinAmount;
-            pwalletMain->nStakeForCharityMax = nMaxAmount;
+    pwalletMain->StakeForCharityAddress = address;
+    pwalletMain->nStakeForCharityPercent = nPer;
+    pwalletMain->fStakeForCharity = true;
 
-            if(fFileBacked)
-                walletdb.EraseStakeForCharity(pwalletMain->strStakeForCharity.ToString());
-
-            pwalletMain->strStakeForCharityAddress = "";
-
-            return Value::null;
-		}
-		//For now max percentage is 50.
-        if (nPer > 50 )
-			nPer = 50;
-			
-		if(fFileBacked)
-              walletdb.EraseStakeForCharity(pwalletMain->strStakeForCharityAddress.ToString());
-			  
-		pwalletMain->strStakeForCharityAddress = address;
-        pwalletMain->nStakeForCharityPercent = nPer;
-        pwalletMain->fStakeForCharity = true;
-        pwalletMain->nStakeForCharityMin = nMinAmount;
-        pwalletMain->nStakeForCharityMax = nMaxAmount;
-		
-		if(fFileBacked)
-			walletdb.WriteAutoSavings(address.ToString(), nPer);
-			 
-	}
     return Value::null;
 }
 
