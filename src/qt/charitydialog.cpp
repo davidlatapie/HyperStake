@@ -26,7 +26,37 @@ charityDialog::~charityDialog()
 
 void charityDialog::setModel(ClientModel *model)
 {
+	this->model = model;
+	
+	QString strAddress = model->getAutoSavingsAddress();
+	QString strPer = QString::number(model->getAutoSavingsPercent());
+	
+	if (!strAddress.isEmpty() && strPer.toInt() > 0 )
+	{
+		ui->charityAddressEdit->setText(strAddress);
+		ui->charityPercentEdit->setText(strPer);
+		ui->message->setStyleSheet("QLabel { color: green; }");
+		ui->message->setText(tr("You are now saving to\n") + strAddress + tr("."));
+	}
+}
 
+void charityDialog::setAddress(const QString &address)
+{
+	ui->charityAddressEdit->setText(address);
+	ui->charityAddressEdit->setFocus();
+}
+
+void charityDialog::on_addressBookButton_clicked()
+{
+    if (model && model->getAddressTableModel())
+    {
+        AddressBookPage dlg(AddressBookPage::ForSending, AddressBookPage::SendingTab, this);
+        dlg.setModel(model->getAddressTableModel());
+        if (dlg.exec())
+        {
+            setAddress(dlg.getReturnValue());
+        }
+    }
 }
 
 void charityDialog::on_buttonBox_accepted()
