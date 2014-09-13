@@ -285,6 +285,7 @@ void CoinControlDialog::customSelectCoins()
 				}
 			}
 		}	
+	CoinControlDialog::updateLabels(model, this);
 	updateView();
 }
 
