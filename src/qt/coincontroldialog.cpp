@@ -829,7 +829,7 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
 			// Potential Stake
-			int64 nPotentialStake = 7.5 / 365 * age * out.tx->vout[out.i].nValue;
+			int64 nPotentialStake = min((7.5 / 365 * age * out.tx->vout[out.i].nValue), double(1000 * COIN * COIN)); //min of the max reward or the stake rate
 			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake / COIN), 15, " "));
 			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number(nPotentialStake), 15, " "));
 			
