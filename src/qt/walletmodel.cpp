@@ -317,10 +317,40 @@ int WalletModel::getStakeForCharityPercent()
 
 QString WalletModel::getStakeForCharityAddress()
 {
-	if (!wallet->StakeForCharityAddress.IsValid())
+	if (!wallet->strStakeForCharityAddress.IsValid())
 		return "Not Set";
 	else
-		return wallet->StakeForCharityAddress.ToString().c_str();
+		return wallet->strStakeForCharityAddress.ToString().c_str();
+}
+
+void WalletModel::setStakeForCharity(bool fStakeForCharity, int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
+                                     int64& nStakeForCharityMin, int64& nStakeForCharityMax)
+{
+    // This function assumes the values were checked before being called
+    if (wallet->fFileBacked) // Tranz add option to not save.
+    {
+        CWalletDB walletdb(wallet->strWalletFile);
+        if (fStakeForCharity) {
+            walletdb.EraseStakeForCharity(wallet->strStakeForCharityAddress.ToString());
+            walletdb.WriteStakeForCharity(strStakeForCharityAddress.ToString(), nStakeForCharityPercent );
+        }
+        else {
+            walletdb.EraseStakeForCharity(wallet->strStakeForCharityAddress.ToString());
+            walletdb.EraseStakeForCharity(strStakeForCharityAddress.ToString());
+        }
+
+        if(fDebug)
+          printf("setStakeForCharity: %s %d\n", strStakeForCharityAddress.ToString().c_str(), nStakeForCharityPercent);
+    }
+
+    {
+        LOCK(wallet->cs_wallet);
+        wallet->fStakeForCharity = fStakeForCharity;
+        wallet->nStakeForCharityPercent = nStakeForCharityPercent;
+        wallet->strStakeForCharityAddress = strStakeForCharityAddress;
+        wallet->nStakeForCharityMin = nStakeForCharityMin;
+        wallet->nStakeForCharityMax = nStakeForCharityMax;
+    }
 }
 
 void WalletModel::getStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight)

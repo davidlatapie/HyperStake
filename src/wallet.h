@@ -87,7 +87,9 @@ public:
     std::string strWalletFile;
 	bool fStakeForCharity;
 	int nStakeForCharityPercent;
-	CBitcoinAddress StakeForCharityAddress;
+	int64 nStakeForCharityMin;
+	int64 nStakeForCharityMax;
+	CBitcoinAddress strStakeForCharityAddress;
 	
     std::set<int64> setKeyPool;
 
@@ -106,7 +108,9 @@ public:
         nOrderPosNext = 0;
 		fStakeForCharity = false;
         nStakeForCharityPercent = 0;
-        StakeForCharityAddress = "";
+        strStakeForCharityAddress = "";
+		nStakeForCharityMin = 0;
+		nStakeForCharityMax = 0;
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -119,7 +123,9 @@ public:
         nOrderPosNext = 0;
 		fStakeForCharity = false;
         nStakeForCharityPercent = 0;
-        StakeForCharityAddress = "";
+        strStakeForCharityAddress = "";
+		nStakeForCharityMin = MIN_TXOUT_AMOUNT;
+		nStakeForCharityMax = MAX_MONEY;
     }
 
     std::map<uint256, CWalletTx> mapWallet;

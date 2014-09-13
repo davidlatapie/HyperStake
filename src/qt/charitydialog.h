@@ -1,31 +1,31 @@
 #ifndef CHARITYDIALOG_H
 #define CHARITYDIALOG_H
 
-#include <QDialog>
+#include <QWidget>
 
 namespace Ui {
-class charityDialog;
+class StakeForCharityDialog;
 }
-class ClientModel;
+class WalletModel;
 
-class charityDialog : public QDialog
+class StakeForCharityDialog : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit charityDialog(QWidget *parent = 0);
-    ~charityDialog();
+    explicit StakeForCharityDialog(QWidget *parent = 0);
+    ~StakeForCharityDialog();
 
-    void setModel(ClientModel *model);
+    void setModel(WalletModel *model);
+	void setAddress(const QString &address);
 private slots:
-    void on_buttonBox_accepted();
-
-    void on_buttonBox_rejected();
-
-    void on_pushButton_clicked();
-
+    void on_enableButton_clicked();
+    void on_disableButton_clicked();
+	void on_addressBookButton_clicked();
+	
 private:
-    Ui::charityDialog *ui;
+    Ui::StakeForCharityDialog *ui;
+	WalletModel *model;
 };
 
 #endif // CHARITYDIALOG_H

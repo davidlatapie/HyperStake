@@ -16,6 +16,8 @@ class SendCoinsDialog;
 class SignVerifyMessageDialog;
 class Notificator;
 class RPCConsole;
+class StakeForCharityDialog;
+class BlockBrowser;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -67,6 +69,8 @@ private:
     AddressBookPage *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     SignVerifyMessageDialog *signVerifyMessageDialog;
+	StakeForCharityDialog *stakeForCharityDialog;
+	BlockBrowser *blockBrowser;
 
     QLabel *labelEncryptionIcon;
     QLabel *labelMintingIcon;
@@ -84,7 +88,6 @@ private:
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
-	QAction *charityAction;
     QAction *receiveCoinsAction;
     QAction *optionsAction;
     QAction *toggleHideAction;
@@ -98,6 +101,12 @@ private:
 	QAction *repairWalletAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
+	QAction *blockAction;
+	QAction *blocksIconAction;
+	QAction *connectionIconAction;
+	QAction *stakingIconAction;
+	QAction *charityAction;
+	
 	
 
     QSystemTrayIcon *trayIcon;
@@ -158,7 +167,8 @@ private slots:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage();
-
+	/** Switch to block browser page */
+	void gotoBlockBrowser(QString transactionId = "");
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
@@ -168,8 +178,6 @@ private slots:
     void optionsClicked();
     /** Show about dialog */
     void aboutClicked();
-	/** Show Stake For Charity Dialog */
-    void charityClicked();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -192,7 +200,7 @@ private slots:
     /** Toggle unlocking wallet temporarily */
     void lockWalletToggle();
 
- void unlockWallet();
+	void unlockWallet();
 
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */
     void showNormalIfMinimized(bool fToggleHidden = false);
@@ -203,6 +211,7 @@ private slots:
     void updateMintingIcon();
     /** Update minting weight info */
     void updateMintingWeights();
+	void charityClicked(QString addr = "");
 };
 
 #endif
