@@ -27,6 +27,7 @@ namespace Checkpoints
         (     0, hashGenesisBlockOfficial )
 	(10, uint256("0x0000074074af28e73189ae5767b706246be2e0827c46d97a61178394aec877cf"))
 	(31781, uint256("0x42265210870957b8d37f91a0834c6cda65949b2ca805bb3a7d527a4cd585a090")) //official hyp fork
+	(80987, uint256("0x6b943fa756e915ddd8b654844781e21090ae9ddfcb2147fba46cac529df5be08")) //not using even number because sync gets sticky
 	;
 
     static MapCheckpoints mapCheckpointsTestnet =
