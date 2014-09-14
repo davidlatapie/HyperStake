@@ -1150,7 +1150,7 @@ void MapPort()
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
     {"chainworks seed", "hyp.chainworks.info"},
-    {},
+    {"CCE block explorer", "hyp.altcointech.net"},
     {},
     {},
 };
