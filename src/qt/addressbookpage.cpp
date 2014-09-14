@@ -55,11 +55,13 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
         ui->deleteButton->setVisible(true);
         ui->signMessage->setVisible(false);
 		ui->stakeForCharityPushButton->setVisible(true);
+		ui->deleteCheckBox->setVisible(false);
         break;
     case ReceivingTab:
         ui->deleteButton->setVisible(false);
         ui->signMessage->setVisible(true);
 		ui->stakeForCharityPushButton->setVisible(false);
+		ui->deleteCheckBox->setVisible(true);
         break;
     }
 
@@ -98,7 +100,6 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(on_signMessage_clicked()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(on_verifyMessage_clicked()));
 	connect(stakeForCharityAction, SIGNAL(triggered()), this, SLOT(on_stakeForCharityPushButton_clicked()));
-
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
     // Pass through accept action from button box
@@ -156,6 +157,22 @@ void AddressBookPage::setModel(AddressTableModel *model)
 void AddressBookPage::setOptionsModel(OptionsModel *optionsModel)
 {
     this->optionsModel = optionsModel;
+}
+
+void AddressBookPage::on_deleteCheckBox_clicked()
+{
+	if(ui->deleteCheckBox->checkState() == Qt::Checked)
+	{
+		ui->deleteButton->setEnabled(true);
+		ui->deleteButton->setVisible(true);
+		deleteAction->setEnabled(true);
+	}
+	else
+	{
+		ui->deleteButton->setEnabled(false);
+		ui->deleteButton->setVisible(false);
+		deleteAction->setEnabled(false);
+	}
 }
 
 void AddressBookPage::on_copyToClipboard_clicked()
@@ -282,16 +299,17 @@ void AddressBookPage::selectionChanged()
 			ui->stakeForCharityPushButton->setVisible(true);
             break;
         case ReceivingTab:
-            // Deleting receiving addresses, however, is not allowed
+            // Deleting receiving addresses is allowed if enabled on deleteCheckBox
             ui->deleteButton->setEnabled(false);
-            ui->deleteButton->setVisible(false);
-            deleteAction->setEnabled(false);
+			ui->deleteButton->setVisible(false);
+			deleteAction->setEnabled(false);
             ui->signMessage->setEnabled(true);
             ui->signMessage->setVisible(true);
             ui->verifyMessage->setEnabled(false);
             ui->verifyMessage->setVisible(false);
 			ui->stakeForCharityPushButton->setEnabled(false);
 			ui->stakeForCharityPushButton->setVisible(false );
+			ui->deleteCheckBox->setVisible(true);
 			
             break;
         }
