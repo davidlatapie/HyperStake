@@ -32,6 +32,9 @@ public:
     void setLimit(int limit);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    int64_t getTotalAmount() const { return totalAmount; }
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
 
@@ -42,6 +45,7 @@ private:
     quint32 typeFilter;
     qint64 minAmount;
     int limitRows;
+    mutable int64_t totalAmount;
 
 signals:
 
