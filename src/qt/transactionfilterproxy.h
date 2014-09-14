@@ -3,6 +3,7 @@
 
 #include <QSortFilterProxyModel>
 #include <QDateTime>
+#include <inttypes.h>
 
 /** Filter the transaction list according to pre-specified rules. */
 class TransactionFilterProxy : public QSortFilterProxyModel
