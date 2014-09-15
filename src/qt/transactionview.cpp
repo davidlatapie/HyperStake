@@ -157,7 +157,7 @@ TransactionView::TransactionView(QWidget *parent) :
     connect(editLabelAction, SIGNAL(triggered()), this, SLOT(editLabel()));
 	connect(copyTxID, SIGNAL(triggered()), this, SLOT(copyTx()));
     connect(showDetailsAction, SIGNAL(triggered()), this, SLOT(showDetails()));
-	connect(showBlockBrowser, SIGNAL(triggered()), this, SLOT(showBroswer()));
+	connect(showBlockBrowser, SIGNAL(triggered()), this, SLOT(showBrowser()));
 	
 }
 
