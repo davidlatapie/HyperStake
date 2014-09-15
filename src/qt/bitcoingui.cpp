@@ -1156,7 +1156,7 @@ void BitcoinGUI::updateMintingIcon()
 void BitcoinGUI::updateMintingWeights()
 {
     // Only update if we have the network's current number of blocks, or weight(s) are zero (fixes lagging GUI)
-    if ((clientModel && clientModel->getNumBlocks() == clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
+    if ((clientModel && clientModel->getNumBlocks() >= clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
     {
         nWeight = 0;
 		nCharityPercent = 0;
