@@ -313,17 +313,17 @@ void BitcoinGUI::createActions()
 	blockAction->setStatusTip(tr("Explore the BlockChain"));
 	blockAction->setToolTip(blockAction->statusTip());
 	
-	blocksIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Block Info"), this);
-	blocksIconAction->setStatusTip(tr("Get Current Block Information"));
-	blocksIconAction->setToolTip(blocksIconAction->statusTip());
+	//blocksIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Block Info"), this);
+	//blocksIconAction->setStatusTip(tr("Get Current Block Information"));
+	//blocksIconAction->setToolTip(blocksIconAction->statusTip());
 	
-	stakingIconAction = new QAction(QIcon(":/icons/info"), tr("Current &PoS Block Info"), this);
-	stakingIconAction->setStatusTip(tr("Get Current PoS Block Information"));
-	stakingIconAction->setToolTip(stakingIconAction->statusTip());
+	//stakingIconAction = new QAction(QIcon(":/icons/info"), tr("Current &PoS Block Info"), this);
+	//stakingIconAction->setStatusTip(tr("Get Current PoS Block Information"));
+	//stakingIconAction->setToolTip(stakingIconAction->statusTip());
 	
-	connectionIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Node Info"), this);
-	connectionIconAction->setStatusTip(tr("Get Current Peer Information"));
-	connectionIconAction->setToolTip(connectionIconAction->statusTip());
+	//connectionIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Node Info"), this);
+	//connectionIconAction->setStatusTip(tr("Get Current Peer Information"));
+	//connectionIconAction->setToolTip(connectionIconAction->statusTip());
 	
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
@@ -377,9 +377,9 @@ void BitcoinGUI::createActions()
 	connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
 	
 	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
-	connect(blocksIconAction, SIGNAL(triggered()), this, SLOT(blocksIconClicked()));
-	connect(connectionIconAction, SIGNAL(triggered()), this, SLOT(connectionIconClicked()));
-	connect(stakingIconAction, SIGNAL(triggered()), this, SLOT(stakingIconClicked()));
+	//connect(blocksIconAction, SIGNAL(triggered()), this, SLOT(blocksIconClicked()));
+	//connect(connectionIconAction, SIGNAL(triggered()), this, SLOT(connectionIconClicked()));
+	//connect(stakingIconAction, SIGNAL(triggered()), this, SLOT(stakingIconClicked()));
 }
 
 void BitcoinGUI::createMenuBar()
@@ -403,10 +403,10 @@ void BitcoinGUI::createMenuBar()
 	
 	QMenu *network = appMenuBar->addMenu(tr("&Network"));
 	network->addAction(blockAction);
-	network->addSeparator();
-	network->addAction(blocksIconAction);
-	network->addAction(stakingIconAction);
-	network->addAction(connectionIconAction);
+	//network->addSeparator();
+	//network->addAction(blocksIconAction);
+	//network->addAction(stakingIconAction);
+	//network->addAction(connectionIconAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Tools"));
     settings->addAction(encryptWalletAction);
