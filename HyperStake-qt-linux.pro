@@ -9,8 +9,25 @@ CONFIG += static
 QT += core gui xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+win32{
 #uncomment the following section to enable building on windows:
-
+windows:LIBS += -lshlwapi
+LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
+LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
+windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
+LIBS += -lboost_system-mgw48-mt-s-1_55 -lboost_filesystem-mgw48-mt-s-1_55 -lboost_program_options-mgw48-mt-s-1_55 -lboost_thread-mgw48-mt-s-1_55
+BOOST_LIB_SUFFIX=-mgw48-mt-s-1_55
+BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
+BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
+BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1g/include
+OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1g
+MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
+MINIUPNPC_INCLUDE_PATH=c:/deps
+QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
+QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
+}
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -115,7 +132,6 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/addressbookpage.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
-	src/qt/charitydialog.h \
     src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
@@ -166,6 +182,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/transactionview.h \
     src/qt/walletmodel.h \
     src/bitcoinrpc.h \
+	src/qt/blockbrowser.h \
+	src/qt/charitydialog.h \
     src/qt/overviewpage.h \
     src/qt/csvmodelwriter.h \
     src/crypter.h \
@@ -208,7 +226,6 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/addressbookpage.cpp \
     src/qt/signverifymessagedialog.cpp \
     src/qt/aboutdialog.cpp \
-	src/qt/charitydialog.cpp \
     src/qt/editaddressdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
     src/alert.cpp \
@@ -272,6 +289,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/cubehash.c \
     src/shavite.c \
     src/echo.c \
+	src/qt/blockbrowser.cpp \
+	src/qt/charitydialog.cpp \
     src/simd.c
 
 RESOURCES += \
@@ -283,9 +302,10 @@ FORMS += \
     src/qt/forms/addressbookpage.ui \
     src/qt/forms/signverifymessagedialog.ui \
     src/qt/forms/aboutdialog.ui \
-	src/qt/forms/charitydialog.ui \
     src/qt/forms/editaddressdialog.ui \
     src/qt/forms/transactiondescdialog.ui \
+	src/qt/forms/blockbrowser.ui \
+	src/qt/forms/charitydialog.ui \
     src/qt/forms/overviewpage.ui \
     src/qt/forms/sendcoinsentry.ui \
     src/qt/forms/askpassphrasedialog.ui \
