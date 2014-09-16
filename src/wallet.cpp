@@ -1480,7 +1480,7 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint
 }
 
 //This is added for informational purposes since staking takes 8.8 days min approx. because of bug
-bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nHoursToMaturity)
+bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nHoursToMaturity, uint64& nAmount)
 {
     // Choose coins to use
     int64 nBalance = GetBalance();
@@ -1524,12 +1524,16 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 			nHoursToMaturity = ((nStakeAge - nPrevAge) / 60 / 60) + 1;
 		}
         int64 nTimeWeight = GetWeight2((int64)pcoin.first->nTime, (int64)GetTime());
+		//CBigNum bnAmount = CBigNum(pcoin.first->vout[pcoin.second].nValue) / COIN / 1000;
         CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
+		
+		
 
         // Weight is greater than zero
         if (nTimeWeight > 0)
         {
             nWeight += bnCoinDayWeight.getuint64();
+			nAmount += (uint64)pcoin.first->vout[pcoin.second].nValue / COIN;
         }
 
         // Weight is greater than zero, but the maximum value isn't reached yet

@@ -191,6 +191,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     nWeight = 0;
 	nHoursToMaturity = 0;
 	nNetworkWeight = 0;
+	nAmount = 0;
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -304,9 +305,9 @@ void BitcoinGUI::createActions()
 	
 	charityAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Stake For Charity"), this);
     charityAction->setToolTip(tr("Enable Stake For Charity"));
-    charityAction->setCheckable(true);
+    //charityAction->setCheckable(true);
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
-	charityAction->setCheckable(true);
+	//charityAction->setCheckable(true);
 	tabGroup->addAction(charityAction);
 	
 	blockAction = new QAction(QIcon(":/icons/blexp"), tr("Block Bro&wser"), this);
@@ -1124,6 +1125,13 @@ void BitcoinGUI::updateMintingIcon()
     else if (nLastCoinStakeSearchInterval)
     {
         uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
+		
+		uint64 nEstimateDays = nEstimateTime / (60 * 60 * 24);
+		if(nEstimateDays > 1)
+		{
+			nWeight = qMax(nAmount, nWeight);
+			nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
+		}
 
         QString text;
         if (nEstimateTime < 60)
@@ -1160,9 +1168,10 @@ void BitcoinGUI::updateMintingWeights()
     {
         nWeight = 0;
 		nCharityPercent = 0;
+		nAmount = 0;
 		
         if (pwalletMain)
-			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
+			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
 		
 		if (nHoursToMaturity > 212)
 			nHoursToMaturity = 0;

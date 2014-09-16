@@ -120,6 +120,7 @@ private:
     uint64 nWeight;
     uint64 nNetworkWeight;
 	uint64 nHoursToMaturity;
+	uint64 nAmount;
 	int nCharityPercent;
 	QString strCharityAddress;
 
