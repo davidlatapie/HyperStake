@@ -305,9 +305,8 @@ void BitcoinGUI::createActions()
 	
 	charityAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Stake For Charity"), this);
     charityAction->setToolTip(tr("Enable Stake For Charity"));
-    //charityAction->setCheckable(true);
+    charityAction->setCheckable(true);
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
-	//charityAction->setCheckable(true);
 	tabGroup->addAction(charityAction);
 	
 	blockAction = new QAction(QIcon(":/icons/blexp"), tr("Block Bro&wser"), this);
