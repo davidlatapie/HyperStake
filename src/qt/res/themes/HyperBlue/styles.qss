@@ -96,6 +96,11 @@ QFrame#frame_2 QFrame {
 	color: $text-color;
 }
 
+QFrame#rangeFrame {
+	background-color: $shade-transparent-1;
+	border: 0;
+	margin-top: 10px;
+}
 
 #CoinControlDialog QFrame#frame {
 	border: 0;
@@ -206,14 +211,14 @@ QComboBox::drop-down:disabled {
 }
 
 /* Up&down spin box */
-QDoubleSpinBox {
+QDateTimeEdit, QSpinBox, QDoubleSpinBox {
 	padding: 3px;
 	background-color: $main-color;
 	color: $brightest-color;
 	border: 1px solid $input-border-color;
 }
 
-QDoubleSpinBox:disabled {
+QDateTimeEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {
 	border-color: $main-color-xd;
 	color: $input-border-color;
 }
@@ -262,6 +267,7 @@ QToolBar {
 }
 
 QToolBar::handle {
+	padding: 0;
 	background-color: transparent;
 }
 
@@ -298,8 +304,26 @@ QToolButton:disabled {
 	color: $input-border-color;
 }
 
-/* the subcontrols below are used only in the MenuButtonPopup mode */
-QToolButton::menu-button {
+#qt_toolbar_ext_button {
+	background-image: url(themes/HyperBlue/arrow-down.png);
+	background-repeat: no-repeat;
+	background-position: bottom left;
+	border-radius: 0;
+	margin-top: 0;
+	color: #fff;
+	border-bottom: 3px solid transparent;
+}
+
+#qt_toolbar_ext_button QIcon {
+	display: none;
+}
+
+#qt_toolbar_ext_button:hover {
+	background-color: $main-color-d;
+}
+
+#qt_toolbar_ext_button:checked {
+	border-bottom: none;
 }
 
 /* Progress bar */
@@ -562,3 +586,27 @@ QScrollBar::add-line:vertical {
 QScrollBar::sub-line:vertical {
 	height: 0px;
 }
+
+/* Calendar */
+
+/* navigation bar */
+QCalendarWidget QWidget#qt_calendar_navigationbar { background-color: $main-color }
+QCalendarWidget QToolButton {
+}
+QCalendarWidget QMenu {
+	background-color: $main-color-xd;
+}
+ 
+ /* header row */
+QCalendarWidget QWidget { alternate-background-color: $main-color-l }
+ 
+/* normal days */
+QCalendarWidget QAbstractItemView:enabled {
+	color: $text-color;
+	background-color: $main-color;
+	selection-background-color: $accent-color;
+	selection-color: $main-color-xd;
+}
+ 
+/* days in other months */
+QCalendarWidget QAbstractItemView:disabled { color: $main-color-xd }
