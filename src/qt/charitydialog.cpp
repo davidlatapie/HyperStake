@@ -116,7 +116,7 @@ void StakeForCharityDialog::on_enableButton_clicked()
     if(model->getEncryptionStatus() == WalletModel::Locked)
     {
         ui->message->setStyleSheet("QLabel { color: black; }");
-        ui->message->setText(tr("Please unlock wallet before starting auto savings."));
+        ui->message->setText(tr("Please unlock wallet before starting stake for charity."));
         return;
     }
 
@@ -185,19 +185,6 @@ void StakeForCharityDialog::on_disableButton_clicked()
     ui->charityMinEdit->clear();
     ui->charityPercentEdit->clear();
     ui->message->setStyleSheet("QLabel { color: black; }");
-    ui->message->setText(tr("Auto Savings is now off"));
+    ui->message->setText(tr("Stake For Charity is now off"));
     return;
 }
-
-/*
-void StakeForCharityDialog::on_pushButton_clicked()
-{
-    QMessageBox msgBox;
-    pwalletMain->fStakeForCharity = false;
-    pwalletMain->StakeForCharityAddress = "";
-    pwalletMain->nStakeForCharityPercent = 0;
-
-    msgBox.setText("Stake For Charity Disabled");
-    msgBox.exec();
-
-}*/
