@@ -1,0 +1,4 @@
+Qt Wallet themes directory
+
+Each directory is separate theme - displayed in Themes menu.
+This directory should be copied to the same dir as compiled exe is.
