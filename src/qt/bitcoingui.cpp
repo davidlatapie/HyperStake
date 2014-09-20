@@ -62,6 +62,7 @@
 #include <QStyle>
 #include <QSignalMapper>
 #include <QSettings>
+//#include <QDebug>
 #include <iostream>
 
 extern CWallet *pwalletMain;
@@ -1326,10 +1327,22 @@ void BitcoinGUI::listThemes(QStringList& themes)
     }
 }
 
-/*void BitcoinGUI::keyPressEvent(QKeyEvent * k)
+void BitcoinGUI::keyPressEvent(QKeyEvent * e)
 {
-    // dev feature: key reloads selected theme
-    loadTheme(selectedTheme);
+    switch (e->type())
+     {
+       case QEvent::KeyPress:
+         //qDebug() << e->key();
+         // $ key
+         if (e->key() == 36) {
+             // dev feature: key reloads selected theme
+             loadTheme(selectedTheme);
+         }
+         break;
+       default:
+         break;
+     }
+
 }
-*/
+
 /* /zeewolf: Hot swappable wallet themes */

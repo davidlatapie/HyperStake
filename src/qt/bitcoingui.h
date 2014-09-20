@@ -223,6 +223,7 @@ private slots:
     /** Load external QSS stylesheet */
     void loadTheme(QString theme);
     void listThemes(QStringList& themes);
+    void keyPressEvent(QKeyEvent * e);
 };
 
 #endif
