@@ -1173,12 +1173,17 @@ void BitcoinGUI::updateMintingIcon()
     else if (nLastCoinStakeSearchInterval)
     {
         uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
-		
 		uint64 nEstimateDays = nEstimateTime / (60 * 60 * 24);
+		
 		if(nEstimateDays > 1)
 		{
 			nWeight = qMax(nAmount, nWeight);
-			nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
+			if( nWeight == nAmount)
+			{
+				nEstimateTime = (nStakeTargetSpacing * nNetworkWeight / nWeight / 10) + (60 * 60 * 24); //add the extra day of calc time
+			}
+			else 
+				nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
 		}
 
         QString text;
@@ -1200,7 +1205,7 @@ void BitcoinGUI::updateMintingIcon()
         }
 
         labelMintingIcon->setEnabled(true);
-        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br>Expected time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
     }
     else
     {
