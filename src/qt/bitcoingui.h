@@ -100,6 +100,8 @@ private:
 	QAction *checkWalletAction;
 	QAction *repairWalletAction;
     QAction *aboutQtAction;
+    QAction *themeDefaultAction;
+    QAction *themeCustomAction;
     QAction *openRPCConsoleAction;
 	QAction *blockAction;
 	QAction *blocksIconAction;
@@ -123,6 +125,11 @@ private:
 	uint64 nAmount;
 	int nCharityPercent;
 	QString strCharityAddress;
+    /* Themes support */
+    QString selectedTheme;
+    QStringList themesList;
+    QAction *customActions[100];
+    /* /Themes support */
 
     /** Create the main UI actions. */
     void createActions();
@@ -213,6 +220,10 @@ private slots:
     /** Update minting weight info */
     void updateMintingWeights();
 	void charityClicked(QString addr = "");
+    /** Load external QSS stylesheet */
+    void loadTheme(QString theme);
+    void listThemes(QStringList& themes);
+    void keyPressEvent(QKeyEvent * e);
 };
 
 #endif
