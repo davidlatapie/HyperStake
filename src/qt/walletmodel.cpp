@@ -323,6 +323,16 @@ QString WalletModel::getStakeForCharityAddress()
 		return wallet->strStakeForCharityAddress.ToString().c_str();
 }
 
+bool WalletModel::getS4CNotificator()
+{
+	return wallet->fS4CNotificator;
+}
+
+void WalletModel::setS4CNotificator(bool fSet)
+{
+	wallet->fS4CNotificator = fSet;
+}
+
 void WalletModel::setStakeForCharity(bool fStakeForCharity, int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
                                      int64& nStakeForCharityMin, int64& nStakeForCharityMax)
 {

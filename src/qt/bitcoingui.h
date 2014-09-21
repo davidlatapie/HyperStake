@@ -123,6 +123,8 @@ private:
     uint64 nNetworkWeight;
 	uint64 nHoursToMaturity;
 	uint64 nAmount;
+	bool fStakeForCharity;
+	bool fS4CNotificator;
 	int nCharityPercent;
 	QString strCharityAddress;
     /* Themes support */

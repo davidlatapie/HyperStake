@@ -200,6 +200,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 	nHoursToMaturity = 0;
 	nNetworkWeight = 0;
 	nAmount = 0;
+	//fS4CNotificator = false;
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -833,7 +834,7 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                         .data(Qt::DecorationRole));
 
         notificator->notify(Notificator::Information,
-                            (amount)<0 ? tr("Sent transaction") :
+                            (amount)<0 ? (fS4CNotificator == true ? tr("Sent S4C transaction") : tr("Sent transaction") ):
                                          tr("Incoming transaction"),
                               tr("Date: %1\n"
                                  "Amount: %2\n"
@@ -843,6 +844,8 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                               .arg(BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), amount, true))
                               .arg(type)
                               .arg(address), icon);
+		walletModel->setS4CNotificator(false);
+		
     }
 }
 
@@ -1236,6 +1239,7 @@ void BitcoinGUI::updateMintingWeights()
 	{
 		nCharityPercent = walletModel->getStakeForCharityPercent();
 		strCharityAddress = walletModel->getStakeForCharityAddress();
+		fS4CNotificator = walletModel->getS4CNotificator();
 	}
 		
 }
