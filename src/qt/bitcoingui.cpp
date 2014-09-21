@@ -1176,8 +1176,9 @@ void BitcoinGUI::updateMintingIcon()
         labelMintingIcon->setEnabled(false);
     }
     else if (nLastCoinStakeSearchInterval)
-    {
-        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
+    {	
+		uint64 nAccuracyAdjustment = 3; // this is a manual adjustment in an attempt to make staking estimate more accurate
+        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 		uint64 nEstimateDays = nEstimateTime / (60 * 60 * 24);
 		
 		if(nEstimateDays > 1)
@@ -1185,10 +1186,10 @@ void BitcoinGUI::updateMintingIcon()
 			nWeight = qMax(nAmount, nWeight);
 			if( nWeight == nAmount)
 			{
-				nEstimateTime = (nStakeTargetSpacing * nNetworkWeight / nWeight / 10) + (60 * 60 * 24); //add the extra day of calc time
+				nEstimateTime = (nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment) + (60 * 60 * 24); //add the extra day of calc time
 			}
 			else 
-				nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
+				nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 		}
 
         QString text;
