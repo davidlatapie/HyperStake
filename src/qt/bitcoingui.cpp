@@ -185,7 +185,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     frameBlocksLayout->addStretch();
 
     // Set minting pixmap
-    labelMintingIcon->setPixmap(QIcon(":/icons/minting").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelMintingIcon->setEnabled(false);
     // Add timer to update minting info
     QTimer *timerMintingIcon = new QTimer(labelMintingIcon);
@@ -223,6 +222,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     statusBar()->addPermanentWidget(frameBlocks);
 
     syncIconMovie = new QMovie(":/movies/update_spinner", "mng", this);
+    miningIconMovie = new QMovie(":/movies/mining", "mng", this);
 	// this->setStyleSheet("background-color: #effbef;");
 
     // Clicking on a transaction on the overview page simply sends you to transaction history page
@@ -1159,21 +1159,25 @@ void BitcoinGUI::updateMintingIcon()
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (vNodes.empty())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (IsInitialBlockDownload())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (!nWeight)
     {
         labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1<br>S4C %: %3<br>S4C Address: %4").arg(nNetworkWeight).arg(nHoursToMaturity).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (nLastCoinStakeSearchInterval)
     {
@@ -1209,6 +1213,8 @@ void BitcoinGUI::updateMintingIcon()
             text = tr("%n day(s)", "", nEstimateTime/(60*60*24));
         }
 
+        labelMintingIcon->setMovie(miningIconMovie);
+        miningIconMovie->start();
         labelMintingIcon->setEnabled(true);
         labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
     }
@@ -1216,6 +1222,7 @@ void BitcoinGUI::updateMintingIcon()
     {
         labelMintingIcon->setToolTip(tr("Not minting."));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
 }
 
