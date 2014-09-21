@@ -21,13 +21,17 @@
 *.app
 
 
-# truckcoin stuff
+# hyperstake stuff
 
 object_script.*
 .DS_Store
-truckcoin-qt
-truckcoin-qt.exe
-truckcoind
-truckcoind.exe
+hyperstake-qt
+hyperstake-qt.exe
+hyperstaked
+hyperstaked.exe
 qrc_bitcoin.cpp
 build/*
+release/*
+makefile.release
+makefile.debug
+makefile
