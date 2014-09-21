@@ -821,6 +821,8 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                     .data(Qt::EditRole).toULongLong();
     if(!clientModel->inInitialBlockDownload())
     {
+		fS4CNotificator = walletModel->getS4CNotificator();
+		
         // On new transaction, make an info balloon
         // Unless the initial block download is in progress, to prevent balloon-spam
         QString date = ttm->index(start, TransactionTableModel::Date, parent)
@@ -1239,7 +1241,6 @@ void BitcoinGUI::updateMintingWeights()
 	{
 		nCharityPercent = walletModel->getStakeForCharityPercent();
 		strCharityAddress = walletModel->getStakeForCharityAddress();
-		fS4CNotificator = walletModel->getS4CNotificator();
 	}
 		
 }
