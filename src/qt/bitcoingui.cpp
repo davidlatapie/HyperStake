@@ -62,7 +62,7 @@
 #include <QStyle>
 #include <QSignalMapper>
 #include <QSettings>
-//#include <QDebug>
+#include <QDebug>
 #include <iostream>
 
 extern CWallet *pwalletMain;
@@ -1268,9 +1268,10 @@ void BitcoinGUI::charityClicked(QString addr)
 /* zeewolf: Hot swappable wallet themes */
 void BitcoinGUI::loadTheme(QString theme)
 {
+    QString themesDir = qApp->applicationDirPath() + "/themes";
     // if theme selected
     if (theme != "") {
-        QFile qss(qApp->applicationDirPath() + "/themes/" + theme + "/styles.qss");
+        QFile qss(themesDir + "/" + theme + "/styles.qss");
         // open qss
         if (qss.open(QFile::ReadOnly))
         {
@@ -1304,6 +1305,8 @@ void BitcoinGUI::loadTheme(QString theme)
                 }
             }
 
+            // replace path to themes dir
+            styleSheet.replace(QString("$themes-dir"), themesDir);
             qss.close();
             // Apply the result qss file to Qt
             qApp->setStyleSheet(styleSheet);
