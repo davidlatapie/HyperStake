@@ -117,6 +117,7 @@ private:
     RPCConsole *rpcConsole;
 
     QMovie *syncIconMovie;
+    QMovie *miningIconMovie;
 
     uint64 nMinMax;
     uint64 nWeight;
