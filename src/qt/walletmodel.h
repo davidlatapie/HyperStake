@@ -104,6 +104,8 @@ public:
 	//Wallet Information about StakeForCharity
 	int getStakeForCharityPercent();
 	QString getStakeForCharityAddress();
+	bool getS4CNotificator();
+	void setS4CNotificator(bool fSet);
 	void setStakeForCharity(bool fStakeForCharity, int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
 		qint64& nStakeForCharityMin, qint64& nStakeForCharityMax);
     // RAI object for unlocking wallet, returned by requestUnlock()

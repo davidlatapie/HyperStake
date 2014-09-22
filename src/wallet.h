@@ -86,6 +86,7 @@ public:
     bool fFileBacked;
     std::string strWalletFile;
 	bool fStakeForCharity;
+	bool fS4CNotificator;
 	int nStakeForCharityPercent;
 	int64 nStakeForCharityMin;
 	int64 nStakeForCharityMax;
@@ -107,6 +108,7 @@ public:
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
 		fStakeForCharity = false;
+		fS4CNotificator = false;
         nStakeForCharityPercent = 0;
         strStakeForCharityAddress = "";
 		nStakeForCharityMin = 0;
@@ -122,6 +124,7 @@ public:
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
 		fStakeForCharity = false;
+		fS4CNotificator = false;
         nStakeForCharityPercent = 0;
         strStakeForCharityAddress = "";
 		nStakeForCharityMin = MIN_TXOUT_AMOUNT;

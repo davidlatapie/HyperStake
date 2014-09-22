@@ -117,12 +117,15 @@ private:
     RPCConsole *rpcConsole;
 
     QMovie *syncIconMovie;
+    QMovie *miningIconMovie;
 
     uint64 nMinMax;
     uint64 nWeight;
     uint64 nNetworkWeight;
 	uint64 nHoursToMaturity;
 	uint64 nAmount;
+	bool fStakeForCharity;
+	bool fS4CNotificator;
 	int nCharityPercent;
 	QString strCharityAddress;
     /* Themes support */

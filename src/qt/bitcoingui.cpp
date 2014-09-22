@@ -185,7 +185,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     frameBlocksLayout->addStretch();
 
     // Set minting pixmap
-    labelMintingIcon->setPixmap(QIcon(":/icons/minting").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelMintingIcon->setEnabled(false);
     // Add timer to update minting info
     QTimer *timerMintingIcon = new QTimer(labelMintingIcon);
@@ -200,6 +199,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 	nHoursToMaturity = 0;
 	nNetworkWeight = 0;
 	nAmount = 0;
+	//fS4CNotificator = false;
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -222,6 +222,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     statusBar()->addPermanentWidget(frameBlocks);
 
     syncIconMovie = new QMovie(":/movies/update_spinner", "mng", this);
+    miningIconMovie = new QMovie(":/movies/mining", "mng", this);
 	// this->setStyleSheet("background-color: #effbef;");
 
     // Clicking on a transaction on the overview page simply sends you to transaction history page
@@ -820,6 +821,8 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                     .data(Qt::EditRole).toULongLong();
     if(!clientModel->inInitialBlockDownload())
     {
+		fS4CNotificator = walletModel->getS4CNotificator();
+		
         // On new transaction, make an info balloon
         // Unless the initial block download is in progress, to prevent balloon-spam
         QString date = ttm->index(start, TransactionTableModel::Date, parent)
@@ -833,7 +836,7 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                         .data(Qt::DecorationRole));
 
         notificator->notify(Notificator::Information,
-                            (amount)<0 ? tr("Sent transaction") :
+                            (amount)<0 ? (fS4CNotificator == true ? tr("Sent S4C transaction") : tr("Sent transaction") ):
                                          tr("Incoming transaction"),
                               tr("Date: %1\n"
                                  "Amount: %2\n"
@@ -843,6 +846,8 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                               .arg(BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), amount, true))
                               .arg(type)
                               .arg(address), icon);
+		walletModel->setS4CNotificator(false);
+		
     }
 }
 
@@ -1154,31 +1159,41 @@ void BitcoinGUI::updateMintingIcon()
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (vNodes.empty())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (IsInitialBlockDownload())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (!nWeight)
     {
         labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1<br>S4C %: %3<br>S4C Address: %4").arg(nNetworkWeight).arg(nHoursToMaturity).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
     else if (nLastCoinStakeSearchInterval)
-    {
-        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
-		
+    {	
+		uint64 nAccuracyAdjustment = 3; // this is a manual adjustment in an attempt to make staking estimate more accurate
+        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 		uint64 nEstimateDays = nEstimateTime / (60 * 60 * 24);
+		
 		if(nEstimateDays > 1)
 		{
 			nWeight = qMax(nAmount, nWeight);
-			nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / 10;
+			if( nWeight == nAmount)
+			{
+				nEstimateTime = (nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment) + (60 * 60 * 24); //add the extra day of calc time
+			}
+			else 
+				nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 		}
 
         QString text;
@@ -1199,13 +1214,16 @@ void BitcoinGUI::updateMintingIcon()
             text = tr("%n day(s)", "", nEstimateTime/(60*60*24));
         }
 
+        labelMintingIcon->setMovie(miningIconMovie);
+        miningIconMovie->start();
         labelMintingIcon->setEnabled(true);
-        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br>Expected time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
     }
     else
     {
         labelMintingIcon->setToolTip(tr("Not minting."));
         labelMintingIcon->setEnabled(false);
+        miningIconMovie->stop();
     }
 }
 
