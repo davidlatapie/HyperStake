@@ -1159,25 +1159,25 @@ void BitcoinGUI::updateMintingIcon()
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
-        miningIconMovie->stop();
+        labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (vNodes.empty())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
-        miningIconMovie->stop();
+        labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (IsInitialBlockDownload())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
-        miningIconMovie->stop();
+        labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (!nWeight)
     {
         labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1<br>S4C %: %3<br>S4C Address: %4").arg(nNetworkWeight).arg(nHoursToMaturity).arg(nCharityPercent).arg(strCharityAddress));
         labelMintingIcon->setEnabled(false);
-        miningIconMovie->stop();
+        labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (nLastCoinStakeSearchInterval)
     {	
@@ -1223,7 +1223,7 @@ void BitcoinGUI::updateMintingIcon()
     {
         labelMintingIcon->setToolTip(tr("Not minting."));
         labelMintingIcon->setEnabled(false);
-        miningIconMovie->stop();
+        labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
 }
 
