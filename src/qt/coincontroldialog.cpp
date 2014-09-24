@@ -111,12 +111,12 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     ui->treeWidget->setColumnWidth(COLUMN_CHECKBOX, 45);
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
 	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 85);
-	ui->treeWidget->setColumnWidth(COLUMN_AGE, 45);
-	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 85);
+	ui->treeWidget->setColumnWidth(COLUMN_AGE, 55);
+	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 100);
 	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 70);
     ui->treeWidget->setColumnWidth(COLUMN_LABEL, 85);
     ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 150);
-    ui->treeWidget->setColumnWidth(COLUMN_DATE, 100);
+    ui->treeWidget->setColumnWidth(COLUMN_DATE, 110);
     ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
 	ui->treeWidget->setColumnHidden(COLUMN_AGE_INT64, true);
 	ui->treeWidget->setColumnHidden(COLUMN_POTENTIALSTAKE_INT64, true);
