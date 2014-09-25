@@ -18,7 +18,6 @@
 #include "util.h"
 #include "walletdb.h"
 
-extern bool fWalletUnlockMintOnly;
 class CAccountingEntry;
 class CWalletTx;
 class CReserveKey;
@@ -91,6 +90,7 @@ public:
 	int64 nStakeForCharityMin;
 	int64 nStakeForCharityMax;
 	CBitcoinAddress strStakeForCharityAddress;
+	bool fWalletUnlockMintOnly;
 	
     std::set<int64> setKeyPool;
 
@@ -113,6 +113,7 @@ public:
         strStakeForCharityAddress = "";
 		nStakeForCharityMin = 0;
 		nStakeForCharityMax = 0;
+		fWalletUnlockMintOnly = false;
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -129,6 +130,7 @@ public:
         strStakeForCharityAddress = "";
 		nStakeForCharityMin = MIN_TXOUT_AMOUNT;
 		nStakeForCharityMax = MAX_MONEY;
+		fWalletUnlockMintOnly = false;
     }
 
     std::map<uint256, CWalletTx> mapWallet;

@@ -184,7 +184,8 @@ private slots:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
-
+	/** Allow user to unlock wallet from click */
+	void lockIconClicked();
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
@@ -208,11 +209,14 @@ private slots:
     void backupWallet();
     /** Change encrypted wallet passphrase */
     void changePassphrase();
+	/** Lock Wallet */
+	void lockWallet();
     /** Toggle unlocking wallet temporarily */
     void lockWalletToggle();
-
+	/** Ask for passphrase to unlock wallet temporarily */
 	void unlockWallet();
-
+	/** Ask for passphrase to unlock wallet for the session to mint */
+	void unlockWalletForMint();
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */
     void showNormalIfMinimized(bool fToggleHidden = false);
     /** simply calls showNormalIfMinimized(true) for use in SLOT() macro */
