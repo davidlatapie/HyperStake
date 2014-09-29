@@ -91,6 +91,9 @@ public:
 	int64 nStakeForCharityMax;
 	CBitcoinAddress strStakeForCharityAddress;
 	bool fWalletUnlockMintOnly;
+	int64 nAmountSelected;
+	std::string strBestAddress;
+	bool fCombine;
 	
     std::set<int64> setKeyPool;
 
@@ -114,6 +117,9 @@ public:
 		nStakeForCharityMin = 0;
 		nStakeForCharityMax = 0;
 		fWalletUnlockMintOnly = false;
+		nAmountSelected = 0;
+		strBestAddress = "";
+		fCombine = false;
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -131,6 +137,9 @@ public:
 		nStakeForCharityMin = MIN_TXOUT_AMOUNT;
 		nStakeForCharityMax = MAX_MONEY;
 		fWalletUnlockMintOnly = false;
+		nAmountSelected = 0;
+		strBestAddress = "";
+		fCombine = false;
     }
 
     std::map<uint256, CWalletTx> mapWallet;

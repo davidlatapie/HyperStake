@@ -99,8 +99,14 @@ public:
 	// Wallet Repair
 	void checkWallet(int& nMismatchSpent, qint64& nBalanceInQuestion, int& nOrphansFound);
 	void repairWallet(int& nMismatchSpent, qint64& nBalanceInQuestion, int& nOrphansFound);
-	//Stake Weight for coin control dialog
+	// Pass coin control information
 	void getStakeWeightFromValue(const qint64& nTime, const qint64& nValue, quint64& nWeight);
+	void setAmountSelected(qint64 nAmountSelected);
+	qint64 getAmountSelected();
+	void setBestAddress(std::string strAddress);
+	QString getBestAddress();
+	void setCombine(bool fCombine);
+	bool getCombine();
 	//Wallet Information about StakeForCharity
 	int getStakeForCharityPercent();
 	QString getStakeForCharityAddress();
@@ -108,6 +114,7 @@ public:
 	void setS4CNotificator(bool fSet);
 	void setStakeForCharity(bool fStakeForCharity, int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
 		qint64& nStakeForCharityMin, qint64& nStakeForCharityMax);
+		
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
     {

@@ -368,10 +368,42 @@ void WalletModel::setStakeForCharity(bool fStakeForCharity, int& nStakeForCharit
     }
 }
 
+//Information for coin control
 void WalletModel::getStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight)
 {
 	wallet->GetStakeWeightFromValue(nTime, nValue, nWeight);
 }
+
+void WalletModel::setAmountSelected(qint64 nAmountSelected)
+{
+	wallet->nAmountSelected = nAmountSelected;
+}
+
+qint64 WalletModel::getAmountSelected()
+{
+	return wallet->nAmountSelected;
+}
+
+void WalletModel::setBestAddress(std::string strAddress)
+{
+	wallet->strBestAddress = strAddress;
+}
+
+QString WalletModel::getBestAddress()
+{
+	return QString::fromStdString(wallet->strBestAddress);
+}
+
+void WalletModel::setCombine(bool fCombine)
+{
+	wallet->fCombine = fCombine;
+}
+
+bool WalletModel::getCombine()
+{
+	return wallet->fCombine;
+}
+
 
 void WalletModel::checkWallet(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound)
 {
