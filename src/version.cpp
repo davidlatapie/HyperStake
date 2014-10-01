@@ -11,7 +11,7 @@
 const std::string CLIENT_NAME("HyperStake");
 
 // Client version number
-#define CLIENT_VERSION_SUFFIX   "HyperStake-1.0.6"
+#define CLIENT_VERSION_SUFFIX   "HyperStake-1.0.6.5-BETA"
 
 
 // The following part of the code determines the CLIENT_BUILD variable.
