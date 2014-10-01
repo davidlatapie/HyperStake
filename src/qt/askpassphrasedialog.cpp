@@ -35,10 +35,6 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
             ui->warningLabel->setText(tr("Enter the new passphrase to the wallet.<br/>Please use a passphrase of <b>10 or more random characters</b>, or <b>eight or more words</b>."));
             setWindowTitle(tr("Encrypt wallet"));
             break;
-        case UnlockMinting:
-            ui->mintingCheckBox->setChecked(true);
-            ui->mintingCheckBox->show();
-            // fallthru
         case Unlock: // Ask passphrase
             ui->warningLabel->setText(tr("This operation needs your wallet passphrase to unlock the wallet."));
             ui->passLabel2->hide();
@@ -154,7 +150,6 @@ void AskPassphraseDialog::accept()
             QDialog::reject(); // Cancelled
         }
         } break;
-    case UnlockMinting:
     case Unlock:
         if(!model->setWalletLocked(false, oldpass, false))
             QMessageBox::critical(this, tr("Wallet unlock failed"),
@@ -215,7 +210,6 @@ void AskPassphraseDialog::textChanged()
     case Encrypt: // New passphrase x2
         acceptable = !ui->passEdit2->text().isEmpty() && !ui->passEdit3->text().isEmpty();
         break;
-    case UnlockMinting:
     case Unlock: // Old passphrase x1
 	case UnlockForMint: // Old passphrase x1
     case Decrypt:
