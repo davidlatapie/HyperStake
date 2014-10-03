@@ -56,6 +56,10 @@ static const int fHaveUPnP = false;
 static const uint256 hashGenesisBlockOfficial("0x000005fe04e512585c3611369c7ce23f130958038c18a462577d002680dab4fc");
 static const uint256 hashGenesisBlockTestNet ("0x0000076130e1a816bab8f26310839ab601305b2315dc3b8b1a250faa0cb1f9a8");
 
+// HighBlock is used to speed up blockchain download. It is being sent by server instead of last PoW block.
+static const uint256 hashHighBlock ("0x94a999e4024a647e439584cb270d28ca92dcbd3e90522b29cc17da4cc1104a7d");
+static const int HIGH_BLOCK_INDEX = 99999;
+
 static const int64 nMaxClockDrift = 15 * 60;        // fifteen minutes
 static const int64 MAX_TIME_SINCE_BEST_BLOCK = 10; // how many seconds to wait before sending next PushGetBlocks()
 extern CScript COINBASE_FLAGS;
