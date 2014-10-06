@@ -973,9 +973,7 @@ void BitcoinGUI::setEncryptionStatus(int status)
         lockWalletToggleAction->setToolTip(tr("Lock wallet"));
         break;
     case WalletModel::Locked:
-        labelEncryptionIcon->show();
-        labelEncryptionIcon->setPixmap(QIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
+        labelEncryptionIcon->hide();
         encryptWalletAction->setChecked(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
 		unlockWalletAction->setChecked(true);
@@ -1086,8 +1084,7 @@ void BitcoinGUI::lockWalletToggle()
     // Unlock wallet when requested by wallet model
     if(walletModel->getEncryptionStatus() == WalletModel::Locked)
     {
-        AskPassphraseDialog::Mode mode = AskPassphraseDialog::UnlockMinting;
-        AskPassphraseDialog dlg(mode, this);
+		AskPassphraseDialog dlg(AskPassphraseDialog::Unlock, this);
         dlg.setModel(walletModel);
         dlg.exec();
     }
