@@ -453,13 +453,15 @@ void SendCoinsDialog::updateDisplayUnit()
          CoinControlDialog::coinControl->destChange = CBitcoinAddress(text.toStdString()).Get();
  
          // label for the change address
-         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:black;}");
+         ui->labelCoinControlChangeLabel->setProperty("error", false);
+         ui->labelCoinControlChangeLabel->style()->polish(ui->labelCoinControlChangeLabel);
          if (text.isEmpty())
              ui->labelCoinControlChangeLabel->setText("");
          else if (!CBitcoinAddress(text.toStdString()).IsValid())
          {
-             ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
-             ui->labelCoinControlChangeLabel->setText(tr("WARNING: Invalid Bitcoin address"));
+             ui->labelCoinControlChangeLabel->setProperty("error", true);
+             ui->labelCoinControlChangeLabel->style()->polish(ui->labelCoinControlChangeLabel);
+             ui->labelCoinControlChangeLabel->setText(tr("WARNING: Invalid HyperStake address"));
          }
          else
          {
@@ -475,7 +477,8 @@ void SendCoinsDialog::updateDisplayUnit()
                      ui->labelCoinControlChangeLabel->setText(tr("(no label)"));
                  else
                  {
-                     ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
+                     ui->labelCoinControlChangeLabel->setProperty("error", true);
+                     ui->labelCoinControlChangeLabel->style()->polish(ui->labelCoinControlChangeLabel);
                      ui->labelCoinControlChangeLabel->setText(tr("WARNING: unknown change address"));
                  }
              }

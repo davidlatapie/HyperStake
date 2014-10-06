@@ -10,9 +10,6 @@ static const int MAX_PASSPHRASE_SIZE = 1024;
 /* BitcoinGUI -- Size of icons in status bar */
 static const int STATUSBAR_ICONSIZE = 32;
 
-/* Invalid field background style */
-#define STYLE_INVALID "background:#FF8080"
-
 /* Transaction list -- unconfirmed transaction */
 #define COLOR_UNCONFIRMED QColor(128, 128, 128)
 /* Transaction list -- negative amount */

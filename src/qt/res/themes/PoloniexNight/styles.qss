@@ -1,6 +1,6 @@
 /**
- * HyperBlue Qt theme - v1.1
- * Last changed: 2014-10-06
+ * PoloniexNight Qt theme - v1.0
+ * Last changed: 2014-10-05
  * Author: ZeeWolf - ##hyperstake (freenode)
  * HyperStake - faster than light!
  */
@@ -12,53 +12,88 @@
  */
  
 /**
- * Text : 				#88c1d0
- * BG : 					#0d1f33
- * Lighter : 			#14283E | #1C324A
- * Darker : 			#071728 | #03101E
+ * Colors :
  *
- * Complement : 	#4E350F
- * Lighter : 			#604419 | #715325
- * Darker : 			#3D2807
- * Headers : 			#dca753
- * Input border: 	#595959
+ * BG top : 		#434d52
+ * BG bottom : 	#273034
+ * BG panel : 	#2e363c
+ * Text : #8fa5a7
+ * Text lighter : #a4b6b8
+ * BG0  : #3D474C
+ * BG1  : #2e363c
+ * BG2  : #283035
+ * Complement : #c28208
+ * Top-bar : #2b3236 - #242b2f
+ * Top-bar-border : #181d20
+ * Tab-color-1 : #3a4449
+ * Tab-color-2 : #333c41
+ * Body : #434d52 - #273034
+ * Input border: 	#202629
+ * Input bg : #333b3f
+ * Input focus : #3D639D
+ * Button bg : #394348
+ * Button border : #272E34
+ * Button bg hover : #434e54
+ * Button bg text hover : #ffffff
+ * Table header : #21272c
+ * Table row even : #2b3239
+ * Table row odd : #293036
+ * Table grid : #202629
+ * Tooltip bg : #3c474f
+ * Tooltip border : #202629
  */
 
 /** [VARS]
-	$text-color = #88c1d0
-	$main-color-l = #14283E
-	$main-color-xl = #1C324A
-	$main-color-d = #071728
-	$main-color-xd = #03101E
-	$main-color-transparent-1 = rgba(13,31,51,120)
-	$main-color-transparent-2 = rgba(220,167,83,170)
-	$shade-transparent-1 = rgba(0,0,0,50)
-	$shade-transparent-2 = rgba(0,0,0,100)
-	$main-color = #0d1f33
+	$header-text = font-size: 24px; font-family: "Times New Roman";	color: #8fa5a7
+	$custom-font-1 = font-family: "Times New Roman"
+	$top-bar-color-1 = #2b3236
+	$top-bar-color-2 = #242b2f
+	$top-bar-border-color = #181d20
+	$tab-color-1 = #3a4449
+	$tab-color-2 = #333c41
+	$text-color = #8fa5a7
+	$text-lighter-color = #a4b6b8
+	$panel = background-color: #2e363c; border-radius: 7px;	border: 0; border: 1px solid #202629
+	$bg-top = #434d52
+	$bg-bottom = #273034
+	$bg-panel = #2e363c
+	$input-bg-color = #333b3f
+	$input-border-color = #202629
+	$input-border-focus-color = #3D639D
+	$button-bg-color = #394348
+	$button-bg-hover-color = #434e54
+	$button-border-color = #272E34
+	$button-text-hover-color = #ffffff
+	$grid-color = #202629
+	$table-header-bg = #21272c
+	$table-row-bg = #2b3239
+	$table-row-alternate = #293036
+	$tooltip-bg-color = #3c474f
+	$tooltip-border-color = #202629
+	$main-color = #2e363c
 	$text-grey-d = #0a1827
-	$accent-color = #dca753
+	$accent-color = #c28208
 	$brightest-color = #fff
-	$input-border-color = #666
 	$header-font = "Verdana, Geneva, sans-serif"
+	$focused-input = 	border: 2px solid #3D639D; border-radius: 2px
 	$error-color = #FF6363
 	$success-color = #73ff00
 [/VARS] */
 
-* { gridline-color: $main-color }
+* { gridline-color: $grid-color }
 
 /* Dialog, Window */
 QDialog, QMainWindow {
-	background-image: url($themes-dir/HyperBlue/bg.png);
-	background-repeat: repeat-xy;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #434d52, stop:1 #273034);
 }
 
 #coinLogo {
-	qproperty-pixmap: url($themes-dir/HyperBlue/hypstk-watermark.png);
+	qproperty-pixmap: url($themes-dir/PoloniexNight/hypstk-watermark.png);
 	qproperty-alignment: 'AlignBottom | AlignLeft';
 }
 
 /* Frames */
-QFrame {	
+QFrame {
 	/* too general - do not style */
 }
 
@@ -88,22 +123,17 @@ QLabel[ok="true"], QLabel[status="ok"] {
 QValidatedLineEdit[error="true"], QDoubleSpinBox[error="true"] {
 	border-color: $error-color;
 }
-
+ 
 /* Frames labels - Balance, Stake, etc. */
 
 /* Balance frame */
 QFrame#frame {
-	background-color: $shade-transparent-1;
-	border-bottom: 3px solid $shade-transparent-2;
-	border-right: 3px solid $shade-transparent-2;
+	$panel;
 }
 
 /* Recent transactions frame */
 QFrame#frame_2 {
-	background-color: $shade-transparent-1;
-	border: none;
-	border-bottom: 3px solid $shade-transparent-2;
-	border-right: 3px solid $shade-transparent-2;
+	$panel;
 }
 
 /* Panel in Coin Control window */
@@ -112,22 +142,16 @@ QFrame#frame_2 QFrame {
 }
 
 QFrame#rangeFrame {
-	background-color: $shade-transparent-1;
-	border: none;
+	$panel;
 	margin-top: 10px;
 }
 
 #CoinControlDialog QFrame#frame {
-	border: none;
-	border-bottom: 3px solid $shade-transparent-2;
-	border-right: 3px solid $shade-transparent-2;
+	$panel;
 }
 
 QFrame#frameCoinControl {
-	background-color: $shade-transparent-1;
-	border: none;
-	border-bottom: 3px solid $shade-transparent-2;
-	border-right: 3px solid $shade-transparent-2;
+	$panel;
 }
 
 /* Balance value */
@@ -138,29 +162,23 @@ QFrame#frameCoinControl {
 
 /* Wallet label */
 QFrame#frame #label_5 {
-	font-size: 15px;
-	font-family: $header-font;
-	color: $accent-color;
+	$header-text;
 }
 
 /* Recent transactions label */
 QFrame#frame_2 #label_4 {
-	font-size: 15px;
-	font-family: $header-font;
-	color: $accent-color;
+	$header-text;
 }
 
 /* ScrollArea */
 QScrollArea {
-	background-color: $shade-transparent-1;
-	border: none;
-	border-bottom: 3px solid $shade-transparent-2;
-	border-right: 3px solid $shade-transparent-2;
+	$panel;
 }
 
 #scrollAreaWidgetContents { 
 	background-color: transparent;
 }
+
 #scrollAreaWidgetContents > QFrame {
 	background-color: transparent;
 	border-width: 0px;
@@ -178,50 +196,49 @@ QScrollArea {
 /* Text edit fields */
 QPlainTextEdit, QLineEdit {
 	padding: 4px;
-	background-color: $main-color;
-	color: $brightest-color;
+	background-color: $input-bg-color;
+	color: $text-color;
 	border: 1px solid $input-border-color;
 }
 
 QPlainTextEdit:focus, QLineEdit:focus {
-	border: 1px solid $accent-color;
+	$focused-input;
+	padding: 3px;
 }
 
 QPlainTextEdit:disabled, QLineEdit:disabled {
-	border-color: $main-color-xd;
 	color: $input-border-color;
 }
 
 /* Text edit - debug window */
 QTextEdit {
 	padding: 4px;
-	background-color: transparent;
-	color: $brightest-color;
-	border: none;
+	background-color: $input-bg-color;
+	color: $text-color;
+	border: 1px solid $input-border-color;
 }
 
 QTextEdit:disabled {
-	border-color: $main-color-xd;
+	border-color: $top-bar-border-color;
 	color: $input-border-color;
 }
 
 /* Combo box */
 QComboBox {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $main-color-xl, stop:1 $main-color);
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #434d52, stop:1 #273034);
 	color: $text-color;
 	border: 1px solid $input-border-color;
 	border-radius: 3px; /* same radius as the QComboBox */
-	padding: 3px 18px 3px 4px;
+	padding: 4px 18px 4px 4px;
 	min-width: 6em;
 }
 
 QComboBox:on {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $main-color, stop:1 $main-color-xl);
-	border-color: $accent-color;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #273034, stop:1 #434d52);
 }
 
 QComboBox:disabled {
-	border-color: $main-color-xd;
+	border-color: $top-bar-border-color;
 	color: $input-border-color;
 }
 
@@ -231,16 +248,16 @@ QComboBox::drop-down:disabled {
 
 QComboBox::down-arrow {
 	/* Custom dropdown symbol */
-	image: url($themes-dir/HyperBlue/down-arrow.png);
+	image: url($themes-dir/PoloniexNight/down-arrow.png);
 }
 
 QComboBox::down-arrow:disabled {
-	image: url($themes-dir/HyperBlue/down-arrow-disabled.png);
+	image: url($themes-dir/PoloniexNight/down-arrow-disabled.png);
 }
 
 QComboBox::down-arrow:on {
 	/* Custom dropdown symbol */
-	image: url($themes-dir/HyperBlue/up-arrow.png);
+	image: url($themes-dir/PoloniexNight/up-arrow.png);
 }
 
 QComboBox::drop-down {
@@ -248,41 +265,40 @@ QComboBox::drop-down {
 }
 
 QComboBox QAbstractItemView {
-	border: 1px solid $main-color-xl;
+	border: 1px solid $tooltip-border-color;
 	color: $text-color;
-	background-color: $main-color;
+	background-color: $tooltip-bg-color;
 	outline: 0px;
 }
 
 QComboBox QListView {
 	border: none;
-	selection-color: $main-color;
+	selection-color: $tooltip-bg-color;
 	selection-background-color: $text-color;
 }
 
 /* Up&down spin box */
 QDateTimeEdit, QSpinBox, QDoubleSpinBox {
 	padding: 3px;
-	background-color: $main-color;
-	color: $brightest-color;
+	background-color: $input-bg-color;
+	color: $text-color;
 	border: 1px solid $input-border-color;
 }
 
 QDateTimeEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
 	border-color: $accent-color;
 }
-
 QDateTimeEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {
-	border-color: $main-color-xd;
+	border-color: $top-bar-border-color;
 	color: $input-border-color;
 }
 
 QDateTimeEdit::down-arrow {
-	image: url($themes-dir/HyperBlue/calendar.png);
+	image: url($themes-dir/PoloniexNight/calendar.png);
 }
 
 QDateTimeEdit::down-arrow:disabled {
-	image: url($themes-dir/HyperBlue/calendar-disabled.png);
+	image: url($themes-dir/PoloniexNight/calendar-disabled.png);
 }
 
 QDateTimeEdit::drop-down {
@@ -290,117 +306,105 @@ QDateTimeEdit::drop-down {
 }
 
 QDoubleSpinBox::down-button {
-	image: url($themes-dir/HyperBlue/down-arrow.png);
+	image: url($themes-dir/PoloniexNight/down-arrow.png);
 }
 
 QDoubleSpinBox::up-button {
-	image: url($themes-dir/HyperBlue/up-arrow.png);
+	image: url($themes-dir/PoloniexNight/up-arrow.png);
 }
 
 /* Button */
 QPushButton {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 1, stop: 0 $text-color, stop: 0.5 $main-color-xd);
+	background-color: $button-bg-color;
+	border: 1px solid $button-border-color;
+	border-radius: 3px;
 	color: $text-color;
-	padding: 4px;
-	border: 2px solid $text-color;
-	outline: none;
 	font-family: $header-font;
 	font-size: 12px;
-	border-radius: 3px;
 	/*min-width: 6em;*/
+	outline: none;
+	padding: 4px;
 }
 
 QPushButton[text="OK"] {
 	width: 6em;
 }
-
 QToolButton {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 1, stop: 0 $text-color, stop: 0.5 $main-color-xd);
+	background-color: $button-bg-color;
+	border: 1px solid $button-border-color;
+	border-radius: 3px;
 	color: $text-color;
-	padding: 4px;
-	border: 2px solid $text-color;
-	outline: none;
 	font-family: $header-font;
 	font-size: 12px;
-	border-radius: 3px;
+	outline: none;
+	padding: 4px;
 }
 
 QPushButton:hover, QToolButton:hover {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 1, stop: 0 $accent-color, stop: 0.5 $main-color-xd);
-	color: $accent-color;
-	border: 2px solid $accent-color;
-}
-
-QPushButton:disabled, QToolButton:disabled {
-	background-color: $main-color-xd;
-	border: 2px solid $input-border-color;
-	color: $main-color-xl;
+	background-color: $button-bg-hover-color;
+	color: $button-text-hover-color;
 }
 
 QPushButton:pressed, QToolButton:pressed {
-	background-color: $accent-color;
-	/*border: 2px solid transparent;*/
-	color: $main-color-xd;
+	background-color: $button-border-color;
+	color: $accent-color;
+}
+
+QPushButton:disabled, QToolButton:disabled {
+	background-color: $button-border-color;
+	color: $tab-color-2;
+	border: 1px solid $button-bg-color;
 }
 
 /* Toolbar */
 QToolBar {
-	background: $main-color-l;
-	spacing: 0px; /* spacing between items in the tool bar */
-	border-bottom: 3px solid $main-color-xd;
-	border-top: 1px solid $main-color-xd;
-	min-height: 40px;
-	padding: 0px;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $top-bar-color-1, stop:1 $top-bar-color-2);
+	spacing: 3px; /* spacing between items in the tool bar */
+	margin-bottom: 0px;
+	border: none;
+	border-bottom: 1px solid $top-bar-border-color;
 }
 
 QToolBar::handle {
 	padding: 0px;
-	background-image: url($themes-dir/HyperBlue/toolbar-handle.png);
-	background-repeat: repeat-y;
-	background-position: top center;
+	background-color: transparent;
 }
 
 /* Toolbar buttons */
 QToolBar QToolButton { /* all types of tool button */
-	border-radius: 0px;
-	background-color: transparent;
-	color: $text-color;
-	padding: 3px 1px 5px 2px;
-	font-family: $header-font;
-	font-size: 12px;
-	margin-top: 4px;
-	border: none;
+	border: 1px solid $top-bar-border-color;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-1, stop:1 $tab-color-2);
+	color: $text-lighter-color;
+	padding: 4px 2px;
+	font-size: 14px;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+	$custom-font-1;
+	margin-top: 12px;
 }
 
 QToolBar QToolButton:hover {
-	color: $brightest-color;
-	background-color: transparent;
-	border: none;
-	
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-2, stop:1 $tab-color-1);
 }
 
 QToolBar QToolButton:checked {
-	background-color: $main-color-xd;
-	color: $accent-color;
-	border-bottom: 3px solid $accent-color;
-	padding: 5px 1px 5px 2px;
+	background-color: $top-bar-color-1;
 }
 
 QToolBar QToolButton:disabled {
-	color: $input-border-color;
-	background-color: transparent;
-	border: none;
+	color: $tab-color-2;
+	border-color: $tab-color-2;
+	border-bottom-color: transparent;
 }
 
 /* Tool buttons - buttons with icons */
+
 #qt_toolbar_ext_button {
-	qproperty-icon: url($themes-dir/HyperBlue/arrow-down.png);
+	qproperty-icon: url($themes-dir/PoloniexNight/arrow-down.png);
 	border-radius: 0px;
-	margin-top: 0px;
 	color: #fff;
-	border-bottom: 3px solid transparent;
 }
 
 #addressBookButton, QToolButton#clearButton, QToolButton#pasteButton, QToolButton#deleteButton,
@@ -413,32 +417,29 @@ QToolButton#addressBookButton_VM, QToolButton#copySignatureButton_SM, QToolButto
 
 /* Progress bar */
 QProgressBar {
-	border: 1px solid rgba(136,193,208,80);
+	border: 1px solid #434d52;
 	color: $brightest-color;
 	font-weight: bold;
 	background-color: transparent;
 }
 
 QProgressBar::chunk {
-	background-color: rgba(136,193,208,80);
-	width: 3px;
-	margin: 0.5px;
+	background-color: #434d52;
 }
 
 /* Table */
 CoinControlTreeWidget, QTableView {
 	background: transparent;
-	alternate-background-color: $main-color-transparent-1;
-	border-style: none;
-	border-bottom: 3px solid $shade-transparent-2;
+	alternate-background-color: $table-row-alternate;
 	color: $text-color;
-	selection-background-color: $main-color-transparent-2;
-	/*selection-color: $main-color-xd;*/
+	selection-background-color: $tab-color-1;
+	/*selection-color: $top-bar-border-color;*/
 	outline: none;
+	$panel;
 }
 
 QTableView QTableCornerButton::section {
-	border: 0px solid $main-color-xd;
+	border: 0px solid $top-bar-border-color;
 	outline: none;
 }
 
@@ -448,12 +449,11 @@ QTableWidget::item:focus {
 }
 
 QTreeView {
-	background: transparent;
 	color: $text-color;
 	border-style: none;
 	selection-background-color: $accent-color;
-	alternate-background-color: $main-color-transparent-1;
-	selection-color: $main-color-xd;
+	alternate-background-color: $table-row-alternate;
+	selection-color: $top-bar-border-color;
 	outline: none;
 }
 
@@ -467,37 +467,38 @@ QTreeView::item:hover {
 }
 
 QTreeView::item:selected {
-	background-color: $main-color-transparent-2;
-	color: $main-color-xd;
+	background-color: $tab-color-1;
+	color: $brightest-color;
 }
 
 /* Table Header */
 QHeaderView {
-	color: $brightest-color;
-	background-color: $main-color;
-	border-bottom: 1px solid $accent-color;
+	color: $text-color;
+	background-color: $table-header-bg;
+	min-height: 24px;
 }
 
 QHeaderView::section {
-	color: $accent-color;
-	background-color: transparent;
+	color: $text-color;
+	background-color: $table-header-bg;
 }
 
 QHeaderView::section:checked {
-
 }
+
 
 /* Tooltip */
 QToolTip {
-	border: 2px outset $main-color-xl;
+	border: 1px outset $tooltip-border-color;
 	color: $text-color;
-	background-color: $main-color;
+	background-color: $tooltip-bg-color;
+	border-radius: 5px;
 }
 
 
 /* Menu Bar */
 QMenuBar {
-	background-color: $text-grey-d;
+	background-color: $top-bar-color-1;
 	border: none;
 }
 
@@ -518,7 +519,7 @@ QMenuBar::item:pressed {
 /* Menu dialog */
 QMenu {
 	color: $text-color;
-	background-color: $text-grey-d;
+	background-color: $bg-panel;
 }
 
 QMenu::item {
@@ -528,7 +529,7 @@ QMenu::item {
 }
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
-	color: $text-grey-d;
+	color: $bg-panel;
 	background-color: $text-color;
 }
 
@@ -543,35 +544,35 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-	image: url($themes-dir/HyperBlue/cb.png);
+	image: url($themes-dir/PoloniexNight/cb.png);
 }
 
 QCheckBox::indicator:unchecked:hover {
-	image: url($themes-dir/HyperBlue/cb-hover.png);
+	image: url($themes-dir/PoloniexNight/cb-hover.png);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-	/*image: url($themes-dir/HyperBlue/checkbox_unchecked_pressed.png);*/
+	/*image: url($themes-dir/PoloniexNight/checkbox_unchecked_pressed.png);*/
 }
 
 QCheckBox::indicator:checked {
-	image: url($themes-dir/HyperBlue/cb-checked.png);
+	image: url($themes-dir/PoloniexNight/cb-checked.png);
 }
 
 QCheckBox::indicator:checked:hover {
-	image: url($themes-dir/HyperBlue/cb-checked-hover.png);
+	image: url($themes-dir/PoloniexNight/cb-checked-hover.png);
 }
 
 QCheckBox::indicator:checked:pressed {
-	/*image: url($themes-dir/HyperBlue/checkbox_checked_pressed.png);*/
+	/*image: url($themes-dir/PoloniexNight/checkbox_checked_pressed.png);*/
 }
 
 QCheckBox::indicator:indeterminate:hover {
-	/*image: url($themes-dir/HyperBlue/checkbox_indeterminate_hover.png);*/
+	/*image: url($themes-dir/PoloniexNight/checkbox_indeterminate_hover.png);*/
 }
 
 QCheckBox::indicator:indeterminate:pressed {
-	/*image: url($themes-dir/HyperBlue/checkbox_indeterminate_pressed.png);*/
+	/*image: url($themes-dir/PoloniexNight/checkbox_indeterminate_pressed.png);*/
 }
 
 /* Radio button */
@@ -585,27 +586,27 @@ QRadioButton::indicator {
 }
 
 QRadioButton::indicator::unchecked {
-	image: url($themes-dir/HyperBlue/r.png);
+	image: url($themes-dir/PoloniexNight/r.png);
 }
 
 QRadioButton::indicator:unchecked:hover {
-	image: url($themes-dir/HyperBlue/r-hover.png);
+	image: url($themes-dir/PoloniexNight/r-hover.png);
 }
 
 QRadioButton::indicator:unchecked:pressed {
-	/*image: url($themes-dir/HyperBlue/rpressed.png);*/
+	/*image: url($themes-dir/PoloniexNight/rpressed.png);*/
 }
 
 QRadioButton::indicator::checked {
-	image: url($themes-dir/HyperBlue/r-checked.png);
+	image: url($themes-dir/PoloniexNight/r-checked.png);
 }
 
 QRadioButton::indicator:checked:hover {
-	image: url($themes-dir/HyperBlue/r-checked-hover.png);
+	image: url($themes-dir/PoloniexNight/r-checked-hover.png);
 }
 
 QRadioButton::indicator:checked:pressed {
-	/*image: url($themes-dir/HyperBlue/radiobutton_checked_pressed.png);*/
+	/*image: url($themes-dir/PoloniexNight/radiobutton_checked_pressed.png);*/
 }
 
 /* Tabs */
@@ -614,49 +615,43 @@ QTabWidget {
 }
 
 QTabWidget::pane {
-	background-color: $shade-transparent-1;
-	border-bottom: 3px solid $shade-transparent-2;
-	border-right: 3px solid $shade-transparent-2;
-	border-top: 2px solid $main-color-xd;
-	margin-top: -2px;
+	$panel;
 }
 
 QTabWidget::tab-bar {
+	left: 5px; /* move to the right by 5px */
 }
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabBar::tab {
-	/*background-color: $main-color;*/
-	background-color: transparent;
-	min-width: 26ex;
-	padding: 6px 4px 8px 4px;
-	color: $text-color;
-	margin-right: 2ex;
+	border: 1px solid $top-bar-border-color;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-1, stop:1 $tab-color-2);
+	color: $text-lighter-color;
+	padding: 4px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	margin-right: 5px;
+	border-bottom: 0px;
 }
 
 QTabBar::tab:selected, QTabBar::tab:hover {
-	border-bottom: 2px solid $accent-color;
-	background-color: $main-color-xd;
-	color: $accent-color;
-	margin-top: 1px;
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-2, stop:1 $tab-color-1);
 }
 
 QTabBar::tab:!selected {
-	/*margin-top: 2px;*/ /* make non-selected tabs look smaller */
+	background-color: $top-bar-color-1;
 }
 
 /* Scroll bar */
 
 QScrollBar:vertical {
-	background: $main-color-transparent-1;
+	background: $button-border-color;
 	width: 6px;
 	margin: 0px 0px 0px 0px;
 }
 
 QScrollBar::handle:vertical {
-	background: $shade-transparent-2;
+	background: $top-bar-border-color;
 }
 
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
@@ -674,37 +669,42 @@ QScrollBar::sub-line:vertical {
 /* Calendar */
 
 /* navigation bar */
-QCalendarWidget QWidget#qt_calendar_navigationbar { background-color: $main-color }
-QCalendarWidget QToolButton {
+QCalendarWidget QWidget#qt_calendar_navigationbar {
+	background-color: $main-color;
 }
+QCalendarWidget QToolButton {}
 QCalendarWidget QMenu {
-	background-color: $main-color-xd;
+	background-color: $top-bar-border-color;
 }
  
  /* header row */
-QCalendarWidget QWidget { alternate-background-color: $main-color-l }
+QCalendarWidget QWidget {
+	alternate-background-color: $bg-panel;
+}
  
 /* normal days */
 QCalendarWidget QAbstractItemView:enabled {
 	color: $text-color;
 	background-color: $main-color;
 	selection-background-color: $accent-color;
-	selection-color: $main-color-xd;
+	selection-color: $top-bar-border-color;
 }
- 
+
 /* days in other months */
-QCalendarWidget QAbstractItemView:disabled { color: $main-color-xd }
+QCalendarWidget QAbstractItemView:disabled {
+	color: $top-bar-border-color;
+}
 
 /* Window resize grip */
 QSizeGrip {
-	image: url($themes-dir/HyperBlue/sizegrip.png);
+	image: url($themes-dir/PoloniexNight/sizegrip.png);
 	width: 16px;
 	height: 16px;
 }
 
 /* QBalloonTip - notification used in Linux - styled by Qt */
 QBalloonTip {
-	background-color: $main-color-l;
+	background-color: $bg-panel;
 	color: $text-color;
 }
 
@@ -720,3 +720,4 @@ QBalloonTip QPushButton:hover {
 	border: none;  
 	background-color: $accent-color;
 }
+

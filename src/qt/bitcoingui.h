@@ -100,7 +100,6 @@ private:
 	QAction *checkWalletAction;
 	QAction *repairWalletAction;
     QAction *aboutQtAction;
-    QAction *themeDefaultAction;
     QAction *themeCustomAction;
     QAction *openRPCConsoleAction;
 	QAction *blockAction;
@@ -131,6 +130,8 @@ private:
     /* Themes support */
     QString selectedTheme;
     QStringList themesList;
+    // Path to directory where all themes are (usable for some common images?...)
+    QString themesDir;
     QAction *customActions[100];
     /* /Themes support */
 

@@ -32,7 +32,8 @@ void StakeForCharityDialog::setModel(WalletModel *model)
 	{
 		ui->charityAddressEdit->setText(strAddress);
 		ui->charityPercentEdit->setText(strPer);
-		ui->message->setStyleSheet("QLabel { color: green; }");
+        ui->message->setProperty("status", "ok");
+        ui->message->style()->polish(ui->message);
 		ui->message->setText(tr("You are now saving to\n") + strAddress + tr("."));
 	}
 }
@@ -115,7 +116,8 @@ void StakeForCharityDialog::on_enableButton_clicked()
 {
     if(model->getEncryptionStatus() == WalletModel::Locked)
     {
-        ui->message->setStyleSheet("QLabel { color: black; }");
+        ui->message->setProperty("status", "");
+        ui->message->style()->polish(ui->message);
         ui->message->setText(tr("Please unlock wallet before starting stake for charity."));
         return;
     }
@@ -127,7 +129,8 @@ void StakeForCharityDialog::on_enableButton_clicked()
     CBitcoinAddress address = ui->charityAddressEdit->text().toStdString();
     if (!address.IsValid())
     {
-        ui->message->setStyleSheet("QLabel { color: red; }");
+        ui->message->setProperty("status", "error");
+        ui->message->style()->polish(ui->message);
         ui->message->setText(tr("The entered address: ") + ui->charityAddressEdit->text() + tr(" is invalid.\nPlease check the address and try again."));
         ui->charityAddressEdit->setFocus();
         return;
@@ -136,7 +139,8 @@ void StakeForCharityDialog::on_enableButton_clicked()
     int nCharityPercent = ui->charityPercentEdit->text().toInt(&fValidConversion, 10);
     if (!fValidConversion || nCharityPercent > 50 || nCharityPercent <= 0)
     {
-        ui->message->setStyleSheet("QLabel { color: red; }");
+        ui->message->setProperty("status", "error");
+        ui->message->style()->polish(ui->message);
         ui->message->setText(tr("Please Enter 1 - 50 for percent."));
         ui->charityPercentEdit->setFocus();
         return;
@@ -147,7 +151,8 @@ void StakeForCharityDialog::on_enableButton_clicked()
         nMinAmount = ui->charityMinEdit->text().toDouble(&fValidConversion) * COIN;
         if(!fValidConversion || nMinAmount <= MIN_TXOUT_AMOUNT || nMinAmount >= MAX_MONEY  )
         {
-            ui->message->setStyleSheet("QLabel { color: red; }");
+            ui->message->setProperty("status", "error");
+            ui->message->style()->polish(ui->message);
             ui->message->setText(tr("Min Amount out of Range, please re-enter."));
             ui->charityMinEdit->setFocus();
             return;
@@ -159,7 +164,8 @@ void StakeForCharityDialog::on_enableButton_clicked()
         nMaxAmount = ui->charityMaxEdit->text().toDouble(&fValidConversion) * COIN;
         if(!fValidConversion || nMaxAmount <= MIN_TXOUT_AMOUNT || nMaxAmount >= MAX_MONEY  )
         {
-            ui->message->setStyleSheet("QLabel { color: red; }");
+            ui->message->setProperty("status", "error");
+            ui->message->style()->polish(ui->message);
             ui->message->setText(tr("Max Amount out of Range, please re-enter."));
             ui->charityMaxEdit->setFocus();
             return;
@@ -167,7 +173,8 @@ void StakeForCharityDialog::on_enableButton_clicked()
     }
 
     model->setStakeForCharity(true, nCharityPercent, address, nMinAmount, nMaxAmount);
-    ui->message->setStyleSheet("QLabel { color: green; }");
+    ui->message->setProperty("status", "ok");
+    ui->message->style()->polish(ui->message);
     ui->message->setText(tr("You are now sending to\n") + QString(address.ToString().c_str()) + tr("."));
     return;
 }
@@ -184,7 +191,8 @@ void StakeForCharityDialog::on_disableButton_clicked()
     ui->charityMaxEdit->clear();
     ui->charityMinEdit->clear();
     ui->charityPercentEdit->clear();
-    ui->message->setStyleSheet("QLabel { color: black; }");
+    ui->message->setProperty("status", "");
+    ui->message->style()->polish(ui->message);
     ui->message->setText(tr("Stake For Charity is now off"));
     return;
 }
