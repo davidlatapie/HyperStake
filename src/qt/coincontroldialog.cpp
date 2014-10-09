@@ -757,6 +757,9 @@ void CoinControlDialog::updateView()
 		uint64 nTxWeight = 0;
 		uint64 nTxWeightSum = 0;
 		uint64 nPotentialStakeSum = 0;
+		GetLastBlockIndex(pindexBest, false);
+		int64 nBestHeight = pindexBest->nHeight;
+		
         BOOST_FOREACH(const COutput& out, coins.second)
         {
             int nInputSize = 148; // 180 if uncompressed public key
@@ -811,7 +814,10 @@ void CoinControlDialog::updateView()
             itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " ")); // padding so that sorting works correctly
 
             // date
-            itemOutput->setText(COLUMN_DATE, QDateTime::fromTime_t(out.tx->GetTxTime()).toString("yy-MM-dd hh:mm"));
+			int64 nHeight = nBestHeight - out.nDepth;
+			CBlockIndex* pindex = FindBlockByHeight(nHeight);
+			int64 nTime = pindex->nTime;
+            itemOutput->setText(COLUMN_DATE, QDateTime::fromTime_t(nTime).toString("yy-MM-dd hh:mm"));
             
             // immature PoS reward
             if (out.tx->IsCoinStake() && out.tx->GetBlocksToMaturity() > 0 && out.tx->GetDepthInMainChain() > 0) {
@@ -833,7 +839,7 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nTxWeight), 8, " "));
 			
 			// Age
-			int64 age = COIN * (GetTime() - out.tx->GetTxTime()) / (1440 * 60);
+			int64 age = COIN * (GetTime() - nTime) / (1440 * 60);
 			itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " "));
 			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
