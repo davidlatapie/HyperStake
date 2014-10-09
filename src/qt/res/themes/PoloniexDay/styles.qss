@@ -1,5 +1,5 @@
 /**
- * PoloniexNight Qt theme - v1.0
+ * PoloniexDay Qt theme - v1.0
  * Last changed: 2014-10-09
  * Author: ZeeWolf - ##hyperstake (freenode)
  * HyperStake - faster than light!
@@ -14,81 +14,87 @@
 /**
  * Colors :
  *
- * BG top : 		#434d52
- * BG bottom : 	#273034
- * BG panel : 	#2e363c
- * Text : #8fa5a7
- * Text lighter : #a4b6b8
- * BG0  : #3D474C
- * BG1  : #2e363c
- * BG2  : #283035
- * Complement : #c28208
- * Top-bar : #2b3236 - #242b2f
- * Top-bar-border : #181d20
- * Tab-color-1 : #3a4449
- * Tab-color-2 : #333c41
+ * BG top : 		#86a9a3 *
+ * BG bottom : 	#9ab7b4 *
+ * BG panel : 	#c8c8c8 *
+ * Text : #3a4449 *
+ * Text lighter : #3b444a *
+ * Complement : #e49806
+ * Top-bar : rgb(250,250,254) - rgb(225,225,230) *
+ * Top-bar-border : #BCC1C4 *
+ * Tab-color-1 : #e1e1e6 *
+ * Tab-color-2 : #fafafe *
+ * Tab-hover-1 : #cdcdd2 *
+ * Tab-hover-2 : #e6e6ea *
  * Body : #434d52 - #273034
- * Input border: 	#202629
- * Input bg : #333b3f
- * Input focus : #3D639D
- * Button bg : #394348
- * Button border : #272E34
- * Button bg hover : #434e54
- * Button bg text hover : #ffffff
- * Table header : #21272c
- * Table row even : #2b3239
- * Table row odd : #293036
- * Table grid : #202629
- * Tooltip bg : #3c474f
- * Tooltip border : #202629
+ * Input border: 	#ABADB3 *
+ * Input bg : #fff *
+ * Input focus : #A5C7FE *
+ * Button bg : #fef8ed *
+ * Button border : #e0ceac *
+ * Button bg hover : #e49806 *
+ * Button bg text hover : #ffffff *
+ * Table header : rgb(211,231,217) *
+ * Table row even : #fff *
+ * Table row odd : #eef7ef *
+ * Table grid : #fff *
+ * Tooltip bg : #fff *
+ * Tooltip border : #86a9a3 *
  */
 
 /** [VARS]
-	$header-text = font-size: 24px; font-family: "Times New Roman";	color: #8fa5a7
+	$header-text = font-size: 24px; font-family: "Times New Roman";	color: rgb(60,60,60)
 	$custom-font-1 = font-family: "Times New Roman"
-	$top-bar-color-1 = #2b3236
-	$top-bar-color-2 = #242b2f
-	$top-bar-border-color = #181d20
-	$tab-color-1 = #3a4449
-	$tab-color-2 = #333c41
-	$text-color = #8fa5a7
-	$text-lighter-color = #a4b6b8
-	$panel = background-color: #2e363c; border-radius: 7px;	border: 0; border: 1px solid #202629
-	$bg-top = #434d52
-	$bg-bottom = #273034
-	$bg-panel = #2e363c
-	$input-bg-color = #333b3f
-	$input-border-color = #202629
-	$input-border-focus-color = #3D639D
-	$button-bg-color = #394348
-	$button-bg-hover-color = #434e54
-	$button-border-color = #272E34
+	$top-bar-color-1 = rgb(250,250,254)
+	$top-bar-color-2 = rgb(225,225,230)
+	$top-bar-border-color = #BCC1C4
+	$tab-color-1 = #e1e1e6
+	$tab-color-2 = #fafafe
+	$tab-hover-color-1 = #cdcdd2
+	$tab-hover-color-2 = #e6e6ea
+	$text-color = #3a4449
+	$text-lighter-color = #3b444a
+	$panel = background-color: #fff; border-radius: 7px; border: 0
+	$bg-top = #86a9a3
+	$bg-bottom = #9ab7b4
+	$bg-panel = #fff
+	$input-bg-color = #fff
+	$input-border-color = #ABADB3
+	$input-border-focus-color = #A5C7FE
+	$button-bg-color = #fef8ed
+	$button-bg-hover-color = #e49806
+	$button-border-color = #e0ceac
 	$button-text-hover-color = #ffffff
-	$grid-color = #202629
-	$table-header-bg = #21272c
-	$table-row-bg = #2b3239
-	$table-row-alternate = #293036
-	$tooltip-bg-color = #3c474f
-	$tooltip-border-color = #202629
-	$main-color = #2e363c
+	$grid-color = #fff
+	$table-header-bg = #D3E7D9
+	$table-row-bg = #fff
+	$table-row-alternate = #eef7ef
+	$tooltip-bg-color = #fff
+	$tooltip-border-color = #0a1827
+	$main-color = #fff
 	$text-grey-d = #0a1827
 	$accent-color = #c28208
+	$accent-color-2 = #faf5db
 	$brightest-color = #fff
 	$header-font = "Verdana, Geneva, sans-serif"
 	$focused-input = 	border: 2px solid #3D639D; border-radius: 2px
-	$error-color = #FF6363
-	$success-color = #73ff00
+	$error-color = #b41d1d
+	$success-color = #209e29
+	$footer-top = rgb(59,68,74)
+	$footer-bottom = rgb(51,58,62)
+	$footer-edge = #e39706
+	$black = #000
 [/VARS] */
 
 * { gridline-color: $grid-color }
 
 /* Dialog, Window */
 QDialog, QMainWindow {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $bg-top, stop:1 $bg-bottom);
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $bg-top, stop:0.5 $bg-bottom, stop:1 $bg-top);
 }
 
 #coinLogo {
-	qproperty-pixmap: url($themes-dir/PoloniexNight/hypstk-watermark.png);
+	qproperty-pixmap: url($themes-dir/PoloniexDay/hypstk-watermark.png);
 	qproperty-alignment: 'AlignBottom | AlignLeft';
 }
 
@@ -99,12 +105,18 @@ QFrame {
 
 /* Bottom status bar */
 QStatusBar {
-	background-color: transparent;
-	color: $text-color;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $footer-top, stop:1 $footer-bottom);
+	border-top: 1px solid $footer-edge;
+	color: $brightest-color;
+}
+
+QStatusBar QLabel {
+	color: $brightest-color;
 }
 
 QStatusBar::item {
 	border: none;
+	color: $brightest-color;
 }
 
 /* Label */
@@ -156,7 +168,6 @@ QFrame#frameCoinControl {
 
 /* Balance value */
 #frame #labelBalance {
-	color: $brightest-color;
 	font-size: 14px;
 }
 
@@ -225,7 +236,7 @@ QTextEdit:disabled {
 
 /* Combo box */
 QComboBox {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $bg-top, stop:1 $bg-bottom);
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-2, stop:1 $tab-color-1);
 	color: $text-color;
 	border: 1px solid $input-border-color;
 	border-radius: 3px; /* same radius as the QComboBox */
@@ -234,7 +245,7 @@ QComboBox {
 }
 
 QComboBox:on {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $bg-bottom, stop:1 $bg-top);
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-1, stop:1 $tab-color-2);
 }
 
 QComboBox:disabled {
@@ -248,16 +259,16 @@ QComboBox::drop-down:disabled {
 
 QComboBox::down-arrow {
 	/* Custom dropdown symbol */
-	image: url($themes-dir/PoloniexNight/down-arrow.png);
+	image: url($themes-dir/PoloniexDay/down-arrow.png);
 }
 
 QComboBox::down-arrow:disabled {
-	image: url($themes-dir/PoloniexNight/down-arrow-disabled.png);
+	image: url($themes-dir/PoloniexDay/down-arrow-disabled.png);
 }
 
 QComboBox::down-arrow:on {
 	/* Custom dropdown symbol */
-	image: url($themes-dir/PoloniexNight/up-arrow.png);
+	image: url($themes-dir/PoloniexDay/up-arrow.png);
 }
 
 QComboBox::drop-down {
@@ -273,8 +284,8 @@ QComboBox QAbstractItemView {
 
 QComboBox QListView {
 	border: none;
-	selection-color: $tooltip-bg-color;
-	selection-background-color: $text-color;
+	selection-color: $black;
+	selection-background-color: $accent-color-2;
 }
 
 /* Up&down spin box */
@@ -294,11 +305,11 @@ QDateTimeEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {
 }
 
 QDateTimeEdit::down-arrow {
-	image: url($themes-dir/PoloniexNight/calendar.png);
+	image: url($themes-dir/PoloniexDay/calendar.png);
 }
 
 QDateTimeEdit::down-arrow:disabled {
-	image: url($themes-dir/PoloniexNight/calendar-disabled.png);
+	image: url($themes-dir/PoloniexDay/calendar-disabled.png);
 }
 
 QDateTimeEdit::drop-down {
@@ -306,11 +317,11 @@ QDateTimeEdit::drop-down {
 }
 
 QDoubleSpinBox::down-button {
-	image: url($themes-dir/PoloniexNight/down-arrow.png);
+	image: url($themes-dir/PoloniexDay/down-arrow.png);
 }
 
 QDoubleSpinBox::up-button {
-	image: url($themes-dir/PoloniexNight/up-arrow.png);
+	image: url($themes-dir/PoloniexDay/up-arrow.png);
 }
 
 /* Button */
@@ -326,7 +337,7 @@ QPushButton {
 	padding: 4px;
 }
 
-QPushButton[text="OK"] {
+QPushButton[text="OK"], QPushButton[text="Yes"]  {
 	width: 6em;
 }
 QToolButton {
@@ -343,11 +354,6 @@ QToolButton {
 QPushButton:hover, QToolButton:hover {
 	background-color: $button-bg-hover-color;
 	color: $button-text-hover-color;
-}
-
-QPushButton:pressed, QToolButton:pressed {
-	background-color: $button-border-color;
-	color: $accent-color;
 }
 
 QPushButton:disabled, QToolButton:disabled {
@@ -373,12 +379,12 @@ QToolBar::handle {
 /* Toolbar buttons */
 QToolBar QToolButton { /* all types of tool button */
 	border: 1px solid $top-bar-border-color;
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-1, stop:1 $tab-color-2);
+	background: transparent;
 	color: $text-lighter-color;
 	padding: 4px 2px;
 	font-size: 14px;
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
 	border-bottom-left-radius: 0px;
 	border-bottom-right-radius: 0px;
 	$custom-font-1;
@@ -386,23 +392,27 @@ QToolBar QToolButton { /* all types of tool button */
 }
 
 QToolBar QToolButton:hover {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-2, stop:1 $tab-color-1);
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-hover-color-2, stop:1 $tab-hover-color-1);
+	color: $black;
 }
 
 QToolBar QToolButton:checked {
-	background-color: $top-bar-color-1;
+	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 $tab-color-1, stop:1 $tab-color-2);
+	border-bottom-color: $bg-top;
+	color: $black;
 }
 
 QToolBar QToolButton:disabled {
-	color: $tab-color-2;
-	border-color: $tab-color-2;
+	color: $tab-hover-color-1;
+	border-color: $top-bar-border-color;
 	border-bottom-color: transparent;
+	background-color: $tab-color-1;
 }
 
 /* Tool buttons - buttons with icons */
 
 #qt_toolbar_ext_button {
-	qproperty-icon: url($themes-dir/PoloniexNight/arrow-down.png);
+	qproperty-icon: url($themes-dir/PoloniexDay/arrow-down.png);
 	border-radius: 0px;
 	color: #fff;
 }
@@ -417,14 +427,14 @@ QToolButton#addressBookButton_VM, QToolButton#copySignatureButton_SM, QToolButto
 
 /* Progress bar */
 QProgressBar {
-	border: 1px solid #434d52;
-	color: $brightest-color;
+	border: 1px solid $brightest-color;
+	color: $text-color;
 	font-weight: bold;
 	background-color: transparent;
 }
 
 QProgressBar::chunk {
-	background-color: #434d52;
+	background-color: $brightest-color;
 }
 
 /* Table */
@@ -432,14 +442,14 @@ CoinControlTreeWidget, QTableView {
 	background: transparent;
 	alternate-background-color: $table-row-alternate;
 	color: $text-color;
-	selection-background-color: $tab-color-1;
-	/*selection-color: $top-bar-border-color;*/
+	selection-background-color: $accent-color-2;
+	selection-color: $button-bg-hover-color;
 	outline: none;
 	$panel;
 }
 
 QTableView QTableCornerButton::section {
-	border: 0px solid $top-bar-border-color;
+	border: 0px;
 	outline: none;
 }
 
@@ -453,7 +463,7 @@ QTreeView {
 	border-style: none;
 	selection-background-color: $accent-color;
 	alternate-background-color: $table-row-alternate;
-	selection-color: $top-bar-border-color;
+	selection-color: $text-grey-d;
 	outline: none;
 }
 
@@ -463,12 +473,12 @@ QTreeView::item {
 }
 
 QTreeView::item:hover {
-	color: $brightest-color;
+	color: $text-grey-d;
 }
 
 QTreeView::item:selected {
-	background-color: $tab-color-1;
-	color: $brightest-color;
+	background-color: $accent-color-2;
+	color: $button-bg-hover-color;
 }
 
 /* Table Header */
@@ -492,7 +502,6 @@ QToolTip {
 	border: 1px outset $tooltip-border-color;
 	color: $text-color;
 	background-color: $tooltip-bg-color;
-	border-radius: 5px;
 }
 
 
@@ -508,12 +517,12 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected { /* when selected using mouse or keyboard */
-	background: $text-color;
-	color: $text-grey-d;
+	background: $accent-color-2;
+	color: $black;
 }
 
 QMenuBar::item:pressed {
-	background: $text-color;
+	background: $accent-color-2;
 }
 
 /* Menu dialog */
@@ -529,8 +538,8 @@ QMenu::item {
 }
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
-	color: $bg-panel;
-	background-color: $text-color;
+	background-color: $accent-color-2;
+	color: $black;
 }
 
 /* Checkbox */
@@ -544,35 +553,35 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-	image: url($themes-dir/PoloniexNight/cb.png);
+	image: url($themes-dir/PoloniexDay/cb.png);
 }
 
 QCheckBox::indicator:unchecked:hover {
-	image: url($themes-dir/PoloniexNight/cb-hover.png);
+	image: url($themes-dir/PoloniexDay/cb-hover.png);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-	/*image: url($themes-dir/PoloniexNight/checkbox_unchecked_pressed.png);*/
+	/*image: url($themes-dir/PoloniexDay/checkbox_unchecked_pressed.png);*/
 }
 
 QCheckBox::indicator:checked {
-	image: url($themes-dir/PoloniexNight/cb-checked.png);
+	image: url($themes-dir/PoloniexDay/cb-checked.png);
 }
 
 QCheckBox::indicator:checked:hover {
-	image: url($themes-dir/PoloniexNight/cb-checked-hover.png);
+	image: url($themes-dir/PoloniexDay/cb-checked-hover.png);
 }
 
 QCheckBox::indicator:checked:pressed {
-	/*image: url($themes-dir/PoloniexNight/checkbox_checked_pressed.png);*/
+	/*image: url($themes-dir/PoloniexDay/checkbox_checked_pressed.png);*/
 }
 
 QCheckBox::indicator:indeterminate:hover {
-	/*image: url($themes-dir/PoloniexNight/checkbox_indeterminate_hover.png);*/
+	/*image: url($themes-dir/PoloniexDay/checkbox_indeterminate_hover.png);*/
 }
 
 QCheckBox::indicator:indeterminate:pressed {
-	/*image: url($themes-dir/PoloniexNight/checkbox_indeterminate_pressed.png);*/
+	/*image: url($themes-dir/PoloniexDay/checkbox_indeterminate_pressed.png);*/
 }
 
 /* Radio button */
@@ -586,27 +595,27 @@ QRadioButton::indicator {
 }
 
 QRadioButton::indicator::unchecked {
-	image: url($themes-dir/PoloniexNight/r.png);
+	image: url($themes-dir/PoloniexDay/r.png);
 }
 
 QRadioButton::indicator:unchecked:hover {
-	image: url($themes-dir/PoloniexNight/r-hover.png);
+	image: url($themes-dir/PoloniexDay/r-hover.png);
 }
 
 QRadioButton::indicator:unchecked:pressed {
-	/*image: url($themes-dir/PoloniexNight/rpressed.png);*/
+	/*image: url($themes-dir/PoloniexDay/rpressed.png);*/
 }
 
 QRadioButton::indicator::checked {
-	image: url($themes-dir/PoloniexNight/r-checked.png);
+	image: url($themes-dir/PoloniexDay/r-checked.png);
 }
 
 QRadioButton::indicator:checked:hover {
-	image: url($themes-dir/PoloniexNight/r-checked-hover.png);
+	image: url($themes-dir/PoloniexDay/r-checked-hover.png);
 }
 
 QRadioButton::indicator:checked:pressed {
-	/*image: url($themes-dir/PoloniexNight/radiobutton_checked_pressed.png);*/
+	/*image: url($themes-dir/PoloniexDay/radiobutton_checked_pressed.png);*/
 }
 
 /* Tabs */
@@ -636,7 +645,6 @@ QTabBar::tab {
 
 QTabBar::tab:selected, QTabBar::tab:hover {
 	background: $main-color;
-	border-bottom: 1px solid $main-color;
 }
 
 QTabBar::tab:!selected {
@@ -647,13 +655,13 @@ QTabBar::tab:!selected {
 /* Scroll bar */
 
 QScrollBar:vertical {
-	background: $button-border-color;
+	background: $accent-color-2;
 	width: 6px;
 	margin: 0px 0px 0px 0px;
 }
 
 QScrollBar::handle:vertical {
-	background: $top-bar-border-color;
+	background: $accent-color;
 }
 
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
@@ -699,7 +707,7 @@ QCalendarWidget QAbstractItemView:disabled {
 
 /* Window resize grip */
 QSizeGrip {
-	image: url($themes-dir/PoloniexNight/sizegrip.png);
+	image: url($themes-dir/PoloniexDay/sizegrip.png);
 	width: 16px;
 	height: 16px;
 }

@@ -52,9 +52,9 @@ for help and more information.
 
 ### Wallet themes
 
-| HyperBlue     | PoloniexNight |
-| ------------- | ------------- |
-| [![HyperBlue](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-hyperblue-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-hyperblue-theme.png) | [![PoloniexNight](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexnight-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexnight-theme.png)  |
+| HyperBlue     | PoloniexNight | PoloniexDay   |
+| ------------- | ------------- | ------------- |
+| [![HyperBlue](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-hyperblue-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-hyperblue-theme.png) | [![PoloniexNight](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexnight-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexnight-theme.png) | [![PoloniexNight](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexday-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexday-theme.png) |
 
 
 
