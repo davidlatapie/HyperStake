@@ -427,4 +427,14 @@ contains(RELEASE, 1) {
     }
 }
 
+CONFIG(debug, debug|release) {
+    DESTDIR = debug
+} else {
+    DESTDIR = release
+}
+
+themes.path = $$OUT_PWD/$$DESTDIR/themes
+themes.files = src/qt/res/themes/*
+INSTALLS += themes
+
 system($$QMAKE_LRELEASE -silent $$_PRO_FILE_)

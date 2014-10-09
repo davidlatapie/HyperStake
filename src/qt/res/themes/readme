@@ -1,4 +1,12 @@
 Qt Wallet themes directory
 
 Each directory is separate theme - displayed in Themes menu.
-This directory should be copied to the same dir as compiled exe is.
+
+HyperStake-qt wallet will look for themes in :
+- current exe directory - ./themes
+- in ./src/qt/res/themes
+
+There is compilation extra step added :
+make install
+
+will copy themes to release directory
