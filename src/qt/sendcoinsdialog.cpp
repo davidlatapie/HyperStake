@@ -446,7 +446,7 @@ void SendCoinsDialog::updateDisplayUnit()
      }
  
      ui->lineEditCoinControlChange->setEnabled((state == Qt::Checked));
-     ui->labelCoinControlChangeLabel->setEnabled((state == Qt::Checked));
+	 ui->labelCoinControlChangeLabel->setEnabled((state == Qt::Checked));   
  }
  
  // Coin Control: custom change address changed

@@ -7,7 +7,7 @@ namespace Ui {
 class StakeForCharityDialog;
 }
 class WalletModel;
-
+class QLineEdit;
 class StakeForCharityDialog : public QWidget
 {
     Q_OBJECT
@@ -18,10 +18,12 @@ public:
 
     void setModel(WalletModel *model);
 	void setAddress(const QString &address);
+	 void setAddress(const QString &address, QLineEdit *addrEdit);
 private slots:
     void on_enableButton_clicked();
     void on_disableButton_clicked();
 	void on_addressBookButton_clicked();
+	void on_changeAddressBookButton_clicked();
 	
 private:
     Ui::StakeForCharityDialog *ui;
