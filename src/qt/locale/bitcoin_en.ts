@@ -332,7 +332,12 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="+5"/>
         <source>&amp;Address Book</source>
-        <translation>&amp;Address Book</translation>
+        <translation>&amp;Contacts</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Stake For Charity</source>
+        <translation>&amp;S4C</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -450,7 +455,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="+6"/>
         <source>&amp;Debug window</source>
-        <translation>&amp;Debug window</translation>
+        <translation>&amp;Debug</translation>
     </message>
     <message>
         <location line="+1"/>
