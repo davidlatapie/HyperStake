@@ -145,16 +145,21 @@ public:
         return Write(std::string("minversion"), nVersion);
     }
 	
-	bool WriteStakeForCharity(std::string strStakeForCharityAddress, int nStakeForCharityPercent)
+	bool WriteStakeForCharity(std::string strStakeForCharityAddress, int nStakeForCharityPercent, std::string strStakeForCharityChangeAddress,
+		int64 nStakeForCharityMinAmount, int64 nStakeForCharityMaxAmount)
     {
         nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("ats"),strStakeForCharityAddress),nStakeForCharityPercent);
+        if (!Write(std::make_pair(std::string("ats"), strStakeForCharityAddress),std::make_pair(strStakeForCharityChangeAddress ,nStakeForCharityPercent)))
+            return false;
+
+        return Write(std::make_pair(std::string("ats2"), strStakeForCharityAddress),std::make_pair(nStakeForCharityMinAmount ,nStakeForCharityMaxAmount));
     }
 
     bool EraseStakeForCharity(std::string strStakeForCharityAddress)
     {
         nWalletDBUpdated++;
         return Erase(std::make_pair(std::string("ats"), strStakeForCharityAddress));
+		return Erase(std::make_pair(std::string("ats2"), strStakeForCharityAddress));
     }
 
     bool ReadAccount(const std::string& strAccount, CAccount& account);

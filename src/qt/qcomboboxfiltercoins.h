@@ -2,6 +2,7 @@
 #define QCOMBOBOCFILTERCOINS_H
  
 #include <QtGui>
+#include <QMessageBox>
 
 //Derived Class from QComboBox
 class QComboBoxFilterCoins: public QComboBox

@@ -339,12 +339,12 @@ Value getaccountaddress(const Array& params, bool fHelp)
 
 Value stakeforcharity(const Array &params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "stakeforcharity <HyperStake address> <percent>[min amount] [max amount]\n"
+            "stakeforcharity <HyperStake Address> <percent> [Change Address] [min amount] [max amount]\n"
             "Gives a percentage of a found stake to a different address, after stake matures\n"
             "Percent is a whole number 1 to 50.\n"
-			"Min and Max Amount are optional\n"
+			"Change Address, Min and Max Amount are optional\n"
             "Set percentage to zero to turn off"
             + HelpRequiringPassphrase());
 
@@ -363,10 +363,18 @@ Value stakeforcharity(const Array &params, bool fHelp)
     int64 nMinAmount = MIN_TXOUT_AMOUNT;
 	int64 nMaxAmount = MAX_MONEY;
 	
+	// Optional Change Address
+    CBitcoinAddress changeAddress;
+    if (params.size() > 2) {
+        changeAddress = params[2].get_str();
+        if (!changeAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake change address");
+    }
+	
 	// Optional Min Amount
-	if (params.size() > 2)
+	if (params.size() > 3)
     {
-		int64 nAmount = AmountFromValue(params[2]);
+		int64 nAmount = AmountFromValue(params[3]);
 		if (nAmount < MIN_TXOUT_AMOUNT)
 			throw JSONRPCError(-101, "Send amount too small");
 		else
@@ -374,9 +382,9 @@ Value stakeforcharity(const Array &params, bool fHelp)
     }
 
    // Optional Max Amount
-    if (params.size() > 3)
+    if (params.size() > 4)
 	{
-		int64 nAmount = AmountFromValue(params[3]);
+		int64 nAmount = AmountFromValue(params[4]);
 		if (nAmount < MIN_TXOUT_AMOUNT)
 			throw JSONRPCError(-101, "Send amount too small");
 		else
@@ -401,6 +409,7 @@ Value stakeforcharity(const Array &params, bool fHelp)
                 walletdb.EraseStakeForCharity(pwalletMain->strStakeForCharityAddress.ToString());
 
             pwalletMain->strStakeForCharityAddress = "";
+			pwalletMain->strStakeForCharityChangeAddress = "";
 
             return Value::null;
 		}
@@ -413,12 +422,13 @@ Value stakeforcharity(const Array &params, bool fHelp)
 			  
 		pwalletMain->strStakeForCharityAddress = address;
         pwalletMain->nStakeForCharityPercent = nPer;
+		pwalletMain->strStakeForCharityChangeAddress = changeAddress;
         pwalletMain->fStakeForCharity = true;
         pwalletMain->nStakeForCharityMin = nMinAmount;
         pwalletMain->nStakeForCharityMax = nMaxAmount;
 		
 		if(fFileBacked)
-			walletdb.WriteStakeForCharity(address.ToString(), nPer);
+			walletdb.WriteStakeForCharity(address.ToString(), nPer, changeAddress.ToString(), nMinAmount, nMaxAmount);
 			 
 	}
     return Value::null;

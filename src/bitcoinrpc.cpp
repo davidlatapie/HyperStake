@@ -396,7 +396,7 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
 int ReadHTTPHeader(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet)
 {
     int nLen = 0;
-    loop
+    while (true)
     {
         string str;
         std::getline(stream, str);
@@ -948,7 +948,7 @@ void ThreadRPCServer3(void* parg)
     AcceptedConnection *conn = (AcceptedConnection *) parg;
 
     bool fRun = true;
-    loop {
+    while (true) {
         if (fShutdown || !fRun)
         {
             conn->close();
@@ -1198,7 +1198,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "createrawtransaction"   && n > 1) ConvertTo<Object>(params[1]);
     if (strMethod == "signrawtransaction"     && n > 1) ConvertTo<Array>(params[1], true);
     if (strMethod == "signrawtransaction"     && n > 2) ConvertTo<Array>(params[2], true);
-	if (strMethod == "stakeforcharity"        && n > 1) ConvertTo<int>(params[1]);
+	if (strMethod == "stakeforcharity"        && n > 4) ConvertTo<double>(params[4]);
 	if (strMethod == "stakeforcharity"        && n > 2) ConvertTo<double>(params[2]);
 	if (strMethod == "stakeforcharity"        && n > 3) ConvertTo<double>(params[3]);
 

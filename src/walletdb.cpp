@@ -72,7 +72,7 @@ void CWalletDB::ListAccountCreditDebit(const string& strAccount, list<CAccountin
     if (!pcursor)
         throw runtime_error("CWalletDB::ListAccountCreditDebit() : cannot create DB cursor");
     unsigned int fFlags = DB_SET_RANGE;
-    loop
+    while (true)
     {
         // Read next record
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
@@ -372,17 +372,32 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             ssValue >> pwallet->nOrderPosNext;
         }
-		else if (strType == "ats")
-		{
-			string strStakeForCharityAccount;
-			ssKey >> strStakeForCharityAccount;
-			if (CBitcoinAddress(strStakeForCharityAccount).IsValid())
-			{
-				pwallet->fStakeForCharity = true;
-				pwallet->strStakeForCharityAddress = CBitcoinAddress(strStakeForCharityAccount).Get();
-				ssValue >> pwallet->nStakeForCharityPercent;
-			}
-		}
+		else if (strType == "ats") // falsely names as autosavings, but for compat with older wallets keep using
+        {
+            string strS4CAccount;
+            ssKey >> strS4CAccount;
+            if (CBitcoinAddress(strS4CAccount).IsValid())
+            {
+                pwallet->fStakeForCharity = true;
+                pwallet->strStakeForCharityAddress = CBitcoinAddress(strS4CAccount).Get();
+                string strS4CChhangeAccount;
+                ssValue >> strS4CChhangeAccount;
+                if (CBitcoinAddress(strS4CChhangeAccount).IsValid())
+                    pwallet->strStakeForCharityChangeAddress = CBitcoinAddress(strS4CChhangeAccount).Get();
+                ssValue >> pwallet->nStakeForCharityPercent;
+            }
+
+        }
+        else if (strType == "ats2")
+        {
+            string strS4CAccount;
+            ssKey >> strS4CAccount;
+            if (CBitcoinAddress(strS4CAccount).IsValid())
+            {
+                ssValue >> pwallet->nStakeForCharityMin;
+                ssValue >> pwallet->nStakeForCharityMax;
+            }
+        }
 		
     } catch (...)
     {
@@ -425,7 +440,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
             return DB_CORRUPT;
         }
 
-        loop
+        while (true)
         {
             // Read next record
             CDataStream ssKey(SER_DISK, CLIENT_VERSION);

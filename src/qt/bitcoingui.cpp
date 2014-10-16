@@ -58,8 +58,11 @@
 #include <QDesktopServices>
 #include <QTimer>
 #include <QDragEnterEvent>
+#if QT_VERSION < 0x050000
 #include <QUrl>
+#endif
 #include <QStyle>
+#include <QMimeData>
 #include <QSignalMapper>
 #include <QSettings>
 #include <iostream>
@@ -299,7 +302,7 @@ void BitcoinGUI::createActions()
     aboutAction->setToolTip(tr("Show information about HyperStake"));
     aboutAction->setMenuRole(QAction::AboutRole);
 	
-	charityAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Stake For Charity"), this);
+	charityAction = new QAction(QIcon(":/icons/s4c"), tr("&Stake For Charity"), this);
     charityAction->setToolTip(tr("Enable Stake For Charity"));
     charityAction->setCheckable(true);
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
@@ -1061,7 +1064,12 @@ void BitcoinGUI::repairWallet()
 
 void BitcoinGUI::backupWallet()
 {
+	#if QT_VERSION < 0x050000
     QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+	#else
+	QString saveDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+	#endif
+	
     QString filename = QFileDialog::getSaveFileName(this, tr("Backup Wallet"), saveDir, tr("Wallet Data (*.dat)"));
     if(!filename.isEmpty()) {
         if(!walletModel->backupWallet(filename)) {

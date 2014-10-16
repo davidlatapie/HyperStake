@@ -90,6 +90,7 @@ public:
 	int64 nStakeForCharityMin;
 	int64 nStakeForCharityMax;
 	CBitcoinAddress strStakeForCharityAddress;
+	CBitcoinAddress strStakeForCharityChangeAddress;
 	bool fWalletUnlockMintOnly;
 	int64 nAmountSelected;
 	std::string strBestAddress;
@@ -114,6 +115,7 @@ public:
 		fS4CNotificator = false;
         nStakeForCharityPercent = 0;
         strStakeForCharityAddress = "";
+		strStakeForCharityChangeAddress = "";
 		nStakeForCharityMin = 0;
 		nStakeForCharityMax = 0;
 		fWalletUnlockMintOnly = false;
@@ -134,6 +136,7 @@ public:
 		fS4CNotificator = false;
         nStakeForCharityPercent = 0;
         strStakeForCharityAddress = "";
+		strStakeForCharityChangeAddress = "";
 		nStakeForCharityMin = MIN_TXOUT_AMOUNT;
 		nStakeForCharityMax = MAX_MONEY;
 		fWalletUnlockMintOnly = false;
@@ -205,8 +208,8 @@ public:
     int64 GetStake() const;
     int64 GetNewMint() const;
 	bool StakeForCharity();
-    bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, const CCoinControl *coinControl=NULL);
-    bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, const CCoinControl *coinControl=NULL);
+    bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
+    bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     bool GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight);
 	bool GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nHoursToMaturity, uint64& nAmount);
