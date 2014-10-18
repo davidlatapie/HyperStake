@@ -12,6 +12,7 @@
 #include "optionsdialog.h"
 #include "aboutdialog.h"
 #include "charitydialog.h"
+#include "calcdialog.h"
 #include "clientmodel.h"
 #include "walletmodel.h"
 #include "editaddressdialog.h"
@@ -308,6 +309,10 @@ void BitcoinGUI::createActions()
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
 	tabGroup->addAction(charityAction);
 	
+	calcAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Stake Calculator"), this);
+    calcAction->setToolTip(tr("Open Stake Calculator"));
+    calcAction->setMenuRole(QAction::AboutRole);
+	
 	blockAction = new QAction(QIcon(":/icons/blexp"), tr("Block Bro&wser"), this);
 	blockAction->setStatusTip(tr("Explore the BlockChain"));
 	blockAction->setToolTip(blockAction->statusTip());
@@ -361,6 +366,9 @@ void BitcoinGUI::createActions()
 	
 	connect(charityAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
 	connect(charityAction, SIGNAL(triggered()), this, SLOT(charityClicked()));
+	
+	connect(calcAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+	connect(calcAction, SIGNAL(triggered()), this, SLOT(calcClicked()));
 	
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
@@ -434,6 +442,7 @@ void BitcoinGUI::createMenuBar()
 	settings->addAction(checkWalletAction);
 	settings->addAction(repairWalletAction);
 	settings->addAction(charityAction);
+	settings->addAction(calcAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
 
@@ -1286,6 +1295,12 @@ void BitcoinGUI::charityClicked(QString addr)
 
     exportAction->setEnabled(false);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+}
+
+void BitcoinGUI::calcClicked()
+{
+    calcDialog dlg;
+    dlg.exec();
 }
 
 /* zeewolf: Hot swappable wallet themes */

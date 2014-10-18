@@ -107,6 +107,7 @@ private:
 	QAction *connectionIconAction;
 	QAction *stakingIconAction;
 	QAction *charityAction;
+	QAction *calcAction;
 	
 	
 
@@ -191,6 +192,8 @@ private slots:
     void optionsClicked();
     /** Show about dialog */
     void aboutClicked();
+	/** Show Stake Calculator Dialog */
+    void calcClicked();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
