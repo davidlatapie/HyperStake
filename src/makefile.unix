@@ -4,7 +4,7 @@
 
 USE_UPNP:=0
 USE_IPV6:=1
-
+SSE2_SUPPORT:=$(shell cat /proc/cpuinfo | grep sse2 | wc -l)
 LINK:=$(CXX)
 ARCH:=$(system lscpu | head -n 1 | awk '{print $2}')
 
@@ -90,7 +90,7 @@ LIBS+= \
 #
 DEBUGFLAGS=-g
 
-ifeq (${ARCH}, i686)
+ifeq (${SSE2_SUPPORT}, 1)
     EXT_OPTIONS=-msse2
 endif
 
