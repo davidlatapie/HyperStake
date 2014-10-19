@@ -1217,6 +1217,7 @@ void BitcoinGUI::updateMintingIcon()
         uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 		uint64 nEstimateDays = nEstimateTime / (60 * 60 * 24);
 		
+		
 		if(nEstimateDays > 1)
 		{
 			nWeight = qMax(nAmount, nWeight);
@@ -1227,29 +1228,31 @@ void BitcoinGUI::updateMintingIcon()
 			else 
 				nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 		}
-
+	
+		uint64 nRangeLow = nEstimateTime;
+		uint64 nRangeHigh = nEstimateTime * 1.5;
         QString text;
         if (nEstimateTime < 60)
         {
-            text = tr("%n second(s)", "", nEstimateTime);
+            text = tr("%1 - %2 seconds").arg(nRangeLow).arg(nRangeHigh);
         }
         else if (nEstimateTime < 60*60)
         {
-            text = tr("%n minute(s)", "", nEstimateTime/60);
+            text = tr("%1 - %2 minutes").arg(nRangeLow / 60).arg(nRangeHigh / 60);
         }
         else if (nEstimateTime < 24*60*60)
         {
-            text = tr("%n hour(s)", "", nEstimateTime/(60*60));
+            text = tr("%1 - %2 hours").arg(nRangeLow / (60*60)).arg(nRangeHigh / (60*60));
         }
         else
         {
-            text = tr("%n day(s)", "", nEstimateTime/(60*60*24));
+            text = tr("%1 - %2 days").arg(nRangeLow / (60*60*24)).arg(nRangeHigh / (60*60*24));
         }
 
         labelMintingIcon->setMovie(miningIconMovie);
         miningIconMovie->start();
         labelMintingIcon->setEnabled(true);
-        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> time to earn reward is %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> next stake in %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
     }
     else
     {
