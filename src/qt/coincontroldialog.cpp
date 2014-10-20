@@ -8,6 +8,7 @@
 #include "optionsmodel.h"
 #include "coincontrol.h"
 #include "qcomboboxfiltercoins.h"
+#include "bitcoinrpc.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -116,10 +117,11 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     ui->treeWidget->setColumnWidth(COLUMN_AMOUNT, 100);
 	ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 85);
 	ui->treeWidget->setColumnWidth(COLUMN_AGE, 55);
-	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 100);
+	ui->treeWidget->setColumnWidth(COLUMN_POTENTIALSTAKE, 90);
+	ui->treeWidget->setColumnWidth(COLUMN_TIMEESTIMATE, 110);
 	ui->treeWidget->setColumnWidth(COLUMN_WEIGHT, 70);
     ui->treeWidget->setColumnWidth(COLUMN_LABEL, 85);
-    ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 150);
+    ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 125);
     ui->treeWidget->setColumnWidth(COLUMN_DATE, 110);
     ui->treeWidget->setColumnWidth(COLUMN_PRIORITY, 100);
 	ui->treeWidget->setColumnHidden(COLUMN_AGE_INT64, true);
@@ -763,6 +765,7 @@ void CoinControlDialog::updateView()
 		uint64 nPotentialStakeSum = 0;
 		GetLastBlockIndex(pindexBest, false);
 		int64 nBestHeight = pindexBest->nHeight;
+		uint64 nNetworkWeight = GetPoSKernelPS();
 		
         BOOST_FOREACH(const COutput& out, coins.second)
         {
@@ -843,7 +846,8 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nTxWeight), 8, " "));
 			
 			// Age
-			int64 age = COIN * (GetTime() - nTime) / (1440 * 60);
+			uint64 nAge = (GetTime() - nTime);
+			int64 age = COIN * nAge / (1440 * 60);
 			itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " "));
 			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
@@ -854,6 +858,23 @@ void CoinControlDialog::updateView()
 			
 			// Potential Stake Sum for Tree View
 			nPotentialStakeSum += nPotentialStake / COIN;
+			
+			// Estimated Stake Time
+			uint64 nMin = 1;
+			uint64 nBlockSize = out.tx->vout[out.i].nValue / 1000000;
+			nBlockSize = qMax(nBlockSize, nMin);
+			uint64 nTimeToMaturity = 0;
+			uint64 nBlockWeight = qMax(nTxWeight, nBlockSize);
+			double dAge = nAge;
+			if (760320 - dAge >= 0 ) // 760320 seconds is 8.8 days
+				nTimeToMaturity = (760320 - nAge);
+			else
+				nTimeToMaturity = 0;
+			uint64 nAccuracyAdjustment = 3; // this is a manual adjustment in an attempt to make staking estimate more accurate
+			uint64 nEstimateTime = 90 * nNetworkWeight / nBlockWeight / nAccuracyAdjustment; // 90 seconds is block target
+			uint64 nMax = 999 * COIN; // qmin cannot compar int64, so convert to uint64 prior
+			nEstimateTime = qMin((nEstimateTime + nTimeToMaturity) * COIN / (60*60*24), nMax); // multiply by coin to use built in formatting
+			itemOutput->setText(COLUMN_TIMEESTIMATE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nEstimateTime), 15, " "));
 			
             // transaction hash
             uint256 txhash = out.tx->GetHash();

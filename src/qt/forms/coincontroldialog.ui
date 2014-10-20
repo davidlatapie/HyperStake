@@ -520,7 +520,11 @@
        <string>Potential Stake</string> /** potential stake **/
       </property>
      </column>
-	 
+	 <column>
+      <property name="text">
+       <string>Days to Stake (est.)</string> /** stake time estimate **/
+      </property>
+     </column>
      <column>
       <property name="text">
        <string>Weight</string> /** weight **/

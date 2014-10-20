@@ -127,7 +127,7 @@ QString BitcoinUnits::formatAge(int unit, qint64 n, bool fPlus)
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
     // Right-trim excess zeros after the decimal point
-    int nTrim = 3;
+    int nTrim = 4;
     
     remainder_str.chop(nTrim);
 
