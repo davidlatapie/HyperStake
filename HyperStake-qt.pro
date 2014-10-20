@@ -435,6 +435,7 @@ contains(RELEASE, 1) {
     }
 }
 
+
 CONFIG(debug, debug|release) {
     DESTDIR = debug
 } else {
