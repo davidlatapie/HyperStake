@@ -863,7 +863,6 @@ void CoinControlDialog::updateView()
 			
 			// Estimated Stake Time
 			uint64 nMin = 1;
-			
 			nBlockSize = qMax(nBlockSize, nMin);
 			uint64 nTimeToMaturity = 0;
 			uint64 nBlockWeight = qMax(nTxWeight, nBlockSize);
