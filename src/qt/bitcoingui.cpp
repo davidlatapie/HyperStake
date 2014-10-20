@@ -389,22 +389,25 @@ void BitcoinGUI::createActions()
 	//connect(stakingIconAction, SIGNAL(triggered()), this, SLOT(stakingIconClicked()));
 
     /* zeewolf: Hot swappable wallet themes */
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
-    //QActionGroup* menuActionGroup = new QActionGroup( this );
-    //menuActionGroup->setExclusive(true);
-
-    // Add custom themes (themes directory)
-    for( int i=0; i < themesList.count(); i++ )
+    if (themesList.count()>0)
     {
-        QString theme=themesList[i];
-        customActions[i] = new QAction(QIcon(":/icons/options"), theme, this);
-        customActions[i]->setToolTip(QString("Switch to " + theme + " theme"));
-        customActions[i]->setStatusTip(QString("Switch to " + theme + " theme"));
-        //customActions[i]->setActionGroup(menuActionGroup);
-        signalMapper->setMapping(customActions[i], theme);
-        connect(customActions[i], SIGNAL(triggered()), signalMapper, SLOT (map()));
+        QSignalMapper* signalMapper = new QSignalMapper (this) ;
+        //QActionGroup* menuActionGroup = new QActionGroup( this );
+        //menuActionGroup->setExclusive(true);
+
+        // Add custom themes (themes directory)
+        for( int i=0; i < themesList.count(); i++ )
+        {
+            QString theme=themesList[i];
+            customActions[i] = new QAction(QIcon(":/icons/options"), theme, this);
+            customActions[i]->setToolTip(QString("Switch to " + theme + " theme"));
+            customActions[i]->setStatusTip(QString("Switch to " + theme + " theme"));
+            //customActions[i]->setActionGroup(menuActionGroup);
+            signalMapper->setMapping(customActions[i], theme);
+            connect(customActions[i], SIGNAL(triggered()), signalMapper, SLOT (map()));
+        }
+        connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(loadTheme(QString)));
     }
-    connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(loadTheme(QString)));
     /* /zeewolf: Hot swappable wallet themes */
 }
 
@@ -447,9 +450,12 @@ void BitcoinGUI::createMenuBar()
     settings->addAction(optionsAction);
 
     /* zeewolf: Hot swappable wallet themes */
-    QMenu *themes = appMenuBar->addMenu(tr("T&hemes"));
-    for (int i = 0; i < themesList.count(); i++) {
-        themes->addAction(customActions[i]);
+    if (themesList.count()>0)
+    {
+        QMenu *themes = appMenuBar->addMenu(tr("T&hemes"));
+        for (int i = 0; i < themesList.count(); i++) {
+            themes->addAction(customActions[i]);
+        }
     }
     /* /zeewolf: Hot swappable wallet themes */
 
