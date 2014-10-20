@@ -4,7 +4,7 @@
 
 USE_UPNP:=0
 USE_IPV6:=1
-
+SSE2_SUPPORT:=$(shell cat /proc/cpuinfo | grep sse2 | wc -l)
 LINK:=$(CXX)
 
 DEFS=-DBOOST_SPIRIT_THREADSAFE
@@ -87,13 +87,15 @@ LIBS+= \
     # the source such overflowing a statically defined buffer.
     HARDENING+=-D_FORTIFY_SOURCE=2
 #
-
-
 DEBUGFLAGS=-g
+
+ifeq (${SSE2_SUPPORT}, 1)
+    EXT_OPTIONS=-msse2
+endif
 
 # CXXFLAGS can be specified on the make command line, so we use xCXXFLAGS that only
 # adds some defaults in front. Unfortunately, CXXFLAGS=... $(CXXFLAGS) does not work.
-xCXXFLAGS=-O2 -msse2 -pthread -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter \
+xCXXFLAGS=-O2 $(EXT_OPTIONS) -pthread -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter \
     $(DEBUGFLAGS) $(DEFS) $(HARDENING) $(CXXFLAGS)
 
 # LDFLAGS can be specified on the make command line, so we use xLDFLAGS that only
