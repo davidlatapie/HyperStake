@@ -6,6 +6,9 @@
 #include "main.h"
 #include "bitcoinrpc.h"
 
+#include <iostream>
+#include <fstream>
+
 using namespace json_spirit;
 using namespace std;
 
@@ -256,4 +259,30 @@ Value getcheckpoint(const Array& params, bool fHelp)
         result.push_back(Pair("checkpointmaster", true));
 
     return result;
+}
+
+// presstab HyperStake
+Value exportdifficulty(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "export difficulty <interval> <directory>\n"
+            "interval will give difficulty for every Xth block\n"
+            "directory is the location to export the csv: C:\\example.csv)");
+	
+	int nInterval = params[0].get_int();		
+	std::string strDir = params[1].get_str();
+    
+	ofstream File; 
+	
+	File.open(strDir.c_str()); 
+	File << "Block, Difficulty" << endl;
+	for(int i = 0; i < nBestHeight; i += nInterval)
+	{
+		File << i;
+		File << ",";		
+		File << GetDifficulty(FindBlockByHeight(i)) << endl; 
+	}
+	File.close(); 
+    return "succesfully exported";
 }
