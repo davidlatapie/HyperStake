@@ -7,6 +7,18 @@ CONFIG += no_include_pwd static
 QT += core gui xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+linux {
+    SSE2_SUPPORT = $$system(grep -c sse2 /proc/cpuinfo)
+}
+
+macx {
+    SSE2_SUPPORT = $$system(sysctl -n machdep.cpu.features | grep -c SSE2)
+}
+
+!linux:!macx {
+    SSE2_SUPPORT = 1
+}
+
 win32{
     #uncomment the following section to enable building on windows:
     windows:LIBS += -lshlwapi
@@ -114,13 +126,12 @@ contains(BITCOIN_NEED_QT_PLUGINS, 1) {
     DEFINES += HAVE_BUILD_INFO
 }
 
-arm-linux-*: {
-    message("RaspberryPi detected, compiling without -msse2 flag")
-}
-!arm-linux-*: {
-    message("Adding -msse2 flag")
+contains( SSE2_SUPPORT, 1 ) {
+    message("SSE2 detected, adding -msse2 flag")
     QMAKE_CXXFLAGS += -msse2
     QMAKE_CFLAGS += -msse2
+} else {
+    message("No SSE2 detected, skipping -msse2 flag")
 }
 
 QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter -Wstack-protector
@@ -220,7 +231,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/sph_echo.h \
     src/sph_shavite.h \
     src/sph_simd.h \
-    src/sph_types.h 
+    src/sph_types.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/transactiontablemodel.cpp \
