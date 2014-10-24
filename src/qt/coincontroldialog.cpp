@@ -817,6 +817,7 @@ void CoinControlDialog::updateView()
             }
 
             // amount
+			uint64 nBlockSize = out.tx->vout[out.i].nValue / 1000000; //used in formulas below
             itemOutput->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, out.tx->vout[out.i].nValue));
             itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " ")); // padding so that sorting works correctly
 
@@ -851,17 +852,17 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " "));
 			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
+			
 			// Potential Stake
-			int64 nPotentialStake = min((7.5 / 365 * age * out.tx->vout[out.i].nValue), double(1000 * COIN * COIN)); //min of the max reward or the stake rate
-			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake / COIN), 15, " "));
-			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number(nPotentialStake), 16, " "));
+			double nPotentialStake = min(7.5 / 365 * nBlockSize * nAge / (60*60*24), 1000.0); //min of the max reward or the stake rate
+			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake * COIN), 15, " ")); //use COIN for formatting
+			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number((int64)nPotentialStake), 16, " "));
 			
 			// Potential Stake Sum for Tree View
-			nPotentialStakeSum += nPotentialStake / COIN;
+			nPotentialStakeSum += nPotentialStake * COIN;
 			
 			// Estimated Stake Time
 			uint64 nMin = 1;
-			uint64 nBlockSize = out.tx->vout[out.i].nValue / 1000000;
 			nBlockSize = qMax(nBlockSize, nMin);
 			uint64 nTimeToMaturity = 0;
 			uint64 nBlockWeight = qMax(nTxWeight, nBlockSize);

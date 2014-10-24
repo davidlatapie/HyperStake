@@ -1303,10 +1303,14 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                 int64 nValueIn = 0;
                 if (!SelectCoins(nTotalValue, wtxNew.nTime, setCoins, nValueIn, coinControl))
                     return false;
+				CTxDestination outputAddress;
                 BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
                 {
                     int64 nCredit = pcoin.first->vout[pcoin.second].nValue;
                     dPriority += (double)nCredit * pcoin.first->GetDepthInMainChain();
+					//use this address to send change back
+					//note that this will use the last address run through the FOREACH, needs better logic added
+					ExtractDestination(pcoin.first->vout[pcoin.second].scriptPubKey, outputAddress); 
                 }
 
                 int64 nChange = nValueIn - nValue - nFeeRet;
@@ -1353,11 +1357,14 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                          //  If we reused the old key, it would be possible to add code to look for and
                          //  rediscover unknown transactions that were written with keys of ours to recover
                          //  post-backup change.
- 
+			
                          // Reserve a new key pair from key pool
-                         CPubKey vchPubKey = reservekey.GetReservedKey();
+                         //CPubKey vchPubKey = reservekey.GetReservedKey();
  
-                         scriptChange.SetDestination(vchPubKey.GetID());
+                         //scriptChange.SetDestination(vchPubKey.GetID());
+						
+						// change HyperStake to get rid of automatic generation of change address and instead send change back
+						scriptChange.SetDestination(outputAddress);
                      }
                     
                     // Insert change txn at random position:
