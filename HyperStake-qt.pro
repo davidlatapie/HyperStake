@@ -7,17 +7,18 @@ CONFIG += no_include_pwd static
 QT += core gui xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-linux {
-    SSE2_SUPPORT = $$system(grep -c sse2 /proc/cpuinfo)
-}
-
 macx {
     SSE2_SUPPORT = $$system(sysctl -n machdep.cpu.features | grep -c SSE2)
 }
 
-!linux:!macx {
+unix:!macx {
+    SSE2_SUPPORT = $$system(grep -c sse2 /proc/cpuinfo)
+}
+
+!unix:!macx {
     SSE2_SUPPORT = 1
 }
+
 
 win32{
     #uncomment the following section to enable building on windows:
