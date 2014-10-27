@@ -1348,6 +1348,8 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
 					else if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange)) {                     
                          scriptChange.SetDestination(coinControl->destChange);
 					}
+					else if (coinControl && coinControl->fReturnChange == true)
+						scriptChange.SetDestination(outputAddress);
                      // no coin control: send change to newly generated address
                      else
                      {
@@ -1359,12 +1361,12 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                          //  post-backup change.
 			
                          // Reserve a new key pair from key pool
-                         //CPubKey vchPubKey = reservekey.GetReservedKey();
+                         CPubKey vchPubKey = reservekey.GetReservedKey();
  
-                         //scriptChange.SetDestination(vchPubKey.GetID());
+                         scriptChange.SetDestination(vchPubKey.GetID());
 						
 						// change HyperStake to get rid of automatic generation of change address and instead send change back
-						scriptChange.SetDestination(outputAddress);
+						
                      }
                     
                     // Insert change txn at random position:

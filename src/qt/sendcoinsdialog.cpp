@@ -47,6 +47,8 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
      connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
      connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
      connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
+	 connect(ui->returnChangeCheckBox, SIGNAL(stateChanged(int)), this, SLOT(coinControlReturnChangeChecked(int)));
+	 
  
 		// Coin Control: clipboard actions
      QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -432,6 +434,19 @@ void SendCoinsDialog::updateDisplayUnit()
      dlg.setModel(model);
      dlg.exec();
      coinControlUpdateLabels();
+ }
+ 
+  // Coin Control: return change
+  // presstab HyperStake
+ void SendCoinsDialog::coinControlReturnChangeChecked(int state)
+ {
+     if (model)
+     {
+         if (state == Qt::Checked)
+             CoinControlDialog::coinControl->fReturnChange = true;
+         else
+             CoinControlDialog::coinControl->fReturnChange = false;
+     }  
  }
  
  // Coin Control: checkbox custom change address
