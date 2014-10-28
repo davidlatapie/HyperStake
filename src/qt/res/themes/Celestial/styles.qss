@@ -643,10 +643,6 @@ QScrollBar:vertical {
 	margin: 0px 0px 0px 0px;
 }
 
-#QScrollBar::handle:vertical {
-#	#background: $shade-transparent-2;
-#}
-
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 	background: none;
 }
