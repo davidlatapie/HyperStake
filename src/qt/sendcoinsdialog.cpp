@@ -35,6 +35,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 #if QT_VERSION >= 0x040700
      /* Do not move this to the XML file, Qt before 4.7 will choke on it */
      ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a HyperStake address (e.g. BrXW1RKLDe8VMNwTwLwSiKuATN5M74EL85)"));
+	 ui->splitBlockLineEdit->setPlaceholderText(tr("# of Blocks to Make"));
 #endif
 
     addEntry();
@@ -48,7 +49,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
      connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
      connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 	 connect(ui->returnChangeCheckBox, SIGNAL(stateChanged(int)), this, SLOT(coinControlReturnChangeChecked(int)));
-	 
+	 connect(ui->splitBlockCheckBox, SIGNAL(stateChanged(int)), this, SLOT(coinControlSplitBlockChecked(int)));
  
 		// Coin Control: clipboard actions
      QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -77,6 +78,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
      ui->labelCoinControlChange->addAction(clipboardChangeAction);
  
     fNewRecipientAllowed = true;
+	fSplitBlock = false;
 }
 
 void SendCoinsDialog::setModel(WalletModel *model)
@@ -172,12 +174,17 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-       WalletModel::SendCoinsReturn sendstatus;
-
+    WalletModel::SendCoinsReturn sendstatus;
+	int nSplitBlock = 1;
+	if (ui->entries->count() > 1)
+		fSplitBlock = false;
+	if (fSplitBlock)
+		nSplitBlock = ui->splitBlockLineEdit->text().toInt();
+	   
     if (!model->getOptionsModel() || !model->getOptionsModel()->getCoinControlFeatures())
-        sendstatus = model->sendCoins(recipients);
+        sendstatus = model->sendCoins(recipients, nSplitBlock);
     else
-        sendstatus = model->sendCoins(recipients, CoinControlDialog::coinControl);
+        sendstatus = model->sendCoins(recipients, nSplitBlock, CoinControlDialog::coinControl);
 
     switch(sendstatus.status)
     {
@@ -448,6 +455,20 @@ void SendCoinsDialog::updateDisplayUnit()
              CoinControlDialog::coinControl->fReturnChange = false;
      }  
  }
+ 
+// Coin Control: split block check box
+// presstab HyperStake
+void SendCoinsDialog::coinControlSplitBlockChecked(int state)
+{
+    if (model)
+	{
+		if (state == Qt::Checked)
+			fSplitBlock = true;
+		else
+			fSplitBlock = false;
+	}
+	ui->splitBlockLineEdit->setEnabled((state == Qt::Checked));
+}
  
  // Coin Control: checkbox custom change address
  void SendCoinsDialog::coinControlChangeChecked(int state)
