@@ -1584,7 +1584,7 @@ Value getstaketx(const Array& params, bool fHelp)
 				uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
 				double nGeneratedAmount2 = max (nGeneratedMature, nGeneratedImmature); //uint64_t math not working
 				double percentReward = nFee / (nGeneratedAmount2 - nFee);
-				double dWeight = (nGeneratedAmount / COIN) * (dDaysToStake - 8.8);
+				double dWeight = ((nGeneratedAmount - nFee)/ COIN) * (dDaysToStake - 8.8);
 				
 				entry.push_back(Pair("Stake TX Time", nTime));
 				entry.push_back(Pair("Previous Time", nPrevTime));
