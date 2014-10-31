@@ -122,9 +122,12 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
 	
     for(int i = 0; i < ui->entries->count(); ++i)
-    {
-        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-        if(entry)
+    {	
+		SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+        CBitcoinAddress address = entry->getValue().address.toStdString();
+		if(!model->isMine(address))
+			fSplitBlock = false; //dont allow the blocks to split if sending to an outside address
+		if(entry)
         {
             if(entry->validate())
             {
