@@ -1306,8 +1306,21 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                 // vouts to the payees
                 BOOST_FOREACH (const PAIRTYPE(CScript, int64)& s, vecSend)
 				{
+					uint64 nBlockAmount = 0;
+					uint64 nBlockSum = 0;
+					uint64 nAvgBlock = s.second / nSplitBlock;
+					
                     for(int nCount = 0; nCount < nSplitBlock; nCount++)
-						wtxNew.vout.push_back(CTxOut(s.second / nSplitBlock, s.first));
+					{
+						
+						if (!(nCount == nSplitBlock))
+							nBlockAmount =  nAvgBlock - ((nCount + 1) * COIN / 4000);
+						else	
+							nBlockAmount = s.second - nBlockSum;
+						nBlockSum += nBlockAmount;
+
+						wtxNew.vout.push_back(CTxOut(nBlockAmount, s.first));
+					}
 				}
 
                 // Choose coins to use
