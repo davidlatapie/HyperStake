@@ -439,9 +439,9 @@ void BitcoinGUI::createMenuBar()
 
     QMenu *settings = appMenuBar->addMenu(tr("&Tools"));
     settings->addAction(encryptWalletAction);
+	settings->addAction(lockWalletToggleAction);
 	settings->addAction(unlockWalletAction);
     settings->addAction(changePassphraseAction);
-    settings->addAction(lockWalletToggleAction);
 	settings->addAction(checkWalletAction);
 	settings->addAction(repairWalletAction);
 	settings->addAction(charityAction);
@@ -982,7 +982,7 @@ void BitcoinGUI::setEncryptionStatus(int status)
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         encryptWalletAction->setChecked(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-		unlockWalletAction->setChecked(true);
+		unlockWalletAction->setChecked(false);
 		unlockWalletAction->setEnabled(false);
         changePassphraseAction->setEnabled(true);
         lockWalletToggleAction->setVisible(true);
@@ -994,7 +994,7 @@ void BitcoinGUI::setEncryptionStatus(int status)
         labelEncryptionIcon->hide();
         encryptWalletAction->setChecked(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-		unlockWalletAction->setChecked(true);
+		unlockWalletAction->setChecked(false);
 		unlockWalletAction->setEnabled(true);
         changePassphraseAction->setEnabled(true);
         lockWalletToggleAction->setVisible(true);
