@@ -1542,6 +1542,7 @@ Value listsinceblock(const Array& params, bool fHelp)
     return ret;
 }
 
+//presstab HyperStake
 Value getstaketx(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1572,11 +1573,6 @@ Value getstaketx(const Array& params, bool fHelp)
 				uint64_t nTimeToStake = nTime - nPrevTime; // time to stake in seconds
 				double dDaysToStake = nTimeToStake / 60.00 / 60 / 24;
 				
-				//entry.push_back(Pair("txid", txin.prevout.hash.GetHex())); previous txid - not necessary to display right now
-				entry.push_back(Pair("Stake TX Time", nTime));
-				entry.push_back(Pair("Previous Time", nPrevTime));
-				entry.push_back(Pair("Days To Stake", dDaysToStake));
-
 				int64 nDebit = wtx.GetDebit();
 				int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
 
@@ -1587,10 +1583,14 @@ Value getstaketx(const Array& params, bool fHelp)
 				wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount);
 				uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
 				double nGeneratedAmount2 = max (nGeneratedMature, nGeneratedImmature); //uint64_t math not working
-				
 				double percentReward = nFee / (nGeneratedAmount2 - nFee);
+				double dWeight = (nGeneratedAmount / COIN) * (dDaysToStake - 8.8);
 				
+				entry.push_back(Pair("Stake TX Time", nTime));
+				entry.push_back(Pair("Previous Time", nPrevTime));
+				entry.push_back(Pair("Days To Stake", dDaysToStake));
 				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
+				entry.push_back(Pair("Weight", dWeight);
 				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
 				entry.push_back(Pair("Reward %", percentReward));
 				entry.push_back(Pair("Total New Amount", ValueFromAmount(nGeneratedAmount)));
