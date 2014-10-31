@@ -34,8 +34,11 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 
 #if QT_VERSION >= 0x040700
      /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-     ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a HyperStake address (e.g. BrXW1RKLDe8VMNwTwLwSiKuATN5M74EL85)"));
+     ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a HyperStake address (e.g. pAvP3gYfuyDVbUt98ToMbwU9rwEdBV1dHW)"));
 	 ui->splitBlockLineEdit->setPlaceholderText(tr("# of Blocks to Make"));
+	 ui->splitBlockCheckBox->setToolTip(tr("Enable/Disable Block Splitting"));
+	 ui->returnChangeCheckBox->setToolTip(tr("Use your sending address as the change address"));
+	 ui->checkBoxCoinControlChange->setToolTip(tr("Send change to a custom address"));
 #endif
 
     addEntry();
