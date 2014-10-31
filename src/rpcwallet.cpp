@@ -1590,7 +1590,7 @@ Value getstaketx(const Array& params, bool fHelp)
 				entry.push_back(Pair("Previous Time", nPrevTime));
 				entry.push_back(Pair("Days To Stake", dDaysToStake));
 				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
-				entry.push_back(Pair("Weight", dWeight);
+				entry.push_back(Pair("Weight", dWeight));
 				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
 				entry.push_back(Pair("Reward %", percentReward));
 				entry.push_back(Pair("Total New Amount", ValueFromAmount(nGeneratedAmount)));
