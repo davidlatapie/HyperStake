@@ -1103,6 +1103,8 @@ int64 CWallet::GetNewMint() const
     return nTotal;
 }
 
+int nPrevS4CHeight = 0;
+
 bool CWallet::StakeForCharity()
 {
 
@@ -1117,26 +1119,31 @@ bool CWallet::StakeForCharity()
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (pcoin->IsCoinStake() && pcoin->GetBlocksToMaturity() == 0 && pcoin->GetDepthInMainChain() == nCoinbaseMaturity+20)
+            if (pcoin->IsCoinStake() && pcoin->GetBlocksToMaturity() == 0  && pcoin->GetDepthInMainChain() == nCoinbaseMaturity+20)
             {
-                // Calculate Amount for Savings
+                // Calculate Amount for Charity
                 nNet = ( ( pcoin->GetCredit() - pcoin->GetDebit() ) * nStakeForCharityPercent )/100;
 
-                // Do not send if amount is too low or high
-                if (nNet <= nStakeForCharityMin || nNet >= nStakeForCharityMax )
-                {
-                    printf("StakeForCharity: Amount: %s is not in range of Min: %s and Max:%s\n",FormatMoney(nNet).c_str(),FormatMoney
-						(nStakeForCharityMin).c_str(),FormatMoney
-						(nStakeForCharityMax).c_str());
+                // Do not send if amount is too low
+                if (nNet < nStakeForCharityMin ) {
                     return false;
                 }
-
-                printf("StakeForCharity Sending: %s to Address: %s\n", FormatMoney(nNet).c_str(), strStakeForCharityAddress.ToString().c_str());
-				fS4CNotificator = true;
-                SendMoneyToDestination(strStakeForCharityAddress.Get(), nNet, wtx, false,true);	
+                // Truncate to max if amount is too great
+                if (nNet > nStakeForCharityMax ) {
+                    nNet = nStakeForCharityMax;
+                }
+                if (nBestHeight <= nPrevS4CHeight ) {
+                    return false;
+                } else {
+                    SendMoneyToDestination(strStakeForCharityAddress.Get(), nNet, wtx, false, true);
+                    nPrevS4CHeight = nBestHeight;
+                }
             }
+
         }
+
     }
+
     return true;
 }
 
