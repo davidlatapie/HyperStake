@@ -431,7 +431,10 @@ Value stakeforcharity(const Array &params, bool fHelp)
 			walletdb.WriteStakeForCharity(address.ToString(), nPer, changeAddress.ToString(), nMinAmount, nMaxAmount);
 			 
 	}
-    return Value::null;
+	if (pwalletMain->fStakeForCharity)
+		return "Stake For Charity is active";
+    else
+		return "Stake For Charity not active";
 }
 
 

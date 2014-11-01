@@ -1368,6 +1368,11 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                     if (fAllowS4C) {
                         if (strStakeForCharityChangeAddress.IsValid())
                             scriptChange.SetDestination(strStakeForCharityChangeAddress.Get());
+						else
+						{
+							CPubKey vchPubKey = reservekey.GetReservedKey();
+							scriptChange.SetDestination(vchPubKey.GetID());
+						}
                     }
 					// coin control: send change to custom address
 					else if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange)) {                     
