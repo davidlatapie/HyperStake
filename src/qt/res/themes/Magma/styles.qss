@@ -339,6 +339,7 @@ QToolBar {
 	border-top: 1px solid $main-color-xd;
 	min-height: 40px;
 	padding: 0px;
+        qproperty-iconSize: 32px 32px;
 }
 
 QToolBar::handle {
@@ -360,6 +361,7 @@ QToolBar QToolButton { /* all types of tool button */
 	border: none;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
+        qproperty-toolButtonStyle: ToolButtonTextBesideIcon;
 }
 
 QToolBar QToolButton:hover {

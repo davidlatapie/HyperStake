@@ -369,6 +369,7 @@ QToolBar {
 	margin-bottom: 0px;
 	border: none;
 	border-bottom: 1px solid $top-bar-border-color;
+        qproperty-iconSize: 32px 32px;
 }
 
 QToolBar::handle {
@@ -389,6 +390,7 @@ QToolBar QToolButton { /* all types of tool button */
 	border-bottom-right-radius: 0px;
 	$custom-font-1;
 	margin-top: 12px;
+        qproperty-toolButtonStyle: ToolButtonTextBesideIcon;
 }
 
 QToolBar QToolButton:hover {
