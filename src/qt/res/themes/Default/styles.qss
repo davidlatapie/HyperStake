@@ -22,3 +22,11 @@ QLabel[status="ok"] {
 QValidatedLineEdit[error="true"] {
 	background-color: #FF8080;
 }
+
+QToolBar {
+        qproperty-iconSize: 32px 32px;
+}
+
+QToolBar QToolButton { /* all types of tool button */
+        qproperty-toolButtonStyle: ToolButtonTextBesideIcon;
+}
