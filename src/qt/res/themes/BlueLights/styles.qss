@@ -735,3 +735,8 @@ QBalloonTip QPushButton:hover {
 QTabWidget > QFrame {
 	background-color: $shade-transparent-3;
 }
+
+QCheckBox#deleteCheckBox {
+	background-color: $shade-transparent-3;
+	padding: 4px;
+}
