@@ -501,10 +501,13 @@ void SendCoinsDialog::coinControlSplitBlockChecked(int state)
 	}
 }
 
+//presstab HyperStake
 void SendCoinsDialog::splitBlockLineEditChanged(const QString & text)
 {
 	double nAfterFee =  ui->labelCoinControlAfterFee->text().left(ui->labelCoinControlAfterFee->text().indexOf(" ")).toDouble();
-	double nSize = nAfterFee / text.toDouble();
+	double nSize = 0;
+	if (nAfterFee > 0 && text.toDouble() > 0)
+		nSize = nAfterFee / text.toDouble();
 	ui->labelBlockSize->setText(QString::number(nSize));
 }
  
