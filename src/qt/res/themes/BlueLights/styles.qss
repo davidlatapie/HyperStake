@@ -397,7 +397,7 @@ QToolBar QToolButton:checked {
 }
 
 QToolBar QToolButton:disabled {
-	color: $input-border-color;
+	color: $text-grey-d;
 	background-color: transparent;
 	border: none;
 }
