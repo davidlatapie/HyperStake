@@ -173,16 +173,7 @@
            <string notr="true"/>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayoutCoinControl5">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>0</number>
            </property>
            <item>
@@ -518,7 +509,7 @@
                   <string notr="true">font-weight:bold;</string>
                  </property>
                  <property name="text">
-                  <string>Change</string>
+                  <string>Change:</string>
                  </property>
                 </widget>
                </item>
@@ -552,7 +543,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl4" stretch="0,0,0,0,0,0">
+         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl4" stretch="0,0,0,0,0,0,0,0">
           <property name="spacing">
            <number>12</number>
           </property>
@@ -582,6 +573,38 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelBlockSizeText">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Block Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelBlockSize">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>0.00 HYP</string>
             </property>
            </widget>
           </item>
@@ -665,20 +688,11 @@
         <x>0</x>
         <y>0</y>
         <width>830</width>
-        <height>172</height>
+        <height>158</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
+       <property name="margin">
         <number>0</number>
        </property>
        <item>

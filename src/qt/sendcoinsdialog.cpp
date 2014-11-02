@@ -35,7 +35,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 #if QT_VERSION >= 0x040700
      /* Do not move this to the XML file, Qt before 4.7 will choke on it */
      ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a HyperStake address (e.g. pAvP3gYfuyDVbUt98ToMbwU9rwEdBV1dHW)"));
-	 ui->splitBlockLineEdit->setPlaceholderText(tr("# of Blocks to Make"));
+	 ui->splitBlockLineEdit->setPlaceholderText(tr("# of Blocks"));
 	 ui->splitBlockCheckBox->setToolTip(tr("Enable/Disable Block Splitting"));
 	 ui->returnChangeCheckBox->setToolTip(tr("Use your sending address as the change address"));
 	 ui->checkBoxCoinControlChange->setToolTip(tr("Send change to a custom address"));
@@ -53,6 +53,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
      connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 	 connect(ui->returnChangeCheckBox, SIGNAL(stateChanged(int)), this, SLOT(coinControlReturnChangeChecked(int)));
 	 connect(ui->splitBlockCheckBox, SIGNAL(stateChanged(int)), this, SLOT(coinControlSplitBlockChecked(int)));
+	 connect(ui->splitBlockLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(splitBlockLineEditChanged(const QString &)));
  
 		// Coin Control: clipboard actions
      QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -484,11 +485,27 @@ void SendCoinsDialog::coinControlSplitBlockChecked(int state)
     if (model)
 	{
 		if (state == Qt::Checked)
+		{
 			fSplitBlock = true;
+			ui->splitBlockLineEdit->setEnabled(true);
+			ui->labelBlockSizeText->setEnabled(true);
+			ui->labelBlockSize->setEnabled(true);
+		}
 		else
+		{
 			fSplitBlock = false;
+			ui->splitBlockLineEdit->setEnabled(false);
+			ui->labelBlockSizeText->setEnabled(false);
+			ui->labelBlockSize->setEnabled(false);
+		}
 	}
-	ui->splitBlockLineEdit->setEnabled((state == Qt::Checked));
+}
+
+void SendCoinsDialog::splitBlockLineEditChanged(const QString & text)
+{
+	double nAfterFee =  ui->labelCoinControlAfterFee->text().left(ui->labelCoinControlAfterFee->text().indexOf(" ")).toDouble();
+	double nSize = nAfterFee / text.toDouble();
+	ui->labelBlockSize->setText(QString::number(nSize));
 }
  
  // Coin Control: checkbox custom change address
