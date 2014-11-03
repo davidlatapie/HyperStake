@@ -24,9 +24,9 @@ QValidatedLineEdit[error="true"] {
 }
 
 QToolBar {
-        qproperty-iconSize: 32px 32px;
+	qproperty-iconSize: 24px 24px;
 }
 
 QToolBar QToolButton { /* all types of tool button */
-        qproperty-toolButtonStyle: ToolButtonTextBesideIcon;
+	qproperty-toolButtonStyle: ToolButtonTextBesideIcon;
 }
