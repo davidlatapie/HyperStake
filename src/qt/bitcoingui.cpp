@@ -406,7 +406,7 @@ void BitcoinGUI::createActions()
             signalMapper->setMapping(customActions[i], theme);
             connect(customActions[i], SIGNAL(triggered()), signalMapper, SLOT (map()));
         }
-        connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(loadTheme(QString)));
+        connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(changeTheme(QString)));
     }
     /* /zeewolf: Hot swappable wallet themes */
 }
@@ -1313,6 +1313,16 @@ void BitcoinGUI::calcClicked()
 }
 
 /* zeewolf: Hot swappable wallet themes */
+void BitcoinGUI::changeTheme(QString theme)
+{
+    // load Default theme first (if present) to apply default styles
+    loadTheme("Default");
+
+    if (theme != "Default") {
+        loadTheme(theme);
+    }
+}
+
 void BitcoinGUI::loadTheme(QString theme)
 {
     // template variables : key => value
@@ -1399,9 +1409,11 @@ void BitcoinGUI::listThemes(QStringList& themes)
     QDir currentDir(qApp->applicationDirPath());
     // try app dir
     if (currentDir.cd("themes")) {
-        // got it! (win package)
+    // got it! (win package)
     } else if (currentDir.cd("src/qt/res/themes")) {
-        // got it (qmake puts exe in git main dir)
+        // got it
+    } else if (currentDir.cd("../src/qt/res/themes")) {
+        // got it
     } else {
         // themes not found :(
         return;
