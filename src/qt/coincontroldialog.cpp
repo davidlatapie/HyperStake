@@ -615,13 +615,13 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         sPriorityLabel = CoinControlDialog::getPriorityLabel(dPriority);
         
         // Fee
-        int64 nFee	= nTransactionFee;
+        int64 nFee	= nTransactionFee * (1 + (int64)nBytes / 1000);
 		
         // Min Fee
         int64 nMinFee = txDummy.GetMinFee(1, false, GMF_SEND, nBytes);
         
-        //nPayFee = max(nFee, nMinFee);
-        nPayFee = nFee;
+        nPayFee = max(nFee, nMinFee);
+        //nPayFee = nFee;
 		
         if (nPayAmount > 0)
         {
