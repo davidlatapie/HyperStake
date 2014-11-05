@@ -232,6 +232,7 @@ private slots:
     void updateMintingWeights();
 	void charityClicked(QString addr = "");
     /** Load external QSS stylesheet */
+    void changeTheme(QString theme);
     void loadTheme(QString theme);
     void listThemes(QStringList& themes);
     void keyPressEvent(QKeyEvent * e);
