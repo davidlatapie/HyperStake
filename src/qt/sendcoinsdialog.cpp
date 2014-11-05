@@ -155,7 +155,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 	if (ui->entries->count() > 1)
 		fSplitBlock = false;
 	if (fSplitBlock)
-		nSplitBlock = ui->splitBlockLineEdit->text().toInt();
+		nSplitBlock = int(ui->splitBlockLineEdit->text().toDouble());
 	
     // Format confirmation message
     QStringList formatted;
