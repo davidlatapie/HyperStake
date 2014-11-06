@@ -872,7 +872,7 @@ void CoinControlDialog::updateView()
 				nTimeToMaturity = (760320 - nAge);
 			else
 				nTimeToMaturity = 0;
-			uint64 nAccuracyAdjustment = 3; // this is a manual adjustment in an attempt to make staking estimate more accurate
+			uint64 nAccuracyAdjustment = 1; // this is a manual adjustment in an attempt to make staking estimate more accurate
 			uint64 nEstimateTime = 90 * nNetworkWeight / nBlockWeight / nAccuracyAdjustment; // 90 seconds is block target
 			uint64 nMax = 999 * COIN; // qmin cannot compar int64, so convert to uint64 prior
 			nEstimateTime = qMin((nEstimateTime + nTimeToMaturity) * COIN / (60*60*24), nMax); // multiply by coin to use built in formatting
