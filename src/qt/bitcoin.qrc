@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/icons">
         <file alias="bitcoin">res/icons/hyperstake-16.png</file>
-		<file alias="bitcoin16">res/icons/hyperstake-16.png</file>
-		<file alias="bitcoin32">res/icons/hyperstake-32.png</file>
+        <file alias="bitcoin16">res/icons/hyperstake-16.png</file>
+        <file alias="bitcoin32">res/icons/hyperstake-32.png</file>
         <file alias="address-book">res/icons/address-book.png</file>
         <file alias="quit">res/icons/quit.png</file>
         <file alias="send">res/icons/send.png</file>
@@ -43,14 +43,14 @@
         <file alias="filesave">res/icons/filesave.png</file>
         <file alias="qrcode">res/icons/qrcode.png</file>
         <file alias="debugwindow">res/icons/debugwindow.png</file>
-		<file alias="blexp">res/icons/blexp.png</file>
-		<file alias="info">res/icons/info.png</file>
-		<file alias="mining_inactive">res/icons/mining_inactive.png</file>
+        <file alias="blexp">res/icons/blexp.png</file>
+        <file alias="info">res/icons/info.png</file>
+        <file alias="mining_inactive">res/icons/mining_inactive.png</file>
         <file alias="s4c">res/icons/s4c.png</file>
     </qresource>
     <qresource prefix="/images">
         <file alias="about">res/images/about.png</file>
-        <file alias="splash">res/images/splash.jpg</file>
+        <file alias="splash">res/images/splash.png</file>
         <file alias="backg">res/images/wallet.png</file>
     </qresource>
     <qresource prefix="/movies">
@@ -61,7 +61,4 @@
         <file alias="en">locale/bitcoin_en.qm</file>
         <file alias="ru">locale/bitcoin_ru.qm</file>
     </qresource>
-	<qresource prefix="/text">
-		<file>res/text/style.qss</file>
-	</qresource>
 </RCC>
