@@ -59,6 +59,7 @@
 #include <QDesktopServices>
 #include <QTimer>
 #include <QDragEnterEvent>
+
 #if QT_VERSION < 0x050000
 #include <QUrl>
 #endif
@@ -277,7 +278,7 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
-    addressBookAction = new QAction(QIcon(":/icons/address-book"), tr("&Address Book"), this);
+    addressBookAction = new QAction(QIcon(":/icons/address-book"), tr("&Contacts"), this);
     addressBookAction->setToolTip(tr("Edit the list of stored addresses and labels"));
     addressBookAction->setCheckable(true);
     addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
@@ -303,7 +304,7 @@ void BitcoinGUI::createActions()
     aboutAction->setToolTip(tr("Show information about HyperStake"));
     aboutAction->setMenuRole(QAction::AboutRole);
 	
-	charityAction = new QAction(QIcon(":/icons/s4c"), tr("&Stake For Charity"), this);
+    charityAction = new QAction(QIcon(":/icons/s4c"), tr("&S4C"), this);
     charityAction->setToolTip(tr("Enable Stake For Charity"));
     charityAction->setCheckable(true);
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
@@ -358,7 +359,7 @@ void BitcoinGUI::createActions()
 	
     exportAction = new QAction(QIcon(":/icons/export"), tr("&Export..."), this);
     exportAction->setToolTip(tr("Export the data in the current tab to a file"));
-    openRPCConsoleAction = new QAction(QIcon(":/icons/debugwindow"), tr("&Debug window"), this);
+    openRPCConsoleAction = new QAction(QIcon(":/icons/debugwindow"), tr("&Debug"), this);
     openRPCConsoleAction->setToolTip(tr("Open debugging and diagnostic console"));
 
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
