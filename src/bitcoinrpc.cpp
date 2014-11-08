@@ -221,7 +221,7 @@ static const CRPCCommand vRPCCommands[] =
     { "getaccount",             &getaccount,             false,  false },
     { "getaddressesbyaccount",  &getaddressesbyaccount,  true,   false },
     { "sendtoaddress",          &sendtoaddress,          false,  false },
-	//{ "splitblock",             &splitblock,             false,  false },
+	{ "setstakesplitthreshold", &setstakesplitthreshold, false,  false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,  false },
     { "getreceivedbyaccount",   &getreceivedbyaccount,   false,  false },
     { "listreceivedbyaddress",  &listreceivedbyaddress,  false,  false },
@@ -1157,8 +1157,6 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "setgenerate"            && n > 0) ConvertTo<bool>(params[0]);
     if (strMethod == "setgenerate"            && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "sendtoaddress"          && n > 1) ConvertTo<double>(params[1]);
-	//if (strMethod == "splitblock"             && n > 1) ConvertTo<double>(params[1]);
-	//if (strMethod == "splitblock"             && n > 1) ConvertTo<double>(params[2]);
     if (strMethod == "settxfee"               && n > 0) ConvertTo<double>(params[0]);
 	if (strMethod == "getaddednodeinfo"       && n > 0) ConvertTo<bool>(params[0]);
     if (strMethod == "getreceivedbyaddress"   && n > 1) ConvertTo<boost::int64_t>(params[1]);
@@ -1203,6 +1201,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "stakeforcharity"        && n > 1) ConvertTo<int>(params[1]);
 	if (strMethod == "stakeforcharity"        && n > 3) ConvertTo<double>(params[3]);
 	if (strMethod == "stakeforcharity"        && n > 4) ConvertTo<double>(params[4]);
+	if (strMethod == "setstakesplitthreshold" && n > 0) ConvertTo<int>(params[0]);
 
     return params;
 }
