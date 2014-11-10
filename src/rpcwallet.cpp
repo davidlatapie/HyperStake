@@ -2090,7 +2090,7 @@ Value setstakesplitthreshold(const Array& params, bool fHelp)
 	{
 		Object result;
 		pwalletMain->nStakeSplitThreshold = nStakeSplitThreshold;
-		result.push_back(Pair("split stake threshold set to ", nStakeSplitThreshold));
+		result.push_back(Pair("split stake threshold set to ", int(pwalletMain->nStakeSplitThreshold)));
 		return result;
 	}
 }
