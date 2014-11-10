@@ -32,6 +32,9 @@ bool IsProtocolModifierIntervalChange(unsigned int nBlockHeight)
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
     boost::assign::map_list_of
     (     0, 0xfd11f4e7u )
+	(     75000, 0xe94255d8 )
+	(     140000, 0x8dce2981 )
+	
 ;
 // Get time weight
 int64 GetWeight(int64 nIntervalBeginning, int64 nIntervalEnd)
