@@ -76,7 +76,8 @@ Value dumpprivkey(const Array& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "dumpprivkey <HyperStakeaddress>\n"
-            "Reveals the private key corresponding to <HyperStakeaddress>.");
+            "Reveals the private key corresponding to <HyperStakeaddress>.\n"
+			"WARNING: SHARING YOUR PRIVATE KEY WILL COMPROMISE YOUR ACCOUNT SECURITY");
 
     string strAddress = params[0].get_str();
     CBitcoinAddress address;
@@ -90,6 +91,9 @@ Value dumpprivkey(const Array& params, bool fHelp)
     CSecret vchSecret;
     bool fCompressed;
     if (!pwalletMain->GetSecret(keyID, vchSecret, fCompressed))
-        throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
-    return CBitcoinSecret(vchSecret, fCompressed).ToString();
+        throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known. Make sure wallet is unlocked and that the address is yours");
+	Object result;
+	result.push_back(Pair("Private Key: ", CBitcoinSecret(vchSecret, fCompressed).ToString()));
+	result.push_back(Pair("WARNING:", "SHARING YOUR PRIVATE KEY WILL COMPROMISE YOUR ACCOUNT SECURITY"));
+    return result;
 }
