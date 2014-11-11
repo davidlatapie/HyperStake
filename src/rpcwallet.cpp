@@ -2077,7 +2077,7 @@ Value makekeypair(const Array& params, bool fHelp)
 // presstab HyperStake
 Value setstakesplitthreshold(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() != 1)
         throw runtime_error(
             "setstakesplitthreshold <1 - 999,999>\n"
             "This will set the output size of your stakes to never be below this number\n");
