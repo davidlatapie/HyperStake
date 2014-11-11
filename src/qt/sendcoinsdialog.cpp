@@ -148,10 +148,14 @@ void SendCoinsDialog::on_sendButton_clicked()
     {
         return;
     }
-
-	//set split block
+	
 	WalletModel::SendCoinsReturn sendstatus;
+	//set split block
 	int nSplitBlock = 1;
+	if (ui->splitBlockCheckBox->checkState() == Qt::Checked)
+		fSplitBlock = true;
+	else
+		fSplitBlock = false;
 	if (ui->entries->count() > 1)
 		fSplitBlock = false;
 	if (fSplitBlock)
