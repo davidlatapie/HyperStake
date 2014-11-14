@@ -1568,7 +1568,8 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 		//CBigNum bnAmount = CBigNum(pcoin.first->vout[pcoin.second].nValue) / COIN / 1000;
         CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
 		
-		
+		if ((nStakeAge - nCurrentAge) < (60*60*24*8.8)) // if the age is less than 8.8 days, report weight as 0 because the stake modifier won't allow for stake yet
+			bnCoinDayWeight = 0;
 
         // Weight is greater than zero
         if (nTimeWeight > 0)

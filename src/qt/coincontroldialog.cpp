@@ -762,6 +762,7 @@ void CoinControlDialog::updateView()
         int nChildren = 0;
         int nInputSum = 0;
 		uint64 nTxWeight = 0;
+		uint64 nDisplayWeight = 0;
 		uint64 nTxWeightSum = 0;
 		uint64 nPotentialStakeSum = 0;
 		GetLastBlockIndex(pindexBest, false);
@@ -770,12 +771,21 @@ void CoinControlDialog::updateView()
 		
         BOOST_FOREACH(const COutput& out, coins.second)
         {
-            int nInputSize = 148; // 180 if uncompressed public key
+            
+			int64 nHeight = nBestHeight - out.nDepth;
+			CBlockIndex* pindex = FindBlockByHeight(nHeight);
+			
+			int nInputSize = 148; // 180 if uncompressed public key
             nSum += out.tx->vout[out.i].nValue;
             nChildren++;
             
 			model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight);
-			nTxWeightSum += nTxWeight;
+			if ((GetTime() - pindex->nTime) < (60*60*24*8.8))
+				nDisplayWeight = 0;
+			else
+				nDisplayWeight = nTxWeight;
+			
+			nTxWeightSum += nDisplayWeight;
 			
             QTreeWidgetItem *itemOutput;
             if (treeMode)    itemOutput = new QTreeWidgetItem(itemWalletAddress);
@@ -823,8 +833,6 @@ void CoinControlDialog::updateView()
             itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " ")); // padding so that sorting works correctly
 
             // date
-			int64 nHeight = nBestHeight - out.nDepth;
-			CBlockIndex* pindex = FindBlockByHeight(nHeight);
 			int64 nTime = pindex->nTime;
             itemOutput->setText(COLUMN_DATE, QDateTime::fromTime_t(nTime).toString("yy-MM-dd hh:mm"));
             
@@ -845,7 +853,7 @@ void CoinControlDialog::updateView()
             nInputSum    += nInputSize;
             
 			// List Mode Weight
-			itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nTxWeight), 8, " "));
+			itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nDisplayWeight), 8, " "));
 			
 			// Age
 			uint64 nAge = (GetTime() - nTime);
@@ -866,7 +874,7 @@ void CoinControlDialog::updateView()
 			uint64 nMin = 1;
 			nBlockSize = qMax(nBlockSize, nMin);
 			uint64 nTimeToMaturity = 0;
-			uint64 nBlockWeight = qMax(nTxWeight, nBlockSize);
+			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * 8.8)); // default to using weight at 9.8 days for calc
 			double dAge = nAge;
 			if (760320 - dAge >= 0 ) // 760320 seconds is 8.8 days
 				nTimeToMaturity = (760320 - nAge);
