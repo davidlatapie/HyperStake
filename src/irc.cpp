@@ -302,16 +302,16 @@ void ThreadIRCSeed2(void* parg)
         }
 
         if (fTestNet) {
-            Send(hSocket, "JOIN #TruckcoinTEST2\r");
-            Send(hSocket, "WHO #TruckcoinTEST2\r");
+            Send(hSocket, "JOIN #HyperStakeTEST2\r");
+            Send(hSocket, "WHO #HyperStakeTEST2\r");
         } else {
-            // randomly join #Truckcoin00-#Truckcoin05
+            // randomly join #HyperStake00-#HyperStake05
             // int channel_number = GetRandInt(5);
 
             // Channel number is always 0 for initial release
             int channel_number = 0;
-            Send(hSocket, strprintf("JOIN #Truckcoin%02d\r", channel_number).c_str());
-            Send(hSocket, strprintf("WHO #Truckcoin%02d\r", channel_number).c_str());
+            Send(hSocket, strprintf("JOIN #HyperStake%02d\r", channel_number).c_str());
+            Send(hSocket, strprintf("WHO #HyperStake%02d\r", channel_number).c_str());
         }
 
         int64 nStart = GetTime();
