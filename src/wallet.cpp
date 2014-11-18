@@ -2327,6 +2327,21 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64& nBalanceInQuestion, int&
     BOOST_FOREACH(CWalletTx* pcoin, vCoins)
     {
         uint256 hash = pcoin->GetHash();
+		
+		// presstab HyperStake
+		// This finds and deletes transactions that were never accepted by the network
+		// needs to be located above the readtxindex code or else it will not be triggered
+		if(!pcoin->IsFinal() || !pcoin->IsConfirmed()) 
+        {
+           nOrphansFound++;
+           if (!fCheckOnly)
+           {
+             EraseFromWallet(hash);
+             NotifyTransactionChanged(this, hash, CT_DELETED);
+           }
+           printf("FixSpentCoins %s orphaned transaction %s\n", fCheckOnly ? "found" : "removed", hash.ToString().c_str());
+        }
+		
         // Find the corresponding transaction index
         CTxIndex txindex;
         if (!txdb.ReadTxIndex(hash, txindex) && !(pcoin->IsCoinBase() || pcoin->IsCoinStake()))
