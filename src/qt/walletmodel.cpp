@@ -406,14 +406,14 @@ QString WalletModel::getBestAddress()
 	return QString::fromStdString(wallet->strBestAddress);
 }
 
-void WalletModel::setCombine(bool fCombine)
+void WalletModel::setSplitBlock(bool fSplitBlock)
 {
-	wallet->fCombine = fCombine;
+	wallet->fSplitBlock = fSplitBlock;
 }
 
-bool WalletModel::getCombine()
+bool WalletModel::getSplitBlock()
 {
-	return wallet->fCombine;
+	return wallet->fSplitBlock;
 }
 
 

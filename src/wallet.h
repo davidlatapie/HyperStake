@@ -96,6 +96,7 @@ public:
 	std::string strBestAddress;
 	bool fCombine;
 	uint64 nStakeSplitThreshold;
+	bool fSplitBlock;
 	
     std::set<int64> setKeyPool;
 
@@ -124,6 +125,7 @@ public:
 		strBestAddress = "";
 		fCombine = false;
 		nStakeSplitThreshold = 1000;
+		fSplitBlock = false;
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -146,6 +148,7 @@ public:
 		strBestAddress = "";
 		fCombine = false;
 		nStakeSplitThreshold = 1000;
+		fSplitBlock = false;
     }
 
     std::map<uint256, CWalletTx> mapWallet;

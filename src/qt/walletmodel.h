@@ -105,8 +105,8 @@ public:
 	qint64 getAmountSelected();
 	void setBestAddress(std::string strAddress);
 	QString getBestAddress();
-	void setCombine(bool fCombine);
-	bool getCombine();
+	void setSplitBlock(bool fSplitBlock);
+	bool getSplitBlock();
 	//Wallet Information about StakeForCharity
 	int getStakeForCharityPercent();
 	QString getStakeForCharityAddress();

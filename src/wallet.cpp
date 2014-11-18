@@ -1304,6 +1304,13 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
 				if( nSplitBlock < 1 ) 
 					nSplitBlock = 1;
                 // vouts to the payees
+				
+				if (!fSplitBlock)
+				{
+				BOOST_FOREACH (const PAIRTYPE(CScript, int64)& s, vecSend)
+					wtxNew.vout.push_back(CTxOut(s.second, s.first));
+				}
+				else
                 BOOST_FOREACH (const PAIRTYPE(CScript, int64)& s, vecSend)
 				{
 					uint64 nBlockAmount = 0;

@@ -82,7 +82,6 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
      ui->labelCoinControlChange->addAction(clipboardChangeAction);
  
     fNewRecipientAllowed = true;
-	fSplitBlock = false;
 }
 
 void SendCoinsDialog::setModel(WalletModel *model)
@@ -130,7 +129,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 		SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
         CBitcoinAddress address = entry->getValue().address.toStdString();
 		if(!model->isMine(address))
-			fSplitBlock = false; //dont allow the blocks to split if sending to an outside address
+			model->setSplitBlock(false); //dont allow the blocks to split if sending to an outside address
 		if(entry)
         {
             if(entry->validate())
@@ -153,19 +152,19 @@ void SendCoinsDialog::on_sendButton_clicked()
 	//set split block
 	int nSplitBlock = 1;
 	if (ui->splitBlockCheckBox->checkState() == Qt::Checked)
-		fSplitBlock = true;
+		model->setSplitBlock(true);
 	else
-		fSplitBlock = false;
+		model->setSplitBlock(false);
 	if (ui->entries->count() > 1)
-		fSplitBlock = false;
-	if (fSplitBlock)
+		model->setSplitBlock(false);
+	if (model->getSplitBlock())
 		nSplitBlock = int(ui->splitBlockLineEdit->text().toDouble());
 	
     // Format confirmation message
     QStringList formatted;
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
-        if(!fSplitBlock)
+        if(!model->getSplitBlock())
 		{
 		#if QT_VERSION < 0x050000
 		formatted.append(tr("<b>%1</b> to %2 (%3)").arg(BitcoinUnits::formatWithUnit(BitcoinUnits::BTC, rcp.amount), Qt::escape(rcp.label), rcp.address));
@@ -498,14 +497,14 @@ void SendCoinsDialog::coinControlSplitBlockChecked(int state)
 	{
 		if (state == Qt::Checked)
 		{
-			fSplitBlock = true;
+			model->setSplitBlock(true);
 			ui->splitBlockLineEdit->setEnabled(true);
 			ui->labelBlockSizeText->setEnabled(true);
 			ui->labelBlockSize->setEnabled(true);
 		}
 		else
 		{
-			fSplitBlock = false;
+			model->setSplitBlock(false);
 			ui->splitBlockLineEdit->setEnabled(false);
 			ui->labelBlockSizeText->setEnabled(false);
 			ui->labelBlockSize->setEnabled(false);
