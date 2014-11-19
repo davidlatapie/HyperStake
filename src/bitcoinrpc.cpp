@@ -220,6 +220,7 @@ static const CRPCCommand vRPCCommands[] =
     { "getaddressesbyaccount",  &getaddressesbyaccount,  true,   false },
     { "sendtoaddress",          &sendtoaddress,          false,  false },
 	{ "setstakesplitthreshold", &setstakesplitthreshold, false,  false },
+	{ "rescanfromblock", 		&rescanfromblock, 		 false,  false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,  false },
     { "getreceivedbyaccount",   &getreceivedbyaccount,   false,  false },
     { "listreceivedbyaddress",  &listreceivedbyaddress,  false,  false },
@@ -1200,6 +1201,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "stakeforcharity"        && n > 3) ConvertTo<double>(params[3]);
 	if (strMethod == "stakeforcharity"        && n > 4) ConvertTo<double>(params[4]);
 	if (strMethod == "setstakesplitthreshold" && n > 0) ConvertTo<int>(params[0]);
+	if (strMethod == "rescanfromblock" && n > 0)        ConvertTo<int>(params[0]);
 
     return params;
 }
