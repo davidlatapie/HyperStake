@@ -494,7 +494,16 @@ void SendCoinsDialog::updateDisplayUnit()
   // presstab HyperStake
  void SendCoinsDialog::coinControlReturnChangeChecked(int state)
  {
-     if (model)
+     if(state == Qt::Checked && ui->checkBoxCoinControlChange->checkState() == Qt::Checked)
+	 {
+		ui->returnChangeCheckBox->setCheckState(Qt::Unchecked);
+		QMessageBox::warning(this, tr("Send Coins"),
+			tr("Cannot use custom change address and return change at the same time. Try again."),
+			QMessageBox::Ok, QMessageBox::Ok);
+		return;
+	 }
+	 
+	 if (model)
      {
          if (state == Qt::Checked)
              CoinControlDialog::coinControl->fReturnChange = true;
@@ -539,7 +548,16 @@ void SendCoinsDialog::splitBlockLineEditChanged(const QString & text)
  // Coin Control: checkbox custom change address
  void SendCoinsDialog::coinControlChangeChecked(int state)
  {
-     if (model)
+     if(state == Qt::Checked && ui->returnChangeCheckBox->checkState() == Qt::Checked)
+	 {
+		ui->checkBoxCoinControlChange->setCheckState(Qt::Unchecked);
+		QMessageBox::warning(this, tr("Send Coins"),
+			tr("Cannot use custom change address and return change at the same time. Try again."),
+			QMessageBox::Ok, QMessageBox::Ok);
+		return;
+	 }
+	 
+	 if (model)
      {
          if (state == Qt::Checked)
              CoinControlDialog::coinControl->destChange = CBitcoinAddress(ui->lineEditCoinControlChange->text().toStdString()).Get();
