@@ -128,7 +128,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     {	
 		SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
         CBitcoinAddress address = entry->getValue().address.toStdString();
-		if(!model->isMine(address))
+		if(!model->isMine(address) && ui->splitBlockCheckBox->checkState() == Qt::Checked)
 		{
 			model->setSplitBlock(false); //dont allow the blocks to split if sending to an outside address
 			ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
@@ -162,7 +162,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 		model->setSplitBlock(true);
 	else
 		model->setSplitBlock(false);
-	if (ui->entries->count() > 1)
+	if (ui->entries->count() > 1 && ui->splitBlockCheckBox->checkState() == Qt::Checked)
 	{
 		model->setSplitBlock(false);
 		ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
