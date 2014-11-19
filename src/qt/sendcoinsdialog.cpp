@@ -129,7 +129,14 @@ void SendCoinsDialog::on_sendButton_clicked()
 		SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
         CBitcoinAddress address = entry->getValue().address.toStdString();
 		if(!model->isMine(address))
+		{
 			model->setSplitBlock(false); //dont allow the blocks to split if sending to an outside address
+			ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
+			QMessageBox::warning(this, tr("Send Coins"),
+				tr("The split block tool does not work when sending to outside addresses. Try again."),
+				QMessageBox::Ok, QMessageBox::Ok);
+			return;
+		}	
 		if(entry)
         {
             if(entry->validate())
@@ -156,7 +163,14 @@ void SendCoinsDialog::on_sendButton_clicked()
 	else
 		model->setSplitBlock(false);
 	if (ui->entries->count() > 1)
+	{
 		model->setSplitBlock(false);
+		ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
+		QMessageBox::warning(this, tr("Send Coins"),
+				tr("The split block tool does not work with multiple addresses. Try again."),
+				QMessageBox::Ok, QMessageBox::Ok);
+		return;
+	}
 	if (model->getSplitBlock())
 		nSplitBlock = int(ui->splitBlockLineEdit->text().toDouble());
 	
