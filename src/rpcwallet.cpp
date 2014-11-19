@@ -2086,15 +2086,42 @@ Value setstakesplitthreshold(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
 	if (nStakeSplitThreshold > 999999)
 		return "out of range - setting split threshold failed";
-	else
+	
+	CWalletDB walletdb(pwalletMain->strWalletFile);
+	LOCK(pwalletMain->cs_wallet);
 	{
+		bool fFileBacked = pwalletMain->fFileBacked;
+		
 		Object result;
 		pwalletMain->nStakeSplitThreshold = nStakeSplitThreshold;
 		result.push_back(Pair("split stake threshold set to ", int(pwalletMain->nStakeSplitThreshold)));
+		if(fFileBacked)
+		{
+			walletdb.WriteStakeSplitThreshold(nStakeSplitThreshold);
+			result.push_back(Pair("saved to wallet.dat ", "true"));
+		}
+		else
+			result.push_back(Pair("saved to wallet.dat ", "false"));
+		
 		return result;
 	}
 }
 
+// presstab HyperStake
+Value getstakesplitthreshold(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "setstakesplitthreshold\n"
+            "Returns the set splitstakethreshold\n");
+
+	Object result;
+	result.push_back(Pair("split stake threshold set to ", int(pwalletMain->nStakeSplitThreshold)));
+	return result;
+
+}
+
+// presstab HyperStake
 Value rescanfromblock(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)

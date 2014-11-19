@@ -372,6 +372,10 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             ssValue >> pwallet->nOrderPosNext;
         }
+		else if (strType == "stakeSplitThreshold") //presstab HyperStake
+		{
+            ssValue >> pwallet->nStakeSplitThreshold;
+		}
 		else if (strType == "ats") // falsely names as autosavings, but for compat with older wallets keep using
         {
             string strS4CAccount;
@@ -398,7 +402,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 ssValue >> pwallet->nStakeForCharityMax;
             }
         }
-		
+
     } catch (...)
     {
         return false;

@@ -220,6 +220,7 @@ static const CRPCCommand vRPCCommands[] =
     { "getaddressesbyaccount",  &getaddressesbyaccount,  true,   false },
     { "sendtoaddress",          &sendtoaddress,          false,  false },
 	{ "setstakesplitthreshold", &setstakesplitthreshold, false,  false },
+	{ "getstakesplitthreshold", &getstakesplitthreshold, false,  false },
 	{ "rescanfromblock", 		&rescanfromblock, 		 false,  false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,  false },
     { "getreceivedbyaccount",   &getreceivedbyaccount,   false,  false },
