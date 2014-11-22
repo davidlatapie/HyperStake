@@ -2143,27 +2143,28 @@ Value listcoins(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
         throw runtime_error(
-            "list your coins in a manner similar to coin control GUI\n");
+            "listcoins\n"
+			"list your coins in a manner similar to coin control GUI\n");
 	
-	Object result;
+	Array result;
 	
 	std::vector<COutput> vCoins;
     pwalletMain->AvailableCoins(vCoins);
-	int count = 0;
 	
 	BOOST_FOREACH(const COutput& out, vCoins)
     {
+		Object coutput;
 		int64 nHeight = nBestHeight - out.nDepth;
 		CBlockIndex* pindex = FindBlockByHeight(nHeight);
 		
-		result.push_back(Pair("ID # ", count));
-		result.push_back(Pair("Value ", double(out.tx->vout[out.i].nValue) / double(COIN)));
-		result.push_back(Pair("Confirmations ", int(out.nDepth)));
-		result.push_back(Pair("Age (days)", (double(GetTime() - pindex->nTime) / (60*60*24))));
+		coutput.push_back(Pair("Output Hash ", out.tx->GetHash().ToString()));
+		coutput.push_back(Pair("Value ", double(out.tx->vout[out.i].nValue) / double(COIN)));
+		coutput.push_back(Pair("Confirmations ", int(out.nDepth)));
+		coutput.push_back(Pair("Age (days)", (double(GetTime() - pindex->nTime) / (60*60*24))));
 		CTxDestination outputAddress;
 		ExtractDestination(out.tx->vout[out.i].scriptPubKey, outputAddress);
-		result.push_back(Pair("Address", CBitcoinAddress(outputAddress).ToString()));
-		count++;
+		coutput.push_back(Pair("Address", CBitcoinAddress(outputAddress).ToString()));
+		result.push_back(coutput);
 	}
 	return result;
 }
