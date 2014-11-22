@@ -221,6 +221,7 @@ static const CRPCCommand vRPCCommands[] =
     { "sendtoaddress",          &sendtoaddress,          false,  false },
 	{ "setstakesplitthreshold", &setstakesplitthreshold, false,  false },
 	{ "getstakesplitthreshold", &getstakesplitthreshold, false,  false },
+	{ "listcoins", 			 	&listcoins, 			 false,  false },
 	{ "rescanfromblock", 		&rescanfromblock, 		 false,  false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,  false },
     { "getreceivedbyaccount",   &getreceivedbyaccount,   false,  false },
