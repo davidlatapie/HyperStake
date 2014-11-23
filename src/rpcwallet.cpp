@@ -2158,6 +2158,7 @@ Value listcoins(const Array& params, bool fHelp)
 		CBlockIndex* pindex = FindBlockByHeight(nHeight);
 		
 		coutput.push_back(Pair("Output Hash", out.tx->GetHash().ToString()));
+		coutput.push_back(Pair("blockIndex", out.i));
 		coutput.push_back(Pair("Value", double(out.tx->vout[out.i].nValue) / double(COIN)));
 		coutput.push_back(Pair("Confirmations", int(out.nDepth)));
 		coutput.push_back(Pair("Age (days)", (double(GetTime() - pindex->nTime) / (60*60*24))));
