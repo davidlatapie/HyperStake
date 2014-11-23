@@ -12,7 +12,7 @@ macx {
 }
 
 unix:!macx {
-    SSE2_SUPPORT = $$system(grep -c sse2 /proc/cpuinfo)
+    SSE2_SUPPORT = $$system(grep -m1 -c sse2 /proc/cpuinfo)
 }
 
 !unix:!macx {
