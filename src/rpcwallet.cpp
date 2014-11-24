@@ -2201,10 +2201,10 @@ Value cclistselected(const Array& params, bool fHelp)
 	std::vector<COutPoint> vOutpoints;
 	coinControl->ListSelected(vOutpoints);
 	
-	Object result;
+	Array result;
 	BOOST_FOREACH(COutPoint& outpt, vOutpoints)
 	{
-		result.push_back(Pair("hash", outpt.hash.ToString()));
+		result.push_back(outpt.hash.ToString());
 	}
 
 	return result;
