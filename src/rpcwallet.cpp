@@ -2209,3 +2209,17 @@ Value cclistselected(const Array& params, bool fHelp)
 
 	return result;
 }
+
+// ssta HyperStake
+Value ccreturnchange(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "ccreturnchange <1|0>\n"
+                        "CoinControl: sets returnchange to true or false");
+    bool rc = (params[0].get_str()!="0");
+    coinControl->fReturnChange=rc;
+    string ret = "Set fReturnChange to: ";
+    ret+= rc ? "true" : "false";
+    return ret;
+}
