@@ -2241,3 +2241,14 @@ Value cccustomchange(const Array& params, bool fHelp)
     ret+=params[0].get_str();
     return ret;
 }
+
+// ssta HyperStake
+Value ccreset(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "ccreset\n"
+                        "CoinControl: resets coin control (clears selected coins and change address)");
+    coinControl->SetNull();
+    return Value::null;
+}
