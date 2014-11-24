@@ -2201,11 +2201,54 @@ Value cclistselected(const Array& params, bool fHelp)
 	std::vector<COutPoint> vOutpoints;
 	coinControl->ListSelected(vOutpoints);
 	
-	Object result;
+	Array result;
 	BOOST_FOREACH(COutPoint& outpt, vOutpoints)
 	{
-		result.push_back(Pair("hash", outpt.hash.ToString()));
+		result.push_back(outpt.hash.ToString());
 	}
 
 	return result;
+}
+
+// ssta HyperStake
+Value ccreturnchange(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "ccreturnchange <1|0>\n"
+                        "CoinControl: sets returnchange to true or false");
+    bool rc = (params[0].get_str()!="0");
+    coinControl->fReturnChange=rc;
+    string ret = "Set fReturnChange to: ";
+    ret+= rc ? "true" : "false";
+    return ret;
+}
+
+// ssta HyperStake
+Value cccustomchange(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "cccustomchange <address>\n"
+                        "CoinControl: sets address to return change to");
+    CBitcoinAddress address(params[0].get_str());
+    // check it's a valid address
+    if(!address.IsValid()) throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid HyperStake address");
+
+    coinControl->destChange=address.Get();
+
+    string ret = "Set change address to: ";
+    ret+=params[0].get_str();
+    return ret;
+}
+
+// ssta HyperStake
+Value ccreset(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "ccreset\n"
+                        "CoinControl: resets coin control (clears selected coins and change address)");
+    coinControl->SetNull();
+    return Value::null;
 }
