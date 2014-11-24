@@ -2217,10 +2217,15 @@ Value ccreturnchange(const Array& params, bool fHelp)
         throw runtime_error(
             "ccreturnchange <true|false>\n"
                         "CoinControl: sets returnchange to true or false");
-    bool rc = (params[0].get_str()=="true");
+    bool rc = params[0].get_bool();
     coinControl->fReturnChange=rc;
-    string ret = "Set fReturnChange to: ";
-    ret+= rc ? "true" : "false";
+    string ret = "Set ReturnChange to: ";
+    
+	if(coinControl->fReturnChange == true)
+		ret+= "true";
+	else
+		ret+= "false";
+		
     return ret;
 }
 
