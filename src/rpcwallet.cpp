@@ -9,6 +9,7 @@
 #include "init.h"
 #include "main.h"
 #include "base58.h"
+#include "coincontrol.h"
 
 #include <sstream>
 
@@ -16,6 +17,7 @@ using namespace json_spirit;
 using namespace std;
 
 int64 nWalletUnlockTime;
+CCoinControl* coinControl = new CCoinControl;
 static CCriticalSection cs_nWalletUnlockTime;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
@@ -2139,12 +2141,12 @@ Value rescanfromblock(const Array& params, bool fHelp)
 }
 
 // presstab HyperStake
-Value listcoins(const Array& params, bool fHelp)
+Value cclistcoins(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
         throw runtime_error(
-            "listcoins\n"
-			"list your coins in a manner similar to coin control GUI\n");
+            "cclistcoins\n"
+			"CoinControl: list your spendable coins and their information\n");
 	
 	Array result;
 	
@@ -2167,5 +2169,43 @@ Value listcoins(const Array& params, bool fHelp)
 		coutput.push_back(Pair("Address", CBitcoinAddress(outputAddress).ToString()));
 		result.push_back(coutput);
 	}
+	return result;
+}
+
+
+// presstab HyperStake
+Value ccselect(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "ccselect <Output Hash> <Output Index>\n"
+			"CoinControl: select a coin");
+	
+	uint256 hash;
+    hash.SetHex(params[0].get_str());
+	unsigned int nIndex = params[1].get_int();
+	COutPoint outpt(hash, nIndex);
+	coinControl->Select(outpt);
+
+	return "Outpoint Selected";
+}
+
+// presstab HyperStake
+Value cclistselected(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "cclistselected\n"
+			"CoinControl: list selected coins");
+	
+	std::vector<COutPoint> vOutpoints;
+	coinControl->ListSelected(vOutpoints);
+	
+	Object result;
+	BOOST_FOREACH(COutPoint& outpt, vOutpoints)
+	{
+		result.push_back(Pair("hash", outpt.hash.ToString()));
+	}
+
 	return result;
 }

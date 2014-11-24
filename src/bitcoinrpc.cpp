@@ -221,7 +221,6 @@ static const CRPCCommand vRPCCommands[] =
     { "sendtoaddress",          &sendtoaddress,          false,  false },
 	{ "setstakesplitthreshold", &setstakesplitthreshold, false,  false },
 	{ "getstakesplitthreshold", &getstakesplitthreshold, false,  false },
-	{ "listcoins", 			 	&listcoins, 			 false,  false },
 	{ "rescanfromblock", 		&rescanfromblock, 		 false,  false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,  false },
     { "getreceivedbyaccount",   &getreceivedbyaccount,   false,  false },
@@ -276,7 +275,10 @@ static const CRPCCommand vRPCCommands[] =
     { "resendtx",               &resendtx,               false,  true},
     { "makekeypair",            &makekeypair,            false,  true},
     { "sendalert",              &sendalert,              false,  false},
-	{ "stakeforcharity",        &stakeforcharity,            false,  false },
+	{ "stakeforcharity",        &stakeforcharity,        false,  false },
+	{ "cclistcoins", 			&cclistcoins, 			 false,  false },
+	{ "ccselect",        		&ccselect,               false,  false },
+	{ "cclistselected",        	&cclistselected,         false,  false },
 };
 
 CRPCTable::CRPCTable()
@@ -1204,6 +1206,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "stakeforcharity"        && n > 4) ConvertTo<double>(params[4]);
 	if (strMethod == "setstakesplitthreshold" && n > 0) ConvertTo<int>(params[0]);
 	if (strMethod == "rescanfromblock" && n > 0)        ConvertTo<int>(params[0]);
+	if (strMethod == "ccselect" && n > 1)        		ConvertTo<int>(params[1]);
 
     return params;
 }

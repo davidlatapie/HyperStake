@@ -197,7 +197,9 @@ extern json_spirit::Value stakeforcharity(const json_spirit::Array& params, bool
 extern json_spirit::Value setstakesplitthreshold(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getstakesplitthreshold(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value rescanfromblock(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value listcoins(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value cclistcoins(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value ccselect(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value cclistselected(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value getrawtransaction(const json_spirit::Array& params, bool fHelp); // in rcprawtransaction.cpp
 extern json_spirit::Value listunspent(const json_spirit::Array& params, bool fHelp);
