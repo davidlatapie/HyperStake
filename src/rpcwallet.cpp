@@ -2215,9 +2215,9 @@ Value ccreturnchange(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "ccreturnchange <1|0>\n"
+            "ccreturnchange <true|false>\n"
                         "CoinControl: sets returnchange to true or false");
-    bool rc = (params[0].get_str()!="0");
+    bool rc = (params[0].get_str()=="true");
     coinControl->fReturnChange=rc;
     string ret = "Set fReturnChange to: ";
     ret+= rc ? "true" : "false";
@@ -2238,7 +2238,7 @@ Value cccustomchange(const Array& params, bool fHelp)
     coinControl->destChange=address.Get();
 
     string ret = "Set change address to: ";
-    ret+=params[0].get_str();
+    ret+=(CBitcoinAddress(coinControl->destChange).ToString());
     return ret;
 }
 
