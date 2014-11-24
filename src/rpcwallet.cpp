@@ -2223,3 +2223,21 @@ Value ccreturnchange(const Array& params, bool fHelp)
     ret+= rc ? "true" : "false";
     return ret;
 }
+
+// ssta HyperStake
+Value cccustomchange(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "cccustomchange <address>\n"
+                        "CoinControl: sets address to return change to");
+    CBitcoinAddress address(params[0].get_str());
+    // check it's a valid address
+    if(!address.IsValid()) throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid HyperStake address");
+
+    coinControl->destChange=address.Get();
+
+    string ret = "Set change address to: ";
+    ret+=params[0].get_str();
+    return ret;
+}

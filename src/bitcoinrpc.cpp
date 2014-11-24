@@ -279,7 +279,8 @@ static const CRPCCommand vRPCCommands[] =
 	{ "cclistcoins", 			&cclistcoins, 			 false,  false },
 	{ "ccselect",        		&ccselect,               false,  false },
 	{ "cclistselected",        	&cclistselected,         false,  false },
-	{ "ccreturnchange",		&ccreturnchange,	false,	false }
+    { "ccreturnchange",		&ccreturnchange,	false,	false },
+    { "cccustomchange",		&cccustomchange,	false,	false }
 };
 
 CRPCTable::CRPCTable()
