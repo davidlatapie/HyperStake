@@ -17,6 +17,7 @@ public:
     {
         destChange = CNoDestination();
         setSelected.clear();
+		fReturnChange = false;
     }
     
     bool HasSelected() const
