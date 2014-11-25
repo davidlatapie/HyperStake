@@ -2114,7 +2114,7 @@ Value getstakesplitthreshold(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
         throw runtime_error(
-            "setstakesplitthreshold\n"
+            "getstakesplitthreshold\n"
             "Returns the set splitstakethreshold\n");
 
 	Object result;
