@@ -185,8 +185,9 @@ void CoinControlDialog::buttonSelectAllClicked()
         if (ui->treeWidget->topLevelItem(i)->checkState(COLUMN_CHECKBOX) != Qt::Unchecked)
         {
             state = Qt::Unchecked;
-            break;
+            
         }
+		coinControl->UnSelectAll();
     }
     ui->treeWidget->setEnabled(false);
     for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++)
