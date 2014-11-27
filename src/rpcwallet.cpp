@@ -2221,7 +2221,7 @@ Value ccreturnchange(const Array& params, bool fHelp)
     coinControl->fReturnChange=rc;
     string ret = "Set ReturnChange to: ";
     
-	if(coinControl->fReturnChange == true)
+	if(coinControl->fReturnChange )
 		ret+= "true";
 	else
 		ret+= "false";
@@ -2256,4 +2256,49 @@ Value ccreset(const Array& params, bool fHelp)
                         "CoinControl: resets coin control (clears selected coins and change address)");
     coinControl->SetNull();
     return Value::null;
+}
+
+// presstab HyperStake
+Value ccsend(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+		"ccsend <HyperStakeaddress> <amount>\n"
+            "<amount> is a real and is rounded to the nearest 0.000001"
+            + HelpRequiringPassphrase());
+
+    CBitcoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake address");
+
+    // Amount
+    int64 nAmount = AmountFromValue(params[1]);
+
+    if (nAmount < MIN_TXOUT_AMOUNT)
+        throw JSONRPCError(-101, "Send amount too small");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+
+	// Initialize things needed for the transaction
+   vector<pair<CScript, int64> > vecSend;
+	CWalletTx wtx;
+    CReserveKey keyChange(pwalletMain);
+    int64 nFeeRequired = 0;
+	CScript scriptPubKey;
+        scriptPubKey.SetDestination(address.Get());
+    vecSend.push_back(make_pair(scriptPubKey, nAmount));
+	
+    bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, 1, false, coinControl); // 1 = no splitblock, false for s4c, coinControl
+    if (!fCreated)
+    {
+        if (nAmount + nFeeRequired > pwalletMain->GetBalance())
+            throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+        throw JSONRPCError(RPC_WALLET_ERROR, "Transaction creation failed");
+    }
+    if (!pwalletMain->CommitTransaction(wtx, keyChange))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Transaction commit failed");
+	
+	coinControl->SetNull();
+    return wtx.GetHash().GetHex();
 }

@@ -282,6 +282,7 @@ static const CRPCCommand vRPCCommands[] =
     { "ccreturnchange",		&ccreturnchange,	false,	false },
     { "cccustomchange",		&cccustomchange,	false,	false },
     { "ccreset",		&ccreset,	false,	false },
+	{ "ccsend",		&ccsend,	false,	false },
 };
 
 CRPCTable::CRPCTable()
@@ -1211,6 +1212,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "rescanfromblock" && n > 0)        ConvertTo<int>(params[0]);
 	if (strMethod == "ccselect" && n > 1)        		ConvertTo<int>(params[1]);
 	if (strMethod == "ccreturnchange" && n > 0)			ConvertTo<bool>(params[0]);
+	if (strMethod == "ccsend" && n > 1)        		ConvertTo<int>(params[1]);
 
     return params;
 }
