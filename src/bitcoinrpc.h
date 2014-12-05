@@ -196,6 +196,7 @@ extern json_spirit::Value getnetworkhashps(const json_spirit::Array& params, boo
 extern json_spirit::Value stakeforcharity(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value setstakesplitthreshold(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getstakesplitthreshold(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value disablestake(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value rescanfromblock(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value cclistcoins(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value ccselect(const json_spirit::Array& params, bool fHelp);

@@ -2124,6 +2124,21 @@ Value getstakesplitthreshold(const Array& params, bool fHelp)
 }
 
 // presstab HyperStake
+Value disablestake(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "disablestake <true/false>\n"
+            "This will disable staking if set true\n");
+    int fDisableStake = params[0].get_bool();
+		
+	pwalletMain->fDisableStake = fDisableStake;
+	Object result;
+	result.push_back(Pair("disable stake ", pwalletMain->fDisableStake));
+	return result;
+}
+
+// presstab HyperStake
 Value rescanfromblock(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)

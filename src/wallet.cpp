@@ -1604,7 +1604,11 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 // ppcoin: create coin stake transaction
 bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64 nSearchInterval, CTransaction& txNew)
 {
-    // The following split & combine thresholds are important to security
+    //presstab HyperStake: return false if disablestake RPC is enabled
+	if(fDisableStake)
+		return false;
+	
+	// The following split & combine thresholds are important to security
     // Should not be adjusted if you don't understand the consequences
     static unsigned int nStakeSplitAge = (60 * 60 * 24 * 30);
 	const CBlockIndex* pIndex0 = GetLastBlockIndex(pindexBest, false);
