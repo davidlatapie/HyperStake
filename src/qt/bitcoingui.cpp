@@ -1200,6 +1200,12 @@ void BitcoinGUI::updateMintingIcon()
         labelMintingIcon->setEnabled(false);
         labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
+	else if (pwalletMain && pwalletMain->fDisableStake)
+    {
+        labelMintingIcon->setToolTip(tr("Not minting because staking is disabled.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setEnabled(false);
+        labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+    }
     else if (vNodes.empty())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
