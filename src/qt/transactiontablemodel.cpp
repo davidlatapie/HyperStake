@@ -276,6 +276,8 @@ int TransactionTableModel::columnCount(const QModelIndex &parent) const
 QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) const
 {
     QString status;
+    float rate, days;
+    CWalletTx tx, ptx;
 
     switch(wtx->status.status)
     {
@@ -303,6 +305,15 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
             status += "\n" + tr("Mined balance will be available when it matures in %n more block(s)", "", wtx->status.matures_in);
             break;
         case TransactionStatus::Mature:
+            if (wallet->GetTransaction(wtx->hash, tx)) {
+              if (tx.vin.size() == 1) {
+                rate = 100.0f * (wtx->credit + wtx->debit) / -wtx->debit;
+                if (wallet->GetTransaction(tx.vin[0].prevout.hash, ptx)) {
+                  days = (tx.nTime - ptx.nTime) / 86400.0f;
+                  status += "\n" + tr("%1% staked in %2 days").arg(rate).arg(days);
+                }
+              }
+            }
             break;
         case TransactionStatus::MaturesWarning:
             status += "\n" + tr("This block was not received by any other nodes and will probably not be accepted!");
