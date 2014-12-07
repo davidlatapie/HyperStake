@@ -311,6 +311,10 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
                 if (wallet->GetTransaction(tx.vin[0].prevout.hash, ptx)) {
                   days = (tx.nTime - ptx.nTime) / 86400.0f;
                   status += "\n" + tr("%1% staked in %2 days").arg(rate).arg(days);
+                  if (wtx->credit + wtx->debit == 1000 * COIN) {
+                    uint64_t capped = -wtx->debit * 7.5f * days / 365.f - 1000 * COIN;
+                    status += "\n" + tr("About %1 HYP capped").arg(capped / (float)COIN);
+                  }
                 }
               }
             }
