@@ -2353,7 +2353,64 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     // ppcoin: if responsible for sync-checkpoint send it
     if (pfrom && !CSyncCheckpoint::strMasterPrivKey.empty())
         Checkpoints::SendSyncCheckpoint(Checkpoints::AutoSelectSyncCheckpoint());
-
+		
+	// presstab HyperStake: enable of disable staking based on block difficulty
+	if(pwalletMain->fStakeRequirement)
+	{
+		if(pwalletMain->strDisableType == "diff")
+		{
+			int nShift = (pblock->nBits >> 24) & 0xff;
+			double dDiff = (double)0x0000ffff / (double)(pblock->nBits & 0x00ffffff);
+			while (nShift < 29)
+			{
+				dDiff *= 256.0;
+				nShift++;
+			}
+			while (nShift > 29)
+			{
+				dDiff /= 256.0;
+				nShift--;
+			}
+			if(pwalletMain->strDisableArg == ">")
+			{
+				if(dDiff > (pwalletMain->dUserNumber))
+					pwalletMain->fDisableStake = true;
+				else
+					pwalletMain->fDisableStake = false;
+			}
+			else if (pwalletMain->strDisableArg == "<")
+			{
+				if(dDiff < (pwalletMain->dUserNumber))
+					pwalletMain->fDisableStake = true;
+				else
+					pwalletMain->fDisableStake = false;
+			}
+		}
+		else if (pwalletMain->strDisableType == "weight")
+		{
+			uint64 nMinMax;
+			uint64 nWeight;
+			uint64 nHoursToMaturity;
+			uint64 nAmount;
+			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
+			
+			if(pwalletMain->strDisableArg == ">")
+			{
+				if(nWeight > (pwalletMain->dUserNumber))
+					pwalletMain->fDisableStake = true;
+				else
+					pwalletMain->fDisableStake = false;
+			}
+			else if (pwalletMain->strDisableArg == "<")
+			{
+				if(nWeight < (pwalletMain->dUserNumber))
+					pwalletMain->fDisableStake = true;
+				else
+					pwalletMain->fDisableStake = false;
+			}
+		}
+	}
+	
     return true;
 }
 

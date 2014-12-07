@@ -1211,6 +1211,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "stakeforcharity"        && n > 4) ConvertTo<double>(params[4]);
 	if (strMethod == "setstakesplitthreshold" && n > 0) ConvertTo<int>(params[0]);
 	if (strMethod == "disablestake" 		  && n > 0) ConvertTo<bool>(params[0]);
+	if (strMethod == "disablestake" 		  && n > 2) ConvertTo<double>(params[3]);
 	if (strMethod == "rescanfromblock" && n > 0)        ConvertTo<int>(params[0]);
 	if (strMethod == "ccselect" && n > 1)        		ConvertTo<int>(params[1]);
 	if (strMethod == "ccreturnchange" && n > 0)			ConvertTo<bool>(params[0]);

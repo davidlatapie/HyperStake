@@ -97,7 +97,13 @@ public:
 	bool fCombine;
 	uint64 nStakeSplitThreshold;
 	bool fSplitBlock;
+	
+	// disable stake
 	bool fDisableStake;
+	std::string strDisableType;
+	std::string strDisableArg;
+	double dUserNumber;
+	bool fStakeRequirement;
 	
     std::set<int64> setKeyPool;
 
@@ -128,6 +134,10 @@ public:
 		nStakeSplitThreshold = 1000;
 		fSplitBlock = false;
 		fDisableStake = false;
+		strDisableType = "";
+		strDisableArg = "";
+		dUserNumber = 0;
+		 fStakeRequirement =  false;
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -152,6 +162,10 @@ public:
 		nStakeSplitThreshold = 1000;
 		fSplitBlock = false;
 		fDisableStake = false;
+		strDisableType = "";
+		strDisableArg = "";
+		dUserNumber = 0;
+		fStakeRequirement =  false;
     }
 
     std::map<uint256, CWalletTx> mapWallet;

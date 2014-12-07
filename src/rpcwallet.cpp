@@ -2126,15 +2126,49 @@ Value getstakesplitthreshold(const Array& params, bool fHelp)
 // presstab HyperStake
 Value disablestake(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size()  > 4)
         throw runtime_error(
             "disablestake <true/false>\n"
-            "This will disable staking if set true\n");
+            "This will disable staking if set true\n"
+			"example: disablestake true diff >5\n"
+			"options: diff, weight");
     int fDisableStake = params[0].get_bool();
+	
+	if (params.size() == 4)
+	{
+		std::string strType = params[1].get_str();
+		std::string strArg = params[2].get_str();
+		double dUserNumber = params[3].get_real();
 		
+		if(strType == "diff" || "weight")
+			pwalletMain->strDisableType = strType;
+		else
+			 throw runtime_error("type is not valid");
+		if(strArg == ">" || "<")
+			pwalletMain->strDisableArg = strArg;
+		else
+			 throw runtime_error("argument is not valid");
+		
+		
+		pwalletMain->dUserNumber = dUserNumber;
+		pwalletMain->fStakeRequirement = true;
+	}
+	else
+		pwalletMain->fStakeRequirement = false;
+	
 	pwalletMain->fDisableStake = fDisableStake;
+	
+	if(!fDisableStake || params.size() == 1)
+	{
+		pwalletMain->strDisableType = "";
+		pwalletMain->strDisableArg = "";
+		pwalletMain->dUserNumber = 0;
+		pwalletMain->fStakeRequirement = false;
+	}
+	
 	Object result;
-	result.push_back(Pair("disable stake ", pwalletMain->fDisableStake));
+	result.push_back(Pair("disablestake ", pwalletMain->fDisableStake));
+	result.push_back(Pair("stake requirements set? ", pwalletMain->fStakeRequirement));
 	return result;
 }
 
