@@ -857,6 +857,13 @@ Value movecmd(const Array& params, bool fHelp)
     if (!walletdb.TxnBegin())
         throw JSONRPCError(RPC_DATABASE_ERROR, "database error");
 
+	// check balance
+	int64 nBalance = GetAccountBalance(strFrom, 1);
+	
+	// no moving balances less than or equal to 0
+	if(nBalance <= 0  || nBalance <  nAmount)
+		throw JSONRPCError(-101, "Not enough balance");
+		
     int64 nNow = GetAdjustedTime();
 
     // Debit
