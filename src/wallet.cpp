@@ -1107,43 +1107,68 @@ int nPrevS4CHeight = 0;
 
 bool CWallet::StakeForCharity()
 {
-
     if ( IsInitialBlockDownload() || IsLocked() )
         return false;
-
-    CWalletTx wtx;
     int64 nNet = 0;
 
     {
-        LOCK(cs_wallet);
-        for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
-        {
-            const CWalletTx* pcoin = &(*it).second;
-            if (pcoin->IsCoinStake() && pcoin->GetBlocksToMaturity() == 0  && pcoin->GetDepthInMainChain() == nCoinbaseMaturity+20)
-            {
-                // Calculate Amount for Charity
-                nNet = ( ( pcoin->GetCredit() - pcoin->GetDebit() ) * nStakeForCharityPercent )/100;
+		LOCK(cs_wallet);
+		std::vector<COutput> vCoins;
+		AvailableCoins(vCoins);
+		
+	     BOOST_FOREACH(const COutput& out, vCoins)
+		{
+			COutput cout = out;
 
-                // Do not send if amount is too low
-                if (nNet < nStakeForCharityMin ) {
-                    return false;
-                }
-                // Truncate to max if amount is too great
-                if (nNet > nStakeForCharityMax ) {
-                    nNet = nStakeForCharityMax;
-                }
-                if (nBestHeight <= nPrevS4CHeight ) {
-                    return false;
-                } else {
-                    SendMoneyToDestination(strStakeForCharityAddress.Get(), nNet, wtx, false, true);
-                    nPrevS4CHeight = nBestHeight;
-                }
-            }
-
-        }
-
+			while (IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && IsMine(cout.tx->vin[0]))
+			{
+				if (!mapWallet.count(cout.tx->vin[0].prevout.hash)) break;
+				cout = COutput(&mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0);
+			}
+ 
+			CTxDestination address;
+			if(!ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address)) continue;
+				
+			if (out.tx->IsCoinStake() && out.tx->GetBlocksToMaturity() == 0  && out.tx->GetDepthInMainChain() == nCoinbaseMaturity+20)
+			{
+				// Calculate Amount for Charity
+				nNet = ( ( out.tx->GetCredit() - out.tx->GetDebit() ) * nStakeForCharityPercent )/100;
+				// Do not send if amount is too low
+				if (nNet < nStakeForCharityMin ) {
+					return false;
+				}
+				// Truncate to max if amount is too great
+				if (nNet > nStakeForCharityMax ) {
+					nNet = nStakeForCharityMax;
+				}
+				if (nBestHeight <= nPrevS4CHeight ) {
+					return false;
+				} else {
+					uint256 txhash = out.tx->GetHash();
+					COutPoint outpt(txhash, out.i);
+					CCoinControl* cControl = new CCoinControl();
+					cControl->Select(outpt);
+						
+					 vector<pair<CScript, int64> > vecSend;
+					CWalletTx wtx;
+					CReserveKey keyChange(this);
+					int64 nFeeRet = 0;
+					CScript scriptPubKey;
+						scriptPubKey.SetDestination(strStakeForCharityAddress.Get());
+					vecSend.push_back(make_pair(scriptPubKey, nNet));
+					bool fCreated = CreateTransaction(vecSend, wtx, keyChange, nFeeRet, 1, true, cControl);
+					if (!fCreated)
+						printf("s4c createtransaction failed");
+					if(!CommitTransaction(wtx, keyChange))
+						printf("Transaction commit failed");
+					else
+						fS4CNotificator = true;
+					nPrevS4CHeight = nBestHeight;
+					delete cControl;
+				}	
+			}
+		}
     }
-
     return true;
 }
 
