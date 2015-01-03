@@ -532,6 +532,7 @@ void SendCoinsDialog::coinControlSplitBlockChecked(int state)
 			ui->labelBlockSizeText->setEnabled(false);
 			ui->labelBlockSize->setEnabled(false);
 		}
+		coinControlUpdateLabels();
 	}
 }
 

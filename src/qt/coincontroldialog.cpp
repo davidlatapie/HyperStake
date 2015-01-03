@@ -623,6 +623,10 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         
         nPayFee = max(nFee, nMinFee);
         //nPayFee = nFee;
+		if(pwalletMain->fSplitBlock)
+		{
+			nPayFee = COIN / 1000; // make the fee more expensive if using splitblock, this avoids having to calc fee based on multiple vouts
+		}
 		
         if (nPayAmount > 0)
         {
