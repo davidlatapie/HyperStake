@@ -2133,7 +2133,7 @@ Value getstakesplitthreshold(const Array& params, bool fHelp)
 // presstab HyperStake
 Value disablestake(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size()  > 4 || params.size() < 2)
+    if (fHelp || params.size()  > 4 || params.size() < 1)
         throw runtime_error(
             "disablestake <true/false>\n"
             "This will disable staking if set true\n"
