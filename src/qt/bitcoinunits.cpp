@@ -110,10 +110,7 @@ QString BitcoinUnits::format(int unit, qint64 n, bool fPlus)
         quotient_str.insert(0, '-');
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
-    if(QLocale::system() == QLocale::English || QLocale::C)
-		return quotient_str + QString(".") + remainder_str;
-	else
-		return quotient_str + QString(",") + remainder_str;
+    return quotient_str + QString(".") + remainder_str;
 }
 
 QString BitcoinUnits::formatAge(int unit, qint64 n, bool fPlus)
