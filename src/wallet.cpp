@@ -977,6 +977,23 @@ int64 CWallet::GetBalance() const
     return nTotal;
 }
 
+int64 CWallet::GetBalanceV1() const //use this for getbalance rpc call so that it will return intra wallet transactions as confirmed
+{
+    int64 nTotal = 0;
+    {
+        LOCK(cs_wallet);
+        for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        {
+            const CWalletTx* pcoin = &(*it).second;
+            if (pcoin->IsFinal() && pcoin->IsConfirmedV1())
+                nTotal += pcoin->GetAvailableCredit();
+        }
+    }
+
+    return nTotal;
+}
+
+
 int64 CWallet::GetUnconfirmedBalance() const
 {
     int64 nTotal = 0;
