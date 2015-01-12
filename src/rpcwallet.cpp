@@ -2215,14 +2215,21 @@ Value cclistcoins(const Array& params, bool fHelp)
 		int64 nHeight = nBestHeight - out.nDepth;
 		CBlockIndex* pindex = FindBlockByHeight(nHeight);
 		
-		coutput.push_back(Pair("Output Hash", out.tx->GetHash().ToString()));
-		coutput.push_back(Pair("blockIndex", out.i));
-		coutput.push_back(Pair("Value", double(out.tx->vout[out.i].nValue) / double(COIN)));
-		coutput.push_back(Pair("Confirmations", int(out.nDepth)));
-		coutput.push_back(Pair("Age (days)", (double(GetTime() - pindex->nTime) / (60*60*24))));
 		CTxDestination outputAddress;
 		ExtractDestination(out.tx->vout[out.i].scriptPubKey, outputAddress);
 		coutput.push_back(Pair("Address", CBitcoinAddress(outputAddress).ToString()));
+		coutput.push_back(Pair("Output Hash", out.tx->GetHash().ToString()));
+		coutput.push_back(Pair("blockIndex", out.i));
+		double dAmount = double(out.tx->vout[out.i].nValue) / double(COIN);
+		coutput.push_back(Pair("Value", dAmount));
+		coutput.push_back(Pair("Confirmations", int(out.nDepth)));
+		double dAge = double(GetTime() - pindex->nTime) / (60*60*24);
+		coutput.push_back(Pair("Age (days)", (dAge)));
+		uint64 nWeight = 0;
+		pwalletMain->GetStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nWeight);
+		if(dAge < 8.8)
+			nWeight = 0;
+		coutput.push_back(Pair("Weight", (nWeight)));
 		result.push_back(coutput);
 	}
 	return result;
