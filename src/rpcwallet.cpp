@@ -2229,7 +2229,7 @@ Value cclistcoins(const Array& params, bool fHelp)
 		pwalletMain->GetStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nWeight);
 		if(dAge < 8.8)
 			nWeight = 0;
-		coutput.push_back(Pair("Weight", (nWeight)));
+		coutput.push_back(Pair("Weight", int(nWeight)));
 		result.push_back(coutput);
 	}
 	return result;
