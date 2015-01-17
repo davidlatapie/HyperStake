@@ -2344,11 +2344,11 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     }
 
     printf("ProcessBlock: ACCEPTED\n");
-
-	// If turned on stakeforcharity, send a portion of stake reward to savings account address
-	if (pwalletMain->fStakeForCharity)
-		if (!pwalletMain->StakeForCharity() )
-			printf("ERROR While trying to send portion of stake reward to savings account");
+	// If turned on MultiSend will send a transaction (or more) on the 30th confirmation of a stake
+	if (pwalletMain->fMultiSend)
+		if (!pwalletMain->MultiSend() )
+			printf("ERROR While trying to use MultiSend");
+	
 	
 	/* HyperStake is not using a checkpoint server
     // ppcoin: if responsible for sync-checkpoint send it

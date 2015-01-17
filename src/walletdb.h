@@ -103,7 +103,33 @@ public:
 		nWalletDBUpdated++;
 		return Write(std::string("stakeSplitThreshold"), nStakeSplitThreshold);
 	}
-
+	//presstab HyperStake
+	bool WriteMultiSend(std::vector<std::pair<std::string, int> > vMultiSend)
+	{
+		nWalletDBUpdated++;
+		bool ret = true;
+		for(unsigned int i = 0; i < vMultiSend.size(); i++)
+		{
+			std::pair<std::string, int> pMultiSend;
+			pMultiSend = vMultiSend[i];
+			if(!Write(std::make_pair(std::string("multisend"), i), pMultiSend, true))
+				ret = false;
+		}
+		return ret;
+	}
+	bool EraseMultiSend(std::vector<std::pair<std::string, int> > vMultiSend)
+	{
+		nWalletDBUpdated++;
+		bool ret = true;
+		for(unsigned int i = 0; i < vMultiSend.size(); i++)
+		{
+			std::pair<std::string, int> pMultiSend;
+			pMultiSend = vMultiSend[i];
+			if(!Erase(std::make_pair(std::string("multisend"), i)))
+				ret = false;
+		}
+		return ret;
+	}
     bool WriteDefaultKey(const CPubKey& vchPubKey)
     {
         nWalletDBUpdated++;
@@ -149,23 +175,6 @@ public:
     bool WriteMinVersion(int nVersion)
     {
         return Write(std::string("minversion"), nVersion);
-    }
-	
-	bool WriteStakeForCharity(std::string strStakeForCharityAddress, int nStakeForCharityPercent, std::string strStakeForCharityChangeAddress,
-		int64 nStakeForCharityMinAmount, int64 nStakeForCharityMaxAmount)
-    {
-        nWalletDBUpdated++;
-        if (!Write(std::make_pair(std::string("ats"), strStakeForCharityAddress),std::make_pair(strStakeForCharityChangeAddress ,nStakeForCharityPercent)))
-            return false;
-
-        return Write(std::make_pair(std::string("ats2"), strStakeForCharityAddress),std::make_pair(nStakeForCharityMinAmount ,nStakeForCharityMaxAmount));
-    }
-
-    bool EraseStakeForCharity(std::string strStakeForCharityAddress)
-    {
-        nWalletDBUpdated++;
-        return Erase(std::make_pair(std::string("ats"), strStakeForCharityAddress));
-		return Erase(std::make_pair(std::string("ats2"), strStakeForCharityAddress));
     }
 
     bool ReadAccount(const std::string& strAccount, CAccount& account);

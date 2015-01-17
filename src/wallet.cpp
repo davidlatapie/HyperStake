@@ -1120,13 +1120,11 @@ int64 CWallet::GetNewMint() const
     return nTotal;
 }
 
-int nPrevS4CHeight = 0;
-
-bool CWallet::StakeForCharity()
+bool CWallet::MultiSend()
 {
-    if ( IsInitialBlockDownload() || IsLocked() )
+	if ( IsInitialBlockDownload() || IsLocked() )
         return false;
-    int64 nNet = 0;
+    int64 nAmount = 0;
 
     {
 		LOCK(cs_wallet);
@@ -1135,54 +1133,43 @@ bool CWallet::StakeForCharity()
 		
 	     BOOST_FOREACH(const COutput& out, vCoins)
 		{
-			COutput cout = out;
-
-			while (IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && IsMine(cout.tx->vin[0]))
-			{
-				if (!mapWallet.count(cout.tx->vin[0].prevout.hash)) break;
-				cout = COutput(&mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0);
-			}
- 
 			CTxDestination address;
-			if(!ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address)) continue;
+			if(!ExtractDestination(out.tx->vout[out.i].scriptPubKey, address)) continue;
 				
 			if (out.tx->IsCoinStake() && out.tx->GetBlocksToMaturity() == 0  && out.tx->GetDepthInMainChain() == nCoinbaseMaturity+20)
 			{
-				// Calculate Amount for Charity
-				nNet = ( ( out.tx->GetCredit() - out.tx->GetDebit() ) * nStakeForCharityPercent )/100;
-				// Do not send if amount is too low
-				if (nNet < nStakeForCharityMin ) {
-					return false;
-				}
-				// Truncate to max if amount is too great
-				if (nNet > nStakeForCharityMax ) {
-					nNet = nStakeForCharityMax;
-				}
-				if (nBestHeight <= nPrevS4CHeight ) {
-					return false;
-				} else {
-					uint256 txhash = out.tx->GetHash();
-					COutPoint outpt(txhash, out.i);
-					CCoinControl* cControl = new CCoinControl();
-					cControl->Select(outpt);
-						
-					 vector<pair<CScript, int64> > vecSend;
-					CWalletTx wtx;
-					CReserveKey keyChange(this);
-					int64 nFeeRet = 0;
+				// create new coin control, populate it with the selected utxo, create sending vector
+				CCoinControl* cControl = new CCoinControl();
+				uint256 txhash = out.tx->GetHash();
+				COutPoint outpt(txhash, out.i);
+				cControl->Select(outpt);	
+				CWalletTx wtx;
+				cControl->fReturnChange = true;
+				CReserveKey keyChange(this); // this change address does not end up being used, because change is returned with coin control switch
+				int64 nFeeRet = 0;
+				vector<pair<CScript, int64> > vecSend;
+					
+				// loop through multisend vector and add amounts and addresses to the sending vector
+				for(unsigned int i = 0; i < vMultiSend.size(); i++)
+				{
+					// MultiSend vector is a pair of 1)Address as a std::string  2) Percent of stake to send as an int
+					nAmount = ( ( out.tx->GetCredit() - out.tx->GetDebit() ) * vMultiSend[i].second )/100;
+					CBitcoinAddress strAddSend(vMultiSend[i].first);
 					CScript scriptPubKey;
-						scriptPubKey.SetDestination(strStakeForCharityAddress.Get());
-					vecSend.push_back(make_pair(scriptPubKey, nNet));
-					bool fCreated = CreateTransaction(vecSend, wtx, keyChange, nFeeRet, 1, true, cControl);
-					if (!fCreated)
-						printf("s4c createtransaction failed");
-					if(!CommitTransaction(wtx, keyChange))
-						printf("Transaction commit failed");
-					else
-						fS4CNotificator = true;
-					nPrevS4CHeight = nBestHeight;
-					delete cControl;
-				}	
+						scriptPubKey.SetDestination(strAddSend.Get());
+					vecSend.push_back(make_pair(scriptPubKey, nAmount));
+				}
+				
+				// Create the transaction and commit it to the network
+				bool fCreated = CreateTransaction(vecSend, wtx, keyChange, nFeeRet, 1, true, cControl);
+				if (!fCreated)
+					printf("MultiSend createtransaction failed");
+				if(!CommitTransaction(wtx, keyChange))
+					printf("MultiSend transaction commit failed");
+				else
+					fMultiSendNotify = true;
+				nLastMultiSendHeight = nBestHeight;
+				delete cControl;
 			}
 		}
     }
@@ -1379,14 +1366,14 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                 int64 nValueIn = 0;
                 if (!SelectCoins(nTotalValue, wtxNew.nTime, setCoins, nValueIn, coinControl))
                     return false;
-				CTxDestination outputAddress;
+				CTxDestination utxoAddress;
                 BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
                 {
                     int64 nCredit = pcoin.first->vout[pcoin.second].nValue;
                     dPriority += (double)nCredit * pcoin.first->GetDepthInMainChain();
 					//use this address to send change back
 					//note that this will use the last address run through the FOREACH, needs better logic added
-					ExtractDestination(pcoin.first->vout[pcoin.second].scriptPubKey, outputAddress); 
+					ExtractDestination(pcoin.first->vout[pcoin.second].scriptPubKey, utxoAddress); 
                 }
 
                 int64 nChange = nValueIn - nValue - nFeeRet;
@@ -1416,7 +1403,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                     CScript scriptChange;
 					
 					// Stake For Charity: send change to custom address
-                    if (fAllowS4C) {
+                    /*if (fAllowS4C) {
                         if (strStakeForCharityChangeAddress.IsValid())
                             scriptChange.SetDestination(strStakeForCharityChangeAddress.Get());
 						else
@@ -1424,13 +1411,13 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
 							CPubKey vchPubKey = reservekey.GetReservedKey();
 							scriptChange.SetDestination(vchPubKey.GetID());
 						}
-                    }
+                    }*/
+					if (coinControl && coinControl->fReturnChange == true)
+						scriptChange.SetDestination(utxoAddress);
 					// coin control: send change to custom address
 					else if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange)) {                     
                          scriptChange.SetDestination(coinControl->destChange);
 					}
-					else if (coinControl && coinControl->fReturnChange == true)
-						scriptChange.SetDestination(outputAddress);
                      // no coin control: send change to newly generated address
                     else
                     {

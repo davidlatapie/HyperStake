@@ -12,9 +12,11 @@
 #include "coincontrol.h"
 
 #include <sstream>
+#include <boost/lexical_cast.hpp>
 
 using namespace json_spirit;
 using namespace std;
+using namespace boost;
 
 int64 nWalletUnlockTime;
 CCoinControl* coinControl = new CCoinControl;
@@ -339,105 +341,159 @@ Value getaccountaddress(const Array& params, bool fHelp)
     return ret;
 }
 
-Value stakeforcharity(const Array &params, bool fHelp)
+//presstab HyperStake
+Object printMultiSend()
 {
-    if (fHelp || params.size() < 2 || params.size() > 5)
-        throw runtime_error(
-            "stakeforcharity <HyperStake Address> <percent> [Change Address] [min amount] [max amount]\n"
-            "Gives a percentage of a found stake to a different address, after stake matures\n"
-            "Percent is a whole number 1 to 50.\n"
-			"Change Address, Min and Max Amount are optional\n"
-            "Set percentage to zero to turn off"
-            + HelpRequiringPassphrase());
+	Object ret;
+	ret.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
+	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
+	{
+		ret.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
+		ret.push_back(Pair("Percent", pwalletMain->vMultiSend[i].second));
+	}
+	return ret;
+}
 
-    CBitcoinAddress address(params[0].get_str());
+//presstab HyperStake
+unsigned int sumMultiSend()
+{
+	unsigned int sum = 0;
+	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
+	{
+		sum += pwalletMain->vMultiSend[i].second;
+	}
+	return sum;
+}
+
+// presstab HyperStake
+Value multisend(const Array &params, bool fHelp)
+{
+    CWalletDB walletdb(pwalletMain->strWalletFile);
+	bool fFileBacked;
+	
+	//MultiSend Commands
+	if(params.size() == 1)
+	{
+		string strCommand = params[0].get_str();
+		Object ret;
+		if(strCommand == "print")
+		{
+			return printMultiSend();
+		}
+		else if(strCommand == "clear")
+		{
+			LOCK(pwalletMain->cs_wallet);
+			{
+				fFileBacked = pwalletMain->fFileBacked;
+				string strRet;
+				if(fFileBacked)
+				{
+					if(walletdb.EraseMultiSend(pwalletMain->vMultiSend))						
+						strRet += "erased MultiSend vector from database & ";
+					
+				}
+				pwalletMain->vMultiSend.clear();
+				pwalletMain->fMultiSend = false;
+				strRet += "cleared MultiSend vector from RAM";
+				return strRet;
+			}
+		}
+		else if (strCommand == "enable")
+		{
+			if(pwalletMain->vMultiSend.size() < 1)
+				return "Unable to activate MultiSend, check MultiSend vector";
+			if(CBitcoinAddress(pwalletMain->vMultiSend[0].first).IsValid())
+			{
+				pwalletMain->fMultiSend = true;
+				return "MultiSend activated";
+			}
+			else
+				return "Unable to activate MultiSend, check MultiSend vector";
+		}
+		else if (strCommand == "disable")
+		{
+			pwalletMain->fMultiSend = false;
+			return "MultiSend deactivated";
+		}
+	}
+	if(params.size() == 2 && params[0].get_str() == "delete")
+	{
+		int del = params[1].get_int();
+		pwalletMain->vMultiSend.erase(pwalletMain->vMultiSend.begin() + del);
+		
+		if(!walletdb.EraseMultiSend(pwalletMain->vMultiSend))
+		   return "failed to delete old MultiSend vector from database";
+		if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
+			return "walletdb WriteMultiSend failed!";
+		return printMultiSend();
+	}
+	//if no commands are used
+	if (fHelp || params.size() != 2)
+        throw runtime_error(
+			"****************************************************************\n"
+			"WHAT IS MULTISEND?\n"
+			"MultiSend is a rebuild of what used to be called Stake For Charity (s4c)\n"
+			"MultiSend allows a user to automatically send a percent of their stake reward to as many addresses as you would like\n"
+			"The MultiSend transaction is sent when the staked coins mature (30 confirmations)\n"
+			"The only current restriction is that you cannot choose to send more than 100% of your stake using MultiSend\n"
+			"****************************************************************\n"
+			"MULTISEND COMMANDS (usage: multisend <command>)\n"
+			"   print - displays the current MultiSend vector \n"
+			"   clear - deletes the current MultiSend vector \n"
+			"   enable - activates the current MultiSend vector \n"
+			"   disable - disables the current MultiSend vector \n"
+			"   delete <Address #> - deletes an address from the MultiSend vector \n"
+			"****************************************************************\n"
+			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"
+			"multisend <HyperStake Address> <percent>\n"
+            "This will add a new address to the MultiSend vector\n"
+            "Percent is a whole number 1 to 100.\n"
+			"****************************************************************\n"
+            );
+	
+	//if the user is entering a new MultiSend item
+	string strAddress = params[0].get_str();
+    CBitcoinAddress address(strAddress);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake address");
-
     if (params[1].get_int() < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, expected valid percentage");
-
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
-    unsigned int nPer = (unsigned int) params[1].get_int();
-
-    int64 nMinAmount = MIN_TXOUT_AMOUNT;
-	int64 nMaxAmount = MAX_MONEY;
-	
-	// Optional Change Address
-    CBitcoinAddress changeAddress;
-    if (params.size() > 2) {
-        changeAddress = params[2].get_str();
-        if (!changeAddress.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake change address");
-    }
-	
-	// Optional Min Amount
-	if (params.size() > 3)
-    {
-		int64 nAmount = AmountFromValue(params[3]);
-		if (nAmount < MIN_TXOUT_AMOUNT)
-			throw JSONRPCError(-101, "Send amount too small");
-		else
-			nMinAmount = nAmount;
-    }
-
-   // Optional Max Amount
-    if (params.size() > 4)
-	{
-		int64 nAmount = AmountFromValue(params[4]);
-		if (nAmount < MIN_TXOUT_AMOUNT)
-			throw JSONRPCError(-101, "Send amount too small");
-		else
-			nMaxAmount = nAmount;
-	}
-
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-	
+    unsigned int nPercent = (unsigned int) params[1].get_int();
+    
 	LOCK(pwalletMain->cs_wallet);
 	{
-		bool fFileBacked = pwalletMain->fFileBacked;
-		//Turn off if we set to zero.
-		//Future: After we allow multiple addresses, only turn of this address
-		if(nPer == 0)
+		fFileBacked = pwalletMain->fFileBacked;
+		//Error if 0 is entered
+		if(nPercent == 0)
 		{
-			pwalletMain->fStakeForCharity = false;
-            pwalletMain->nStakeForCharityPercent = 0;
-            pwalletMain->nStakeForCharityMin = nMinAmount;
-            pwalletMain->nStakeForCharityMax = nMaxAmount;
-
-            if(fFileBacked)
-                walletdb.EraseStakeForCharity(pwalletMain->strStakeForCharityAddress.ToString());
-
-            pwalletMain->strStakeForCharityAddress = "";
-			pwalletMain->strStakeForCharityChangeAddress = "";
-
-            return Value::null;
+            return "Sending 0% of stake is not valid";
 		}
-		//For now max percentage is 50.
-        if (nPer > 50 )
-			nPer = 50;
+		
+		//MultiSend can only send 100% of your stake
+        if (nPercent + sumMultiSend() > 100)
+			return "Failed to add to MultiSend vector, the sum of your MultiSend is greater than 100%";
 			
 		if(fFileBacked)
-              walletdb.EraseStakeForCharity(pwalletMain->strStakeForCharityAddress.ToString());
+			walletdb.EraseMultiSend(pwalletMain->vMultiSend);
 			  
-		pwalletMain->strStakeForCharityAddress = address;
-        pwalletMain->nStakeForCharityPercent = nPer;
-		pwalletMain->strStakeForCharityChangeAddress = changeAddress;
-        pwalletMain->fStakeForCharity = true;
-        pwalletMain->nStakeForCharityMin = nMinAmount;
-        pwalletMain->nStakeForCharityMax = nMaxAmount;
+		std::pair<std::string, int> newMultiSend;
+		newMultiSend.first = strAddress;
+		newMultiSend.second = nPercent;
+		pwalletMain->vMultiSend.push_back(newMultiSend);
+        pwalletMain->fMultiSend = true;
 		
 		if(fFileBacked)
-			walletdb.WriteStakeForCharity(address.ToString(), nPer, changeAddress.ToString(), nMinAmount, nMaxAmount);
-			 
+		{	
+			if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
+				return "walletdb WriteMultiSend failed!";
+		}
 	}
-	if (pwalletMain->fStakeForCharity)
-		return "Stake For Charity is active";
-    else
-		return "Stake For Charity not active";
+	return printMultiSend();
 }
+
 
 
 Value setaccount(const Array& params, bool fHelp)

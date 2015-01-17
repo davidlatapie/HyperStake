@@ -84,6 +84,15 @@ public:
 
     bool fFileBacked;
     std::string strWalletFile;
+	
+	bool fWalletUnlockMintOnly;
+	int64 nAmountSelected;
+	std::string strBestAddress;
+	bool fCombine;
+	uint64 nStakeSplitThreshold;
+	bool fSplitBlock;
+	
+	//stake for charity
 	bool fStakeForCharity;
 	bool fS4CNotificator;
 	int nStakeForCharityPercent;
@@ -91,12 +100,13 @@ public:
 	int64 nStakeForCharityMax;
 	CBitcoinAddress strStakeForCharityAddress;
 	CBitcoinAddress strStakeForCharityChangeAddress;
-	bool fWalletUnlockMintOnly;
-	int64 nAmountSelected;
-	std::string strBestAddress;
-	bool fCombine;
-	uint64 nStakeSplitThreshold;
-	bool fSplitBlock;
+	
+	//MultiSend
+	std::vector<std::pair<std::string, int> > vMultiSend;
+	bool fMultiSend;
+	int nLastMultiSendHeight;
+	bool fMultiSendNotify;
+	std::string strMultiSendChangeAddress;
 	
 	// disable stake
 	bool fDisableStake;
@@ -137,7 +147,12 @@ public:
 		strDisableType = "";
 		strDisableArg = "";
 		dUserNumber = 0;
-		 fStakeRequirement =  false;
+		fStakeRequirement =  false;
+		vMultiSend.clear();
+		fMultiSend = false;
+		nLastMultiSendHeight = 0;
+		fMultiSendNotify = false;
+		strMultiSendChangeAddress = "";
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -166,6 +181,11 @@ public:
 		strDisableArg = "";
 		dUserNumber = 0;
 		fStakeRequirement =  false;
+		vMultiSend.clear();
+		fMultiSend = false;
+		nLastMultiSendHeight = 0;
+		fMultiSendNotify = false;
+		strMultiSendChangeAddress = "";
     }
 
     std::map<uint256, CWalletTx> mapWallet;
@@ -232,6 +252,7 @@ public:
     int64 GetStake() const;
     int64 GetNewMint() const;
 	bool StakeForCharity();
+	bool MultiSend();
     bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, int nSplitBlock, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);

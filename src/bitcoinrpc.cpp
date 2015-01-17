@@ -191,8 +191,6 @@ Value stop(const Array& params, bool fHelp)
     return "HyperStake server stopping";
 }
 
-
-
 //
 // Call Table
 //
@@ -276,7 +274,7 @@ static const CRPCCommand vRPCCommands[] =
     { "resendtx",               &resendtx,               false,  true},
     { "makekeypair",            &makekeypair,            false,  true},
     { "sendalert",              &sendalert,              false,  false},
-	{ "stakeforcharity",        &stakeforcharity,        false,  false },
+	{ "multisend",        &multisend,        false,  false },
 	{ "cclistcoins", 			&cclistcoins, 			 false,  false },
 	{ "ccselect",        		&ccselect,               false,  false },
 	{ "cclistselected",        	&cclistselected,         false,  false },
@@ -1126,8 +1124,6 @@ Object CallRPC(const string& strMethod, const Array& params)
 }
 
 
-
-
 template<typename T>
 void ConvertTo(Value& value, bool fAllowNull=false)
 {
@@ -1206,9 +1202,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "createrawtransaction"   && n > 1) ConvertTo<Object>(params[1]);
     if (strMethod == "signrawtransaction"     && n > 1) ConvertTo<Array>(params[1], true);
     if (strMethod == "signrawtransaction"     && n > 2) ConvertTo<Array>(params[2], true);
-	if (strMethod == "stakeforcharity"        && n > 1) ConvertTo<int>(params[1]);
-	if (strMethod == "stakeforcharity"        && n > 3) ConvertTo<double>(params[3]);
-	if (strMethod == "stakeforcharity"        && n > 4) ConvertTo<double>(params[4]);
+	if (strMethod == "multisend"        && n > 1) ConvertTo<int>(params[1]);
 	if (strMethod == "setstakesplitthreshold" && n > 0) ConvertTo<int>(params[0]);
 	if (strMethod == "disablestake" 		  && n > 0) ConvertTo<bool>(params[0]);
 	if (strMethod == "disablestake" 		  && n > 2) ConvertTo<double>(params[3]);
@@ -1283,8 +1277,6 @@ int CommandLineRPC(int argc, char *argv[])
     }
     return nRet;
 }
-
-
 
 
 #ifdef TEST

@@ -32,8 +32,8 @@ void StakeForCharityDialog::setModel(WalletModel *model)
 	int64 nMin;
 	int64 nMax;
 	
-	model->getStakeForCharity(nPer, strAddress, strChangeAddress, nMin, nMax);
-	
+	//model->getStakeForCharity(nPer, strAddress, strChangeAddress, nMin, nMax);
+	/*
 	if (strAddress.IsValid() && nPer > 0 )
 	{
 		ui->charityAddressEdit->setText(strAddress.ToString().c_str());
@@ -47,7 +47,7 @@ void StakeForCharityDialog::setModel(WalletModel *model)
         ui->message->setProperty("status", "ok");
         ui->message->style()->polish(ui->message);
 		ui->message->setText(tr("You are now giving to\n") + strAddress.ToString().c_str() + tr("."));
-	}
+	}*/
 }
 
 void StakeForCharityDialog::setAddress(const QString &address)
@@ -78,14 +78,14 @@ void StakeForCharityDialog::on_changeAddressBookButton_clicked()
 	{
 		AddressBookPage dlg(AddressBookPage::ForSending, AddressBookPage::ReceivingTab, this);
 		dlg.setModel(model->getAddressTableModel());
-		if (dlg.exec())
-			setAddress(dlg.getReturnValue(), ui->charityChangeAddressEdit);
+		//if (dlg.exec())
+			//setAddress(dlg.getReturnValue(), ui->charityChangeAddressEdit);
 	}
 }
 
 void StakeForCharityDialog::on_enableButton_clicked()
 {
-    if(model->getEncryptionStatus() == WalletModel::Locked)
+  /*  if(model->getEncryptionStatus() == WalletModel::Locked)
     {
         ui->message->setProperty("status", "");
         ui->message->style()->polish(ui->message);
@@ -178,12 +178,12 @@ void StakeForCharityDialog::on_enableButton_clicked()
     ui->message->setProperty("status", "ok");
     ui->message->style()->polish(ui->message);
     ui->message->setText(tr("You are now sending to\n") + QString(address.ToString().c_str()) + tr("."));
-    return;
+    return;*/
 }
 
 void StakeForCharityDialog::on_disableButton_clicked()
 {
-    int nCharityPercent = 0;
+ /*   int nCharityPercent = 0;
     CBitcoinAddress address = "";
 	CBitcoinAddress changeAddress = "";
     int64 nMinAmount = MIN_TXOUT_AMOUNT;
@@ -198,5 +198,5 @@ void StakeForCharityDialog::on_disableButton_clicked()
     ui->message->setProperty("status", "");
     ui->message->style()->polish(ui->message);
     ui->message->setText(tr("Stake For Charity is now off"));
-    return;
+    return;*/
 }

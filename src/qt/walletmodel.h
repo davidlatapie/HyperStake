@@ -101,22 +101,8 @@ public:
 	void repairWallet(int& nMismatchSpent, qint64& nBalanceInQuestion, int& nOrphansFound);
 	// Pass coin control information
 	void getStakeWeightFromValue(const qint64& nTime, const qint64& nValue, quint64& nWeight);
-	void setAmountSelected(qint64 nAmountSelected);
-	qint64 getAmountSelected();
-	void setBestAddress(std::string strAddress);
-	QString getBestAddress();
 	void setSplitBlock(bool fSplitBlock);
-	bool getSplitBlock();
-	//Wallet Information about StakeForCharity
-	int getStakeForCharityPercent();
-	QString getStakeForCharityAddress();
-	bool getS4CNotificator();
-	void setS4CNotificator(bool fSet);
-	void setStakeForCharity(bool fStakeForCharity, int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
-		CBitcoinAddress& strStakeForCharityChangeAddress, qint64& nStakeForCharityMinAmount, qint64& nStakeForCharityMaxAmount);
-	void getStakeForCharity(int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress, CBitcoinAddress& strStakeForCharityChangeAddress,
-		qint64& nStakeForCharityMinAmount, qint64& nStakeForCharityMaxAmount);
-		
+	bool getSplitBlock();		
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
     {

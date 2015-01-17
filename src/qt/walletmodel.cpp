@@ -315,95 +315,10 @@ bool WalletModel::backupWallet(const QString &filename)
     return BackupWallet(*wallet, filename.toLocal8Bit().data());
 }
 
-void  WalletModel::getStakeForCharity(int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
-	CBitcoinAddress& strStakeForCharityChangeAddress, int64& nStakeForCharityMinAmout, int64& nStakeForCharityMaxAmount)
-{
-	nStakeForCharityPercent = wallet->nStakeForCharityPercent;
-	strStakeForCharityAddress = wallet->strStakeForCharityAddress;
-	strStakeForCharityChangeAddress = wallet->strStakeForCharityChangeAddress;
-	nStakeForCharityMinAmout = wallet->nStakeForCharityMin;
-	nStakeForCharityMaxAmount =  wallet->nStakeForCharityMax;
-}
-
-int WalletModel::getStakeForCharityPercent()
-{
-	return wallet->nStakeForCharityPercent;
-}
-
-QString WalletModel::getStakeForCharityAddress()
-{
-	if (!wallet->strStakeForCharityAddress.IsValid())
-		return "Not Set";
-	else
-		return wallet->strStakeForCharityAddress.ToString().c_str();
-}
-
-bool WalletModel::getS4CNotificator()
-{
-	return wallet->fS4CNotificator;
-}
-
-void WalletModel::setS4CNotificator(bool fSet)
-{
-	wallet->fS4CNotificator = fSet;
-}
-
-void WalletModel::setStakeForCharity(bool fStakeForCharity, int& nStakeForCharityPercent, CBitcoinAddress& strStakeForCharityAddress,
-                                     CBitcoinAddress& strStakeForCharityChangeAddress, int64& nStakeForCharityMin, int64& nStakeForCharityMax)
-{
-    // This function assumes the values were checked before being called
-    if (wallet->fFileBacked) // Tranz add option to not save.
-    {
-        CWalletDB walletdb(wallet->strWalletFile);
-        if (fStakeForCharity) {
-            walletdb.EraseStakeForCharity(wallet->strStakeForCharityAddress.ToString());
-            walletdb.WriteStakeForCharity(strStakeForCharityAddress.ToString(), nStakeForCharityPercent,
-				strStakeForCharityChangeAddress.ToString(), nStakeForCharityMin, nStakeForCharityMax);
-        }
-        else {
-            walletdb.EraseStakeForCharity(wallet->strStakeForCharityAddress.ToString());
-            walletdb.EraseStakeForCharity(strStakeForCharityAddress.ToString());
-        }
-
-        if(fDebug)
-          printf("setStakeForCharity: %s %d\n", strStakeForCharityAddress.ToString().c_str(), nStakeForCharityPercent);
-    }
-
-    {
-        LOCK(wallet->cs_wallet);
-        wallet->fStakeForCharity = fStakeForCharity;
-        wallet->nStakeForCharityPercent = nStakeForCharityPercent;
-        wallet->strStakeForCharityAddress = strStakeForCharityAddress;
-		wallet->strStakeForCharityChangeAddress = strStakeForCharityChangeAddress;
-        wallet->nStakeForCharityMin = nStakeForCharityMin;
-        wallet->nStakeForCharityMax = nStakeForCharityMax;
-    }
-}
-
 //Information for coin control
 void WalletModel::getStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight)
 {
 	wallet->GetStakeWeightFromValue(nTime, nValue, nWeight);
-}
-
-void WalletModel::setAmountSelected(qint64 nAmountSelected)
-{
-	wallet->nAmountSelected = nAmountSelected;
-}
-
-qint64 WalletModel::getAmountSelected()
-{
-	return wallet->nAmountSelected;
-}
-
-void WalletModel::setBestAddress(std::string strAddress)
-{
-	wallet->strBestAddress = strAddress;
-}
-
-QString WalletModel::getBestAddress()
-{
-	return QString::fromStdString(wallet->strBestAddress);
 }
 
 void WalletModel::setSplitBlock(bool fSplitBlock)
@@ -415,7 +330,6 @@ bool WalletModel::getSplitBlock()
 {
 	return wallet->fSplitBlock;
 }
-
 
 void WalletModel::checkWallet(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound)
 {

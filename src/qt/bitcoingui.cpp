@@ -192,7 +192,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 	nHoursToMaturity = 0;
 	nNetworkWeight = 0;
 	nAmount = 0;
-	//fS4CNotificator = false;
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -303,13 +302,13 @@ void BitcoinGUI::createActions()
     aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About HyperStake"), this);
     aboutAction->setToolTip(tr("Show information about HyperStake"));
     aboutAction->setMenuRole(QAction::AboutRole);
-	
+
     charityAction = new QAction(QIcon(":/icons/s4c"), tr("&S4C"), this);
     charityAction->setToolTip(tr("Enable Stake For Charity"));
     charityAction->setCheckable(true);
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
 	tabGroup->addAction(charityAction);
-	
+
 	calcAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Stake Calculator"), this);
     calcAction->setToolTip(tr("Open Stake Calculator"));
     calcAction->setMenuRole(QAction::AboutRole);
@@ -317,19 +316,7 @@ void BitcoinGUI::createActions()
 	blockAction = new QAction(QIcon(":/icons/blexp"), tr("Block Bro&wser"), this);
 	blockAction->setStatusTip(tr("Explore the BlockChain"));
 	blockAction->setToolTip(blockAction->statusTip());
-	
-	//blocksIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Block Info"), this);
-	//blocksIconAction->setStatusTip(tr("Get Current Block Information"));
-	//blocksIconAction->setToolTip(blocksIconAction->statusTip());
-	
-	//stakingIconAction = new QAction(QIcon(":/icons/info"), tr("Current &PoS Block Info"), this);
-	//stakingIconAction->setStatusTip(tr("Get Current PoS Block Information"));
-	//stakingIconAction->setToolTip(stakingIconAction->statusTip());
-	
-	//connectionIconAction = new QAction(QIcon(":/icons/info"), tr("Current &Node Info"), this);
-	//connectionIconAction->setStatusTip(tr("Get Current Peer Information"));
-	//connectionIconAction->setToolTip(connectionIconAction->statusTip());
-	
+
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
@@ -385,9 +372,6 @@ void BitcoinGUI::createActions()
 	connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWalletForMint()));
 	
 	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
-	//connect(blocksIconAction, SIGNAL(triggered()), this, SLOT(blocksIconClicked()));
-	//connect(connectionIconAction, SIGNAL(triggered()), this, SLOT(connectionIconClicked()));
-	//connect(stakingIconAction, SIGNAL(triggered()), this, SLOT(stakingIconClicked()));
 
     /* zeewolf: Hot swappable wallet themes */
     if (themesList.count()>0)
@@ -433,10 +417,6 @@ void BitcoinGUI::createMenuBar()
 	
 	QMenu *network = appMenuBar->addMenu(tr("&Network"));
 	network->addAction(blockAction);
-	//network->addSeparator();
-	//network->addAction(blocksIconAction);
-	//network->addAction(stakingIconAction);
-	//network->addAction(connectionIconAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Tools"));
     settings->addAction(encryptWalletAction);
@@ -445,7 +425,7 @@ void BitcoinGUI::createMenuBar()
     settings->addAction(changePassphraseAction);
 	settings->addAction(checkWalletAction);
 	settings->addAction(repairWalletAction);
-	settings->addAction(charityAction);
+	//settings->addAction(charityAction);
 	settings->addAction(calcAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
@@ -476,7 +456,7 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
-	toolbar->addAction(charityAction);
+	//toolbar->addAction(charityAction);
 
     QToolBar *toolbar2 = addToolBar(tr("Actions toolbar"));
     toolbar2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -818,7 +798,7 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                     .data(Qt::EditRole).toULongLong();
     if(!clientModel->inInitialBlockDownload())
     {
-		fS4CNotificator = walletModel->getS4CNotificator();
+		fMultiSendNotify = pwalletMain->fMultiSendNotify;
 		
         // On new transaction, make an info balloon
         // Unless the initial block download is in progress, to prevent balloon-spam
@@ -833,7 +813,7 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                         .data(Qt::DecorationRole));
 
         notificator->notify(Notificator::Information,
-                            (amount)<0 ? (fS4CNotificator == true ? tr("Sent S4C transaction") : tr("Sent transaction") ):
+                            (amount)<0 ? (fMultiSendNotify == true ? tr("Sent MultiSend transaction") : tr("Sent transaction") ):
                                          tr("Incoming transaction"),
                               tr("Date: %1\n"
                                  "Amount: %2\n"
@@ -843,7 +823,8 @@ void BitcoinGUI::incomingTransaction(const QModelIndex & parent, int start, int 
                               .arg(BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), amount, true))
                               .arg(type)
                               .arg(address), icon);
-		walletModel->setS4CNotificator(false);
+			
+		pwalletMain->fMultiSendNotify = false;
 		
     }
 }
@@ -1196,31 +1177,31 @@ void BitcoinGUI::updateMintingIcon()
 {
     if (pwalletMain && pwalletMain->IsLocked())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is locked.<br>Network weight is %1.<br>MultiSend: %3").arg(nNetworkWeight).arg(nHoursToMaturity).arg(fMultiSend ? tr("Active"):tr("Not Active")));
         labelMintingIcon->setEnabled(false);
         labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
 	else if (pwalletMain && pwalletMain->fDisableStake)
     {
-        labelMintingIcon->setToolTip(tr("Not minting because staking is disabled.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Not minting because staking is disabled.<br>Network weight is %1.<br>MultiSend: %3").arg(nNetworkWeight).arg(nHoursToMaturity).arg(fMultiSend ? tr("Active"):tr("Not Active")));
         labelMintingIcon->setEnabled(false);
         labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (vNodes.empty())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is offline.<br>Network weight is %1.<br>MultiSend: %3").arg(nNetworkWeight).arg(nHoursToMaturity).arg(fMultiSend ? tr("Active"):tr("Not Active")));
         labelMintingIcon->setEnabled(false);
         labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (IsInitialBlockDownload())
     {
-        labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1.<br>S4C %: %2<br>S4C Address: %3").arg(nNetworkWeight).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing.<br>Network weight is %1.<br>MultiSend: %3").arg(nNetworkWeight).arg(nHoursToMaturity).arg(fMultiSend ? tr("Active"):tr("Not Active")));
         labelMintingIcon->setEnabled(false);
         labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
     else if (!nWeight)
     {
-        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1<br>S4C %: %3<br>S4C Address: %4").arg(nNetworkWeight).arg(nHoursToMaturity).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1<br>MultiSend: %3").arg(nNetworkWeight).arg(nHoursToMaturity).arg(fMultiSend ? tr("Active"):tr("Not Active")));
         labelMintingIcon->setEnabled(false);
         labelMintingIcon->setPixmap(QIcon(":/icons/mining_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     }
@@ -1252,7 +1233,7 @@ void BitcoinGUI::updateMintingIcon()
         labelMintingIcon->setMovie(miningIconMovie);
         miningIconMovie->start();
         labelMintingIcon->setEnabled(true);
-        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> next stake in %3.<br>S4C %: %4<br>S4C Address: %5").arg(nWeight).arg(nNetworkWeight).arg(text).arg(nCharityPercent).arg(strCharityAddress));
+        labelMintingIcon->setToolTip(tr("Minting.<br>Your weight is %1.<br>Network weight is %2.<br><b>Estimated</b> next stake in %3.<br>MultiSend: %4").arg(nWeight).arg(nNetworkWeight).arg(text).arg(fMultiSend ? tr("Active"):tr("Not Active")));
     }
     else
     {
@@ -1268,7 +1249,7 @@ void BitcoinGUI::updateMintingWeights()
     if ((clientModel && clientModel->getNumBlocks() >= clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
     {
         nWeight = 0;
-		nCharityPercent = 0;
+		
 		nAmount = 0;
 		
         if (pwalletMain)
@@ -1279,11 +1260,10 @@ void BitcoinGUI::updateMintingWeights()
         nNetworkWeight = GetPoSKernelPS();
     }
 	
-	//stake for charity check
+	//MultiSend check
 	if(walletModel)
 	{
-		nCharityPercent = walletModel->getStakeForCharityPercent();
-		strCharityAddress = walletModel->getStakeForCharityAddress();
+		fMultiSend = pwalletMain->fMultiSend;
 	}
 		
 }
