@@ -104,7 +104,6 @@ public:
 	//MultiSend
 	std::vector<std::pair<std::string, int> > vMultiSend;
 	bool fMultiSend;
-	int nLastMultiSendHeight;
 	bool fMultiSendNotify;
 	std::string strMultiSendChangeAddress;
 	
@@ -150,7 +149,6 @@ public:
 		fStakeRequirement =  false;
 		vMultiSend.clear();
 		fMultiSend = false;
-		nLastMultiSendHeight = 0;
 		fMultiSendNotify = false;
 		strMultiSendChangeAddress = "";
     }
@@ -183,7 +181,6 @@ public:
 		fStakeRequirement =  false;
 		vMultiSend.clear();
 		fMultiSend = false;
-		nLastMultiSendHeight = 0;
 		fMultiSendNotify = false;
 		strMultiSendChangeAddress = "";
     }
