@@ -398,7 +398,7 @@ Value multisend(const Array &params, bool fHelp)
 				return strRet;
 			}
 		}
-		else if (strCommand == "enable" || "activate")
+		else if (strCommand == "enable" || strCommand == "activate" )
 		{
 			if(pwalletMain->vMultiSend.size() < 1)
 				return "Unable to activate MultiSend, check MultiSend vector";
@@ -413,7 +413,7 @@ Value multisend(const Array &params, bool fHelp)
 			else
 				return "Unable to activate MultiSend, check MultiSend vector";
 		}
-		else if (strCommand == "disable" || "deactivate")
+		else if (strCommand == "disable" || strCommand == "deactivate" )
 		{
 			pwalletMain->fMultiSend = false;
 			if(!walletdb.WriteMSettings(false, pwalletMain->nLastMultiSendHeight))
