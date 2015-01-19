@@ -81,25 +81,17 @@ private:
 
 public:
     mutable CCriticalSection cs_wallet;
-
     bool fFileBacked;
     std::string strWalletFile;
-	
+	std::set<int64> setKeyPool;
+	typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
+    MasterKeyMap mapMasterKeys;
+    unsigned int nMasterKeyMaxID;
 	bool fWalletUnlockMintOnly;
-	int64 nAmountSelected;
-	std::string strBestAddress;
-	bool fCombine;
+
+	//SplitBlock
 	uint64 nStakeSplitThreshold;
 	bool fSplitBlock;
-	
-	//stake for charity
-	bool fStakeForCharity;
-	bool fS4CNotificator;
-	int nStakeForCharityPercent;
-	int64 nStakeForCharityMin;
-	int64 nStakeForCharityMax;
-	CBitcoinAddress strStakeForCharityAddress;
-	CBitcoinAddress strStakeForCharityChangeAddress;
 	
 	//MultiSend
 	std::vector<std::pair<std::string, int> > vMultiSend;
@@ -107,20 +99,13 @@ public:
 	bool fMultiSendNotify;
 	std::string strMultiSendChangeAddress;
 	
-	// disable stake
+	// DisableStake
 	bool fDisableStake;
 	std::string strDisableType;
 	std::string strDisableArg;
 	double dUserNumber;
 	bool fStakeRequirement;
 	
-    std::set<int64> setKeyPool;
-
-
-    typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
-    MasterKeyMap mapMasterKeys;
-    unsigned int nMasterKeyMaxID;
-
     CWallet()
     {
         nWalletVersion = FEATURE_BASE;
@@ -129,24 +114,18 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
-		fStakeForCharity = false;
-		fS4CNotificator = false;
-        nStakeForCharityPercent = 0;
-        strStakeForCharityAddress = "";
-		strStakeForCharityChangeAddress = "";
-		nStakeForCharityMin = 0;
-		nStakeForCharityMax = 0;
 		fWalletUnlockMintOnly = false;
-		nAmountSelected = 0;
-		strBestAddress = "";
-		fCombine = false;
 		nStakeSplitThreshold = 1000;
 		fSplitBlock = false;
+		
+		//DisableStake
 		fDisableStake = false;
 		strDisableType = "";
 		strDisableArg = "";
 		dUserNumber = 0;
 		fStakeRequirement =  false;
+		
+		//MultiSend
 		vMultiSend.clear();
 		fMultiSend = false;
 		fMultiSendNotify = false;
@@ -161,24 +140,18 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
-		fStakeForCharity = false;
-		fS4CNotificator = false;
-        nStakeForCharityPercent = 0;
-        strStakeForCharityAddress = "";
-		strStakeForCharityChangeAddress = "";
-		nStakeForCharityMin = MIN_TXOUT_AMOUNT;
-		nStakeForCharityMax = MAX_MONEY;
 		fWalletUnlockMintOnly = false;
-		nAmountSelected = 0;
-		strBestAddress = "";
-		fCombine = false;
 		nStakeSplitThreshold = 1000;
 		fSplitBlock = false;
+		
+		//DisableStake
 		fDisableStake = false;
 		strDisableType = "";
 		strDisableArg = "";
 		dUserNumber = 0;
 		fStakeRequirement =  false;
+		
+		//MultiSend
 		vMultiSend.clear();
 		fMultiSend = false;
 		fMultiSendNotify = false;
