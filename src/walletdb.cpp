@@ -385,8 +385,14 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 			if(CBitcoinAddress(pMultiSend.first).IsValid())
 			{
 				pwallet->vMultiSend.push_back(pMultiSend);
-				pwallet->fMultiSend = true;
 			}
+		}
+		else if(strType == "msettings")//presstab HyperStake
+		{
+		   std::pair<bool, int> pSettings;
+		   ssValue >> pSettings;
+		   pwallet->fMultiSend = pSettings.first;
+		   pwallet->nLastMultiSendHeight = pSettings.second;
 		}
     } catch (...)
     {

@@ -1120,7 +1120,6 @@ int64 CWallet::GetNewMint() const
     return nTotal;
 }
 
-int nLastMultiSendHeight = 0;
 bool CWallet::MultiSend()
 {
 	if ( IsInitialBlockDownload() || IsLocked() )
@@ -1140,7 +1139,6 @@ bool CWallet::MultiSend()
 					return false;	
 			if (out.tx->IsCoinStake() && out.tx->GetBlocksToMaturity() == 0  && out.tx->GetDepthInMainChain() == nCoinbaseMaturity+20)
 			{
-				
 				// create new coin control, populate it with the selected utxo, create sending vector
 				CCoinControl* cControl = new CCoinControl();
 				uint256 txhash = out.tx->GetHash();
@@ -1171,8 +1169,14 @@ bool CWallet::MultiSend()
 					printf("MultiSend transaction commit failed");
 				else
 					fMultiSendNotify = true;
-				nLastMultiSendHeight = nBestHeight;
 				delete cControl;
+				
+				//write nLastMultiSendHeight to DB
+				CWalletDB walletdb(strWalletFile);
+				nLastMultiSendHeight = nBestHeight;
+				if(!walletdb.WriteMSettings(fMultiSend, nLastMultiSendHeight))
+					printf("Failed to write MultiSend setting to DB");
+				
 			}
 		}
     }

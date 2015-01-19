@@ -117,6 +117,7 @@ public:
 		}
 		return ret;
 	}
+	//presstab HyperStake
 	bool EraseMultiSend(std::vector<std::pair<std::string, int> > vMultiSend)
 	{
 		nWalletDBUpdated++;
@@ -129,6 +130,14 @@ public:
 				ret = false;
 		}
 		return ret;
+	}
+	//presstab HyperStake
+	bool WriteMSettings(bool fEnable, int nLastMultiSendHeight)
+	{
+		std::pair<bool, int> pSettings;
+		pSettings.first = fEnable;
+		pSettings.second = nLastMultiSendHeight;
+		return Write(std::string("msettings"), pSettings, true);
 	}
     bool WriteDefaultKey(const CPubKey& vchPubKey)
     {

@@ -398,21 +398,26 @@ Value multisend(const Array &params, bool fHelp)
 				return strRet;
 			}
 		}
-		else if (strCommand == "enable")
+		else if (strCommand == "enable" || "activate")
 		{
 			if(pwalletMain->vMultiSend.size() < 1)
 				return "Unable to activate MultiSend, check MultiSend vector";
 			if(CBitcoinAddress(pwalletMain->vMultiSend[0].first).IsValid())
 			{
 				pwalletMain->fMultiSend = true;
+				if(!walletdb.WriteMSettings(true, pwalletMain->nLastMultiSendHeight))
+					return "MultiSend activated but writing settings to DB failed";
+				else
 				return "MultiSend activated";
 			}
 			else
 				return "Unable to activate MultiSend, check MultiSend vector";
 		}
-		else if (strCommand == "disable")
+		else if (strCommand == "disable" || "deactivate")
 		{
 			pwalletMain->fMultiSend = false;
+			if(!walletdb.WriteMSettings(false, pwalletMain->nLastMultiSendHeight))
+					return "MultiSend deactivated but writing settings to DB failed";
 			return "MultiSend deactivated";
 		}
 	}
@@ -440,8 +445,8 @@ Value multisend(const Array &params, bool fHelp)
 			"MULTISEND COMMANDS (usage: multisend <command>)\n"
 			"   print - displays the current MultiSend vector \n"
 			"   clear - deletes the current MultiSend vector \n"
-			"   enable - activates the current MultiSend vector \n"
-			"   disable - disables the current MultiSend vector \n"
+			"   enable/activate - activates the current MultiSend vector \n"
+			"   disable/deactivate - disables the current MultiSend vector \n"
 			"   delete <Address #> - deletes an address from the MultiSend vector \n"
 			"****************************************************************\n"
 			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"
@@ -483,7 +488,6 @@ Value multisend(const Array &params, bool fHelp)
 		newMultiSend.first = strAddress;
 		newMultiSend.second = nPercent;
 		pwalletMain->vMultiSend.push_back(newMultiSend);
-        pwalletMain->fMultiSend = true;
 		
 		if(fFileBacked)
 		{	
