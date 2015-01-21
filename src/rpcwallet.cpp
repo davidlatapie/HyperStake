@@ -99,136 +99,6 @@ Value getinfo(const Array& params, bool fHelp)
     return obj;
 }
 
-
-//presstab
-double GetMoneySupply(int nHeight)
-{
-	CBlockIndex* pindex = FindBlockByHeight(nHeight);
-	double nSupply = pindex->nMoneySupply;	
-	return nSupply / COIN;	
-}
-
-//presstab
-double GetSupplyChange(int nHeight, int pHeight)
-{
-	double nSupply = GetMoneySupply(nHeight); //present supply
-	double pSupply = GetMoneySupply(pHeight); //previous supply
-	double nChange = nSupply - pSupply; //difference
-	return nChange;
-}
-
-//presstab
-double GetBlockSpeed(int nHeight, int pHeight)
-{
-	CBlockIndex* pIndex = FindBlockByHeight(nHeight);
-	CBlockIndex* ppIndex = FindBlockByHeight(pHeight);
-	double nTime = pIndex->nTime;
-	double pTime = ppIndex->nTime;
-	double nTimeChange = (nTime - pTime) / 60 / 60 / 24; //in days
-	return nTimeChange;
-}
-
-//presstab
-double GetRate(int nHeight, int pHeight)
-{
-	double nSupplyChange = GetSupplyChange(nHeight, pHeight);
-	double nTimeChange = GetBlockSpeed(nHeight, pHeight);
-	double nMoneySupply = GetMoneySupply(nHeight);
-	double nRate = nSupplyChange / nMoneySupply / nTimeChange;
-	
-	return nRate;
-}
-
-//presstab
-double PredictFutureSupply(int nHeight, int pHeight, int nDays)
-{
-	double nRate = GetRate(nHeight, pHeight);
-	double nSupply = GetMoneySupply(nHeight);
-	double fSupply = nSupply * pow( 1 + nRate, nDays ); //compounds daily
-	
-	return fSupply;
-}
-
-//new rpccommand presstab
-Value getmoneysupply(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() > 1)
-        throw runtime_error(
-            "getmoneysupply [height]\n"
-            "Returns money supply at certain block, current money supply as default");
-	
-	GetLastBlockIndex(pindexBest, false);
-
-	int nHeight = 0;
-	double nMoneySupply = 0;
-	
-    if (params.size() > 0)
-	{
-		nHeight = pindexBest->nHeight;
-		int pHeight = params[0].get_int();
-		if (pHeight > nHeight || pHeight < 0)
-			nMoneySupply = 0;
-		else
-			nMoneySupply = GetMoneySupply(pHeight);
-	}
-	else
-	{
-		nHeight = pindexBest->nHeight;
-		nMoneySupply = GetMoneySupply(nHeight);
-	}	
-	Object obj;
-	obj.push_back(Pair("money supply", nMoneySupply));
-    return obj;
-}
-
-
-//Presstab's Preferred Money Supply Information
-Value moneysupply(const Array& params, bool fHelp)
-{
-	if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "moneysupply\n"
-            "Show important money supply variables.\n");
-	
-	// grab block index of last block
-	GetLastBlockIndex(pindexBest, false);
-	
-	//height of blocks
-	int64 nHeight = pindexBest->nHeight; //present
-	int64 n1Height = nHeight - 960; // day -- 960 blocks should be about 1 day if blocks have 90 sec spacing
-	int64 n7Height = nHeight - 960 * 7; // week
-	int64 n30Height = nHeight - 960 * 30; // month
-	int64 forkHeight = 31781;
-	
-
-	//print to console
-	Object obj;
-	obj.push_back(Pair("moneysupply - present", GetMoneySupply(nHeight)));
-	obj.push_back(Pair("moneysupply - 960 blocks ago", GetMoneySupply(n1Height)));
-	obj.push_back(Pair("moneysupply - 6,720 blocks ago", GetMoneySupply(n7Height)));
-	obj.push_back(Pair("moneysupply - 28,800 blocks ago", GetMoneySupply(n30Height)));
-	
-	obj.push_back(Pair("supply change(last 960 blocks)", GetSupplyChange(nHeight, n1Height)));
-	obj.push_back(Pair("supply change(last 6,720 blocks)", GetSupplyChange(nHeight, n7Height)));
-	obj.push_back(Pair("supply change(last 28,800 blocks)", GetSupplyChange(nHeight, n30Height)));
-	obj.push_back(Pair("supply change since fork (block 31781)", GetSupplyChange(nHeight, forkHeight - 1)));
-	
-	obj.push_back(Pair("time change over 960 blocks", GetBlockSpeed(nHeight, n1Height)));
-	obj.push_back(Pair("time change over 6,720 blocks", GetBlockSpeed(nHeight, n7Height)));
-	obj.push_back(Pair("time change over 28,800 blocks", GetBlockSpeed(nHeight, n30Height)));
-	
-	obj.push_back(Pair("avg daily rate of change (last 960 blocks)", GetRate(nHeight, n1Height)));
-	obj.push_back(Pair("avg daily rate of change (last 6,720 blocks)", GetRate(nHeight, n7Height)));
-	obj.push_back(Pair("avg daily rate of change (last 28,800 blocks)", GetRate(nHeight, n30Height)));
-	
-    obj.push_back(Pair("projected money supply 1 day from now (daily compound)", PredictFutureSupply(nHeight, n1Height, 1)));
-    obj.push_back(Pair("projected money supply 7 days from now (daily compound)", PredictFutureSupply(nHeight, n7Height, 7)));
-    obj.push_back(Pair("projected money supply 30  days from now (daily compound)", PredictFutureSupply(nHeight, n30Height, 30)));
-	
-    //obj.push_back(Pair("projected money supply 365 days from now (using avg of 3 rates)", ms0 * pow (1 + (r1 + r7 +r30) / 3 * 8, 365 / 8)));
-	return obj;
-}
-
 Value getnewpubkey(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -255,7 +125,6 @@ Value getnewpubkey(const Array& params, bool fHelp)
 
     return HexStr(vchPubKey.begin(), vchPubKey.end());
 }
-
 
 Value getnewaddress(const Array& params, bool fHelp)
 {
@@ -284,7 +153,6 @@ Value getnewaddress(const Array& params, bool fHelp)
 
     return CBitcoinAddress(keyID).ToString();
 }
-
 
 CBitcoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
 {
@@ -341,204 +209,6 @@ Value getaccountaddress(const Array& params, bool fHelp)
     return ret;
 }
 
-//presstab HyperStake
-Object printMultiSend()
-{
-	Object ret;
-	ret.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
-	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
-	{
-		ret.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
-		ret.push_back(Pair("Percent", pwalletMain->vMultiSend[i].second));
-	}
-	return ret;
-}
-
-//presstab HyperStake
-Array printAddresses()
-{
-	std::vector<COutput> vCoins;
-    pwalletMain->AvailableCoins(vCoins);
-	std::map<std::string, double> mapAddresses;
-	
-	BOOST_FOREACH(const COutput& out, vCoins)
-    {
-		CTxDestination utxoAddress;
-		ExtractDestination(out.tx->vout[out.i].scriptPubKey, utxoAddress);
-		std::string strAdd = CBitcoinAddress(utxoAddress).ToString();
-
-		if(mapAddresses.find(strAdd) == mapAddresses.end()) //if strAdd is not already part of the map
-		{
-			mapAddresses[strAdd] = (double)out.tx->vout[out.i].nValue / (double)COIN;
-		}
-		else
-		{
-			mapAddresses[strAdd] += (double)out.tx->vout[out.i].nValue / (double)COIN;
-		}
-	}
-	Array ret;
-	for (map<std::string, double>::const_iterator it = mapAddresses.begin(); it != mapAddresses.end(); ++it)
-	{
-		Object obj;
-		const std::string* strAdd = &(*it).first;
-		const double* nBalance = &(*it).second;
-		obj.push_back(Pair("Address ", *strAdd));
-		obj.push_back(Pair("Balance ", *nBalance));
-		ret.push_back(obj);
-	}
-	return ret;
-}
-
-//presstab HyperStake
-unsigned int sumMultiSend()
-{
-	unsigned int sum = 0;
-	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
-	{
-		sum += pwalletMain->vMultiSend[i].second;
-	}
-	return sum;
-}
-
-// presstab HyperStake
-Value multisend(const Array &params, bool fHelp)
-{
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-	bool fFileBacked;
-	
-	//MultiSend Commands
-	if(params.size() == 1)
-	{
-		string strCommand = params[0].get_str();
-		Object ret;
-		if(strCommand == "print")
-		{
-			return printMultiSend();
-		}
-		else if(strCommand == "printaddress" || strCommand == "printaddresses")
-		{
-			return printAddresses();
-		}
-		else if(strCommand == "clear")
-		{
-			LOCK(pwalletMain->cs_wallet);
-			{
-				fFileBacked = pwalletMain->fFileBacked;
-				string strRet;
-				if(fFileBacked)
-				{
-					if(walletdb.EraseMultiSend(pwalletMain->vMultiSend))						
-						strRet += "erased MultiSend vector from database & ";
-					
-				}
-				pwalletMain->vMultiSend.clear();
-				pwalletMain->fMultiSend = false;
-				strRet += "cleared MultiSend vector from RAM";
-				return strRet;
-			}
-		}
-		else if (strCommand == "enable" || strCommand == "activate" )
-		{
-			if(pwalletMain->vMultiSend.size() < 1)
-				return "Unable to activate MultiSend, check MultiSend vector";
-			if(CBitcoinAddress(pwalletMain->vMultiSend[0].first).IsValid())
-			{
-				pwalletMain->fMultiSend = true;
-				if(!walletdb.WriteMSettings(true, pwalletMain->nLastMultiSendHeight))
-					return "MultiSend activated but writing settings to DB failed";
-				else
-				return "MultiSend activated";
-			}
-			else
-				return "Unable to activate MultiSend, check MultiSend vector";
-		}
-		else if (strCommand == "disable" || strCommand == "deactivate" )
-		{
-			pwalletMain->fMultiSend = false;
-			if(!walletdb.WriteMSettings(false, pwalletMain->nLastMultiSendHeight))
-					return "MultiSend deactivated but writing settings to DB failed";
-			return "MultiSend deactivated";
-		}
-	}
-	if(params.size() == 2 && params[0].get_str() == "delete")
-	{
-		int del = params[1].get_int();
-		pwalletMain->vMultiSend.erase(pwalletMain->vMultiSend.begin() + del);
-		
-		if(!walletdb.EraseMultiSend(pwalletMain->vMultiSend))
-		   return "failed to delete old MultiSend vector from database";
-		if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
-			return "walletdb WriteMultiSend failed!";
-		return printMultiSend();
-	}
-	//if no commands are used
-	if (fHelp || params.size() != 2)
-        throw runtime_error(
-			"****************************************************************\n"
-			"WHAT IS MULTISEND?\n"
-			"MultiSend is a rebuild of what used to be called Stake For Charity (s4c)\n"
-			"MultiSend allows a user to automatically send a percent of their stake reward to as many addresses as you would like\n"
-			"The MultiSend transaction is sent when the staked coins mature (30 confirmations)\n"
-			"The only current restriction is that you cannot choose to send more than 100% of your stake using MultiSend\n"
-			"****************************************************************\n"
-			"MULTISEND COMMANDS (usage: multisend <command>)\n"
-			"   print - displays the current MultiSend vector \n"
-			"   clear - deletes the current MultiSend vector \n"
-			"   enable/activate - activates the current MultiSend vector \n"
-			"   disable/deactivate - disables the current MultiSend vector \n"
-			"   delete <Address #> - deletes an address from the MultiSend vector \n"
-			"****************************************************************\n"
-			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"
-			"multisend <HyperStake Address> <percent>\n"
-            "This will add a new address to the MultiSend vector\n"
-            "Percent is a whole number 1 to 100.\n"
-			"****************************************************************\n"
-            );
-	
-	//if the user is entering a new MultiSend item
-	string strAddress = params[0].get_str();
-    CBitcoinAddress address(strAddress);
-    if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake address");
-    if (params[1].get_int() < 0)
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, expected valid percentage");
-    if (pwalletMain->IsLocked())
-        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
-
-    unsigned int nPercent = (unsigned int) params[1].get_int();
-    
-	LOCK(pwalletMain->cs_wallet);
-	{
-		fFileBacked = pwalletMain->fFileBacked;
-		//Error if 0 is entered
-		if(nPercent == 0)
-		{
-            return "Sending 0% of stake is not valid";
-		}
-		
-		//MultiSend can only send 100% of your stake
-        if (nPercent + sumMultiSend() > 100)
-			return "Failed to add to MultiSend vector, the sum of your MultiSend is greater than 100%";
-			
-		if(fFileBacked)
-			walletdb.EraseMultiSend(pwalletMain->vMultiSend);
-			  
-		std::pair<std::string, int> newMultiSend;
-		newMultiSend.first = strAddress;
-		newMultiSend.second = nPercent;
-		pwalletMain->vMultiSend.push_back(newMultiSend);
-		
-		if(fFileBacked)
-		{	
-			if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
-				return "walletdb WriteMultiSend failed!";
-		}
-	}
-	return printMultiSend();
-}
-
-
-
 Value setaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -568,7 +238,6 @@ Value setaccount(const Array& params, bool fHelp)
     return Value::null;
 }
 
-
 Value getaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -586,7 +255,6 @@ Value getaccount(const Array& params, bool fHelp)
         strAccount = (*mi).second;
     return strAccount;
 }
-
 
 Value getaddressesbyaccount(const Array& params, bool fHelp)
 {
@@ -746,7 +414,6 @@ Value verifymessage(const Array& params, bool fHelp)
     return (key.GetPubKey().GetID() == keyID);
 }
 
-
 Value getreceivedbyaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -784,7 +451,6 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
 
     return  ValueFromAmount(nAmount);
 }
-
 
 void GetAccountAddresses(string strAccount, set<CTxDestination>& setAddress)
 {
@@ -834,7 +500,6 @@ Value getreceivedbyaccount(const Array& params, bool fHelp)
     return (double)nAmount / (double)COIN;
 }
 
-
 int64 GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinDepth)
 {
     int64 nBalance = 0;
@@ -870,7 +535,6 @@ int64 GetAccountBalance(const string& strAccount, int nMinDepth)
     CWalletDB walletdb(pwalletMain->strWalletFile);
     return GetAccountBalance(walletdb, strAccount, nMinDepth);
 }
-
 
 Value getbalance(const Array& params, bool fHelp)
 {
@@ -929,7 +593,6 @@ Value getbalance(const Array& params, bool fHelp)
 
     return ValueFromAmount(nBalance);
 }
-
 
 Value movecmd(const Array& params, bool fHelp)
 {
@@ -991,7 +654,6 @@ Value movecmd(const Array& params, bool fHelp)
     return true;
 }
 
-
 Value sendfrom(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 3 || params.size() > 6)
@@ -1034,7 +696,6 @@ Value sendfrom(const Array& params, bool fHelp)
 
     return wtx.GetHash().GetHex();
 }
-
 
 Value sendmany(const Array& params, bool fHelp)
 {
@@ -1541,7 +1202,6 @@ Value deleteaddress(const Array& params, bool fHelp)
 	return ret;
 }
 
-
 Value listsinceblock(const Array& params, bool fHelp)
 {
     if (fHelp)
@@ -1603,65 +1263,6 @@ Value listsinceblock(const Array& params, bool fHelp)
     ret.push_back(Pair("lastblock", lastblock.GetHex()));
 
     return ret;
-}
-
-//presstab HyperStake
-Value getstaketx(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getstaketx <txid>\n"
-            "Get detailed information about a specific stake <txid>");
-
-    uint256 hash;
-    hash.SetHex(params[0].get_str());
-
-    Object entry;
-	Array vin;
-
-    if (pwalletMain->mapWallet.count(hash))
-    {
-        const CWalletTx& wtx = pwalletMain->mapWallet[hash];
-		
-		 BOOST_FOREACH(const CTxIn& txin, wtx.vin)
-		{
-			Object in;
-			if (wtx.IsCoinBase())
-				entry.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
-			else
-			{
-				CTransaction& txPrev = pwalletMain->mapWallet[txin.prevout.hash]; //first transaction
-				uint64_t nTime = wtx.nTime; //stake tx time
-				uint64_t nPrevTime = txPrev.nTime; //previous tx time
-				uint64_t nTimeToStake = nTime - nPrevTime; // time to stake in seconds
-				double dDaysToStake = nTimeToStake / 60.00 / 60 / 24;
-				
-				int64 nDebit = wtx.GetDebit();
-				int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
-
-				int64 nGeneratedImmature, nGeneratedMature, nFee2;
-				string strSentAccount;
-				list<pair<CTxDestination, int64> > listReceived;
-				list<pair<CTxDestination, int64> > listSent;
-				wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount);
-				uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
-				double nGeneratedAmount2 = max (nGeneratedMature, nGeneratedImmature); //uint64_t math not working
-				double percentReward = nFee / (nGeneratedAmount2 - nFee);
-				double dWeight = ((nGeneratedAmount - nFee)/ COIN) * (dDaysToStake - 8.8);
-				
-				entry.push_back(Pair("Stake TX Time", nTime));
-				entry.push_back(Pair("Previous Time", nPrevTime));
-				entry.push_back(Pair("Days To Stake", dDaysToStake));
-				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
-				entry.push_back(Pair("Weight", dWeight));
-				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
-				entry.push_back(Pair("Reward %", percentReward));
-				entry.push_back(Pair("Total New Amount", ValueFromAmount(nGeneratedAmount)));
-				entry.push_back(Pair("Size of Each New Block", ValueFromAmount(nGeneratedAmount/2)));
-			}
-		}
-    }
-    return entry;
 }
 
 Value gettransaction(const Array& params, bool fHelp)
@@ -1732,7 +1333,6 @@ Value gettransaction(const Array& params, bool fHelp)
     return entry;
 }
 
-
 Value backupwallet(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1746,7 +1346,6 @@ Value backupwallet(const Array& params, bool fHelp)
 
     return Value::null;
 }
-
 
 Value keypoolrefill(const Array& params, bool fHelp)
 {
@@ -1765,7 +1364,6 @@ Value keypoolrefill(const Array& params, bool fHelp)
 
     return Value::null;
 }
-
 
 void ThreadTopUpKeyPool(void* parg)
 {
@@ -1863,7 +1461,6 @@ Value walletpassphrase(const Array& params, bool fHelp)
     return Value::null;
 }
 
-
 Value walletpassphrasechange(const Array& params, bool fHelp)
 {
     if (pwalletMain->IsCrypted() && (fHelp || params.size() != 2))
@@ -1896,7 +1493,6 @@ Value walletpassphrasechange(const Array& params, bool fHelp)
     return Value::null;
 }
 
-
 Value walletlock(const Array& params, bool fHelp)
 {
     if (pwalletMain->IsCrypted() && (fHelp || params.size() != 0))
@@ -1918,7 +1514,6 @@ Value walletlock(const Array& params, bool fHelp)
 
     return Value::null;
 }
-
 
 Value encryptwallet(const Array& params, bool fHelp)
 {
@@ -2094,7 +1689,6 @@ Value reservebalance(const Array& params, bool fHelp)
     return result;
 }
 
-
 // ppcoin: check wallet integrity
 Value checkwallet(const Array& params, bool fHelp)
 {
@@ -2118,7 +1712,6 @@ Value checkwallet(const Array& params, bool fHelp)
     }
     return result;
 }
-
 
 // ppcoin: repair wallet
 Value repairwallet(const Array& params, bool fHelp)
@@ -2144,8 +1737,7 @@ Value repairwallet(const Array& params, bool fHelp)
     return result;
 }
 
-
-// HyperStake: resend unconfirmed wallet transactions
+// resend unconfirmed wallet transactions
 Value resendtx(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -2180,6 +1772,193 @@ Value makekeypair(const Array& params, bool fHelp)
     result.push_back(Pair("PrivateKey", HexStr<CPrivKey::iterator>(vchPrivKey.begin(), vchPrivKey.end())));
     result.push_back(Pair("PublicKey", HexStr(key.GetPubKey().Raw())));
     return result;
+}
+
+/** HyperStake Specific RPC Wallet Additions**/
+
+//presstab
+double GetMoneySupply(int nHeight)
+{
+	CBlockIndex* pindex = FindBlockByHeight(nHeight);
+	double nSupply = pindex->nMoneySupply;	
+	return nSupply / COIN;	
+}
+//presstab
+double GetSupplyChange(int nHeight, int pHeight)
+{
+	double nSupply = GetMoneySupply(nHeight); //present supply
+	double pSupply = GetMoneySupply(pHeight); //previous supply
+	double nChange = nSupply - pSupply; //difference
+	return nChange;
+}
+
+//presstab
+double GetBlockSpeed(int nHeight, int pHeight)
+{
+	CBlockIndex* pIndex = FindBlockByHeight(nHeight);
+	CBlockIndex* ppIndex = FindBlockByHeight(pHeight);
+	double nTime = pIndex->nTime;
+	double pTime = ppIndex->nTime;
+	double nTimeChange = (nTime - pTime) / 60 / 60 / 24; //in days
+	return nTimeChange;
+}
+//presstab
+double GetRate(int nHeight, int pHeight)
+{
+	double nSupplyChange = GetSupplyChange(nHeight, pHeight);
+	double nTimeChange = GetBlockSpeed(nHeight, pHeight);
+	double nMoneySupply = GetMoneySupply(nHeight);
+	double nRate = nSupplyChange / nMoneySupply / nTimeChange;
+	
+	return nRate;
+}
+
+//presstab
+double PredictFutureSupply(int nHeight, int pHeight, int nDays)
+{
+	double nRate = GetRate(nHeight, pHeight);
+	double nSupply = GetMoneySupply(nHeight);
+	double fSupply = nSupply * pow( 1 + nRate, nDays ); //compounds daily
+	
+	return fSupply;
+}
+
+//presstab
+Value getmoneysupply(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+            "getmoneysupply [height]\n"
+            "Returns money supply at certain block, current money supply as default");
+	
+	GetLastBlockIndex(pindexBest, false);
+
+	int nHeight = 0;
+	double nMoneySupply = 0;
+	
+    if (params.size() > 0)
+	{
+		nHeight = pindexBest->nHeight;
+		int pHeight = params[0].get_int();
+		if (pHeight > nHeight || pHeight < 0)
+			nMoneySupply = 0;
+		else
+			nMoneySupply = GetMoneySupply(pHeight);
+	}
+	else
+	{
+		nHeight = pindexBest->nHeight;
+		nMoneySupply = GetMoneySupply(nHeight);
+	}	
+	Object obj;
+	obj.push_back(Pair("money supply", nMoneySupply));
+    return obj;
+}
+
+//Presstab's Preferred Money Supply Information
+Value moneysupply(const Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "moneysupply\n"
+            "Show important money supply variables.\n");
+	
+	// grab block index of last block
+	GetLastBlockIndex(pindexBest, false);
+	
+	//height of blocks
+	int64 nHeight = pindexBest->nHeight; //present
+	int64 n1Height = nHeight - 960; // day -- 960 blocks should be about 1 day if blocks have 90 sec spacing
+	int64 n7Height = nHeight - 960 * 7; // week
+	int64 n30Height = nHeight - 960 * 30; // month
+	int64 forkHeight = 31781;
+	
+
+	//print to console
+	Object obj;
+	obj.push_back(Pair("moneysupply - present", GetMoneySupply(nHeight)));
+	obj.push_back(Pair("moneysupply - 960 blocks ago", GetMoneySupply(n1Height)));
+	obj.push_back(Pair("moneysupply - 6,720 blocks ago", GetMoneySupply(n7Height)));
+	obj.push_back(Pair("moneysupply - 28,800 blocks ago", GetMoneySupply(n30Height)));
+	
+	obj.push_back(Pair("supply change(last 960 blocks)", GetSupplyChange(nHeight, n1Height)));
+	obj.push_back(Pair("supply change(last 6,720 blocks)", GetSupplyChange(nHeight, n7Height)));
+	obj.push_back(Pair("supply change(last 28,800 blocks)", GetSupplyChange(nHeight, n30Height)));
+	obj.push_back(Pair("supply change since fork (block 31781)", GetSupplyChange(nHeight, forkHeight - 1)));
+	
+	obj.push_back(Pair("time change over 960 blocks", GetBlockSpeed(nHeight, n1Height)));
+	obj.push_back(Pair("time change over 6,720 blocks", GetBlockSpeed(nHeight, n7Height)));
+	obj.push_back(Pair("time change over 28,800 blocks", GetBlockSpeed(nHeight, n30Height)));
+	
+	obj.push_back(Pair("avg daily rate of change (last 960 blocks)", GetRate(nHeight, n1Height)));
+	obj.push_back(Pair("avg daily rate of change (last 6,720 blocks)", GetRate(nHeight, n7Height)));
+	obj.push_back(Pair("avg daily rate of change (last 28,800 blocks)", GetRate(nHeight, n30Height)));
+	
+    obj.push_back(Pair("projected money supply 1 day from now (daily compound)", PredictFutureSupply(nHeight, n1Height, 1)));
+    obj.push_back(Pair("projected money supply 7 days from now (daily compound)", PredictFutureSupply(nHeight, n7Height, 7)));
+    obj.push_back(Pair("projected money supply 30  days from now (daily compound)", PredictFutureSupply(nHeight, n30Height, 30)));
+	
+    //obj.push_back(Pair("projected money supply 365 days from now (using avg of 3 rates)", ms0 * pow (1 + (r1 + r7 +r30) / 3 * 8, 365 / 8)));
+	return obj;
+}
+
+//presstab HyperStake
+Value getstaketx(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getstaketx <txid>\n"
+            "Get detailed information about a specific stake <txid>");
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+
+    Object entry;
+	Array vin;
+
+    if (pwalletMain->mapWallet.count(hash))
+    {
+        const CWalletTx& wtx = pwalletMain->mapWallet[hash];
+		
+		 BOOST_FOREACH(const CTxIn& txin, wtx.vin)
+		{
+			Object in;
+			if (wtx.IsCoinBase())
+				entry.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
+			else
+			{
+				CTransaction& txPrev = pwalletMain->mapWallet[txin.prevout.hash]; //first transaction
+				uint64_t nTime = wtx.nTime; //stake tx time
+				uint64_t nPrevTime = txPrev.nTime; //previous tx time
+				uint64_t nTimeToStake = nTime - nPrevTime; // time to stake in seconds
+				double dDaysToStake = nTimeToStake / 60.00 / 60 / 24;
+				
+				int64 nDebit = wtx.GetDebit();
+				int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
+
+				int64 nGeneratedImmature, nGeneratedMature, nFee2;
+				string strSentAccount;
+				list<pair<CTxDestination, int64> > listReceived;
+				list<pair<CTxDestination, int64> > listSent;
+				wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount);
+				uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
+				double nGeneratedAmount2 = max (nGeneratedMature, nGeneratedImmature); //uint64_t math not working
+				double percentReward = nFee / (nGeneratedAmount2 - nFee);
+				double dWeight = ((nGeneratedAmount - nFee)/ COIN) * (dDaysToStake - 8.8);
+				
+				entry.push_back(Pair("Stake TX Time", nTime));
+				entry.push_back(Pair("Previous Time", nPrevTime));
+				entry.push_back(Pair("Days To Stake", dDaysToStake));
+				entry.push_back(Pair("Original Amount", ValueFromAmount(nGeneratedAmount - nFee)));
+				entry.push_back(Pair("Weight", dWeight));
+				entry.push_back(Pair("PoS Reward", ValueFromAmount(nFee)));
+				entry.push_back(Pair("Reward %", percentReward));
+				entry.push_back(Pair("Total New Amount", ValueFromAmount(nGeneratedAmount)));
+				entry.push_back(Pair("Size of Each New Block", ValueFromAmount(nGeneratedAmount/2)));
+			}
+		}
+    }
+    return entry;
 }
 
 // presstab HyperStake
@@ -2463,4 +2242,201 @@ Value ccsend(const Array& params, bool fHelp)
 	
 	coinControl->SetNull();
     return wtx.GetHash().GetHex();
+}
+
+
+//presstab HyperStake
+Object printMultiSend()
+{
+	Object ret;
+	ret.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
+	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
+	{
+		ret.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
+		ret.push_back(Pair("Percent", pwalletMain->vMultiSend[i].second));
+	}
+	return ret;
+}
+
+//presstab HyperStake
+Array printAddresses()
+{
+	std::vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins);
+	std::map<std::string, double> mapAddresses;
+	
+	BOOST_FOREACH(const COutput& out, vCoins)
+    {
+		CTxDestination utxoAddress;
+		ExtractDestination(out.tx->vout[out.i].scriptPubKey, utxoAddress);
+		std::string strAdd = CBitcoinAddress(utxoAddress).ToString();
+
+		if(mapAddresses.find(strAdd) == mapAddresses.end()) //if strAdd is not already part of the map
+		{
+			mapAddresses[strAdd] = (double)out.tx->vout[out.i].nValue / (double)COIN;
+		}
+		else
+		{
+			mapAddresses[strAdd] += (double)out.tx->vout[out.i].nValue / (double)COIN;
+		}
+	}
+	Array ret;
+	for (map<std::string, double>::const_iterator it = mapAddresses.begin(); it != mapAddresses.end(); ++it)
+	{
+		Object obj;
+		const std::string* strAdd = &(*it).first;
+		const double* nBalance = &(*it).second;
+		obj.push_back(Pair("Address ", *strAdd));
+		obj.push_back(Pair("Balance ", *nBalance));
+		ret.push_back(obj);
+	}
+	return ret;
+}
+
+//presstab HyperStake
+unsigned int sumMultiSend()
+{
+	unsigned int sum = 0;
+	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
+	{
+		sum += pwalletMain->vMultiSend[i].second;
+	}
+	return sum;
+}
+
+// presstab HyperStake
+Value multisend(const Array &params, bool fHelp)
+{
+    CWalletDB walletdb(pwalletMain->strWalletFile);
+	bool fFileBacked;
+	
+	//MultiSend Commands
+	if(params.size() == 1)
+	{
+		string strCommand = params[0].get_str();
+		Object ret;
+		if(strCommand == "print")
+		{
+			return printMultiSend();
+		}
+		else if(strCommand == "printaddress" || strCommand == "printaddresses")
+		{
+			return printAddresses();
+		}
+		else if(strCommand == "clear")
+		{
+			LOCK(pwalletMain->cs_wallet);
+			{
+				fFileBacked = pwalletMain->fFileBacked;
+				string strRet;
+				if(fFileBacked)
+				{
+					if(walletdb.EraseMultiSend(pwalletMain->vMultiSend))						
+						strRet += "erased MultiSend vector from database & ";
+					
+				}
+				pwalletMain->vMultiSend.clear();
+				pwalletMain->fMultiSend = false;
+				strRet += "cleared MultiSend vector from RAM";
+				return strRet;
+			}
+		}
+		else if (strCommand == "enable" || strCommand == "activate" )
+		{
+			if(pwalletMain->vMultiSend.size() < 1)
+				return "Unable to activate MultiSend, check MultiSend vector";
+			if(CBitcoinAddress(pwalletMain->vMultiSend[0].first).IsValid())
+			{
+				pwalletMain->fMultiSend = true;
+				if(!walletdb.WriteMSettings(true, pwalletMain->nLastMultiSendHeight))
+					return "MultiSend activated but writing settings to DB failed";
+				else
+				return "MultiSend activated";
+			}
+			else
+				return "Unable to activate MultiSend, check MultiSend vector";
+		}
+		else if (strCommand == "disable" || strCommand == "deactivate" )
+		{
+			pwalletMain->fMultiSend = false;
+			if(!walletdb.WriteMSettings(false, pwalletMain->nLastMultiSendHeight))
+					return "MultiSend deactivated but writing settings to DB failed";
+			return "MultiSend deactivated";
+		}
+	}
+	if(params.size() == 2 && params[0].get_str() == "delete")
+	{
+		int del = params[1].get_int();
+		pwalletMain->vMultiSend.erase(pwalletMain->vMultiSend.begin() + del);
+		
+		if(!walletdb.EraseMultiSend(pwalletMain->vMultiSend))
+		   return "failed to delete old MultiSend vector from database";
+		if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
+			return "walletdb WriteMultiSend failed!";
+		return printMultiSend();
+	}
+	//if no commands are used
+	if (fHelp || params.size() != 2)
+        throw runtime_error(
+			"****************************************************************\n"
+			"WHAT IS MULTISEND?\n"
+			"MultiSend is a rebuild of what used to be called Stake For Charity (s4c)\n"
+			"MultiSend allows a user to automatically send a percent of their stake reward to as many addresses as you would like\n"
+			"The MultiSend transaction is sent when the staked coins mature (30 confirmations)\n"
+			"The only current restriction is that you cannot choose to send more than 100% of your stake using MultiSend\n"
+			"****************************************************************\n"
+			"MULTISEND COMMANDS (usage: multisend <command>)\n"
+			"   print - displays the current MultiSend vector \n"
+			"   clear - deletes the current MultiSend vector \n"
+			"   enable/activate - activates the current MultiSend vector \n"
+			"   disable/deactivate - disables the current MultiSend vector \n"
+			"   delete <Address #> - deletes an address from the MultiSend vector \n"
+			"****************************************************************\n"
+			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"
+			"multisend <HyperStake Address> <percent>\n"
+            "This will add a new address to the MultiSend vector\n"
+            "Percent is a whole number 1 to 100.\n"
+			"****************************************************************\n"
+            );
+	
+	//if the user is entering a new MultiSend item
+	string strAddress = params[0].get_str();
+    CBitcoinAddress address(strAddress);
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake address");
+    if (params[1].get_int() < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, expected valid percentage");
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+
+    unsigned int nPercent = (unsigned int) params[1].get_int();
+    
+	LOCK(pwalletMain->cs_wallet);
+	{
+		fFileBacked = pwalletMain->fFileBacked;
+		//Error if 0 is entered
+		if(nPercent == 0)
+		{
+            return "Sending 0% of stake is not valid";
+		}
+		
+		//MultiSend can only send 100% of your stake
+        if (nPercent + sumMultiSend() > 100)
+			return "Failed to add to MultiSend vector, the sum of your MultiSend is greater than 100%";
+			
+		if(fFileBacked)
+			walletdb.EraseMultiSend(pwalletMain->vMultiSend);
+			  
+		std::pair<std::string, int> newMultiSend;
+		newMultiSend.first = strAddress;
+		newMultiSend.second = nPercent;
+		pwalletMain->vMultiSend.push_back(newMultiSend);
+		
+		if(fFileBacked)
+		{	
+			if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
+				return "walletdb WriteMultiSend failed!";
+		}
+	}
+	return printMultiSend();
 }
