@@ -2423,6 +2423,12 @@ Value multisend(const Array &params, bool fHelp)
 		//MultiSend can only send 100% of your stake
         if (nPercent + sumMultiSend() > 100)
 			return "Failed to add to MultiSend vector, the sum of your MultiSend is greater than 100%";
+		
+		for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
+		{
+			if(pwalletMain->vMultiSend[i].first == strAddress)
+				return "Failed to add to MultiSend vector, cannot use the same address twice";
+		}
 			
 		if(fFileBacked)
 			walletdb.EraseMultiSend(pwalletMain->vMultiSend);
