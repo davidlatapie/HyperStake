@@ -2366,7 +2366,7 @@ Value multisend(const Array &params, bool fHelp)
 	}
 	if(params.size() == 2 && params[0].get_str() == "delete")
 	{
-		int del = params[1].get_int();
+		int del = boost::lexical_cast<int>(params[1].get_str());
 		pwalletMain->vMultiSend.erase(pwalletMain->vMultiSend.begin() + del);
 		
 		if(!walletdb.EraseMultiSend(pwalletMain->vMultiSend))
@@ -2404,12 +2404,13 @@ Value multisend(const Array &params, bool fHelp)
     CBitcoinAddress address(strAddress);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid HyperStake address");
-    if (params[1].get_int() < 0)
+    if (boost::lexical_cast<int>(params[1].get_str()) < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, expected valid percentage");
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
-    unsigned int nPercent = (unsigned int) params[1].get_int();
+	
+	unsigned int nPercent = boost::lexical_cast<unsigned int>(params[1].get_str());
     
 	LOCK(pwalletMain->cs_wallet);
 	{
