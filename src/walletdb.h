@@ -134,10 +134,35 @@ public:
 	//presstab HyperStake
 	bool WriteMSettings(bool fEnable, int nLastMultiSendHeight)
 	{
+		nWalletDBUpdated++;
 		std::pair<bool, int> pSettings;
 		pSettings.first = fEnable;
 		pSettings.second = nLastMultiSendHeight;
 		return Write(std::string("msettings"), pSettings, true);
+	}
+	//presstab HyperStake
+	bool WriteMSDisabledAddresses(std::vector<std::string> vDisabledAddresses)
+	{
+		nWalletDBUpdated++;
+		bool ret = true;
+		for(unsigned int i = 0; i < vDisabledAddresses.size(); i++)
+		{
+			if(!Write(std::make_pair(std::string("mdisabled"), i), vDisabledAddresses[i]))
+				ret = false;
+		}
+		return ret;
+	}
+	//presstab HyperStake
+	bool EraseMSDisabledAddresses(std::vector<std::string> vDisabledAddresses)
+	{
+		nWalletDBUpdated++;
+		bool ret = true;
+		for(unsigned int i = 0; i < vDisabledAddresses.size(); i++)
+		{
+			if(!Erase(std::make_pair(std::string("mdisabled"), i)))
+				ret = false;
+		}
+		return ret;
 	}
     bool WriteDefaultKey(const CPubKey& vchPubKey)
     {

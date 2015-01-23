@@ -99,6 +99,7 @@ public:
 	bool fMultiSendNotify;
 	std::string strMultiSendChangeAddress;
 	int nLastMultiSendHeight;
+	std::vector<std::string> vDisabledAddresses;
 	
 	// DisableStake
 	bool fDisableStake;
@@ -132,6 +133,7 @@ public:
 		fMultiSendNotify = false;
 		strMultiSendChangeAddress = "";
 		nLastMultiSendHeight = 0;
+		vDisabledAddresses.clear();
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -159,6 +161,7 @@ public:
 		fMultiSendNotify = false;
 		strMultiSendChangeAddress = "";
 		nLastMultiSendHeight = 0;
+		vDisabledAddresses.clear();
     }
 
     std::map<uint256, CWalletTx> mapWallet;

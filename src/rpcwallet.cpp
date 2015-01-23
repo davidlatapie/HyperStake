@@ -2246,15 +2246,30 @@ Value ccsend(const Array& params, bool fHelp)
 
 
 //presstab HyperStake
-Object printMultiSend()
+Array printMultiSend()
 {
-	Object ret;
-	ret.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
+	Array ret;
+	Object act;
+	act.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
+	ret.push_back(act);
+	if(pwalletMain->vDisabledAddresses.size() >= 1)
+	{
+		Object disAdd;
+		for(unsigned int i = 0; i < pwalletMain->vDisabledAddresses.size(); i++)
+		{
+			disAdd.push_back(Pair("Disabled From Sending", pwalletMain->vDisabledAddresses[i]));
+		}
+		ret.push_back(disAdd);
+	}
+	
+	Object vMS;
+	vMS.push_back(Pair("MultiSend Addresses to Send To:", ""));
 	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
 	{
-		ret.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
-		ret.push_back(Pair("Percent", pwalletMain->vMultiSend[i].second));
+		vMS.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
+		vMS.push_back(Pair("Percent", pwalletMain->vMultiSend[i].second));
 	}
+	ret.push_back(vMS);
 	return ret;
 }
 
@@ -2363,6 +2378,13 @@ Value multisend(const Array &params, bool fHelp)
 					return "MultiSend deactivated but writing settings to DB failed";
 			return "MultiSend deactivated";
 		}
+		else if(strCommand == "enableall")
+		{
+			if(!walletdb.EraseMSDisabledAddresses(pwalletMain->vDisabledAddresses))
+				return "failed to clear old vector from walletDB";
+			else
+				return "all addresses will now send MultiSend transactions";
+		}
 	}
 	if(params.size() == 2 && params[0].get_str() == "delete")
 	{
@@ -2374,6 +2396,23 @@ Value multisend(const Array &params, bool fHelp)
 		if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
 			return "walletdb WriteMultiSend failed!";
 		return printMultiSend();
+	}
+	if(params.size() == 2 && params[0].get_str() == "disable")
+	{
+		std::string disAddress = params[1].get_str();
+		if(!CBitcoinAddress(disAddress).IsValid())
+			return "address you want to disable is not valid";
+		else
+		{
+			pwalletMain->vDisabledAddresses.push_back(disAddress);
+			if(!walletdb.EraseMSDisabledAddresses(pwalletMain->vDisabledAddresses))
+				return "disabled address from sending, but failed to clear old vector from walletDB";
+			if(!walletdb.WriteMSDisabledAddresses(pwalletMain->vDisabledAddresses))
+				return "disabled address from sending, but failed to store it to walletDB";
+			else
+				return "disabled address from sending MultiSend transactions";
+		}
+		
 	}
 	//if no commands are used
 	if (fHelp || params.size() != 2)
@@ -2391,6 +2430,9 @@ Value multisend(const Array &params, bool fHelp)
 			"   enable/activate - activates the current MultiSend vector \n"
 			"   disable/deactivate - disables the current MultiSend vector \n"
 			"   delete <Address #> - deletes an address from the MultiSend vector \n"
+			"   disable <address> - prevents a specific address from sending MultiSend transactions\n"
+			"   enableall - enables all addresses to be eligible to send MultiSend transactions\n"
+			
 			"****************************************************************\n"
 			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"
 			"multisend <HyperStake Address> <percent>\n"

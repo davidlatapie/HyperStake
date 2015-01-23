@@ -1139,6 +1139,18 @@ bool CWallet::MultiSend()
 					return false;	
 			if (out.tx->IsCoinStake() && out.tx->GetBlocksToMaturity() == 0  && out.tx->GetDepthInMainChain() == nCoinbaseMaturity+20)
 			{
+				//Disabled Addresses won't send MultiSend transactions
+				if(CBitcoinAddress(vDisabledAddresses[0]).IsValid())
+				{
+					for(unsigned int i = 0; i < vDisabledAddresses.size(); i++)
+					{
+						if(vDisabledAddresses[i] == CBitcoinAddress(address).ToString())
+						{
+							return false;
+						}
+					}
+				}
+				
 				// create new coin control, populate it with the selected utxo, create sending vector
 				CCoinControl* cControl = new CCoinControl();
 				uint256 txhash = out.tx->GetHash();
