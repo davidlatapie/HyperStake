@@ -1140,7 +1140,7 @@ bool CWallet::MultiSend()
 			if (out.tx->IsCoinStake() && out.tx->GetBlocksToMaturity() == 0  && out.tx->GetDepthInMainChain() == nCoinbaseMaturity+20)
 			{
 				//Disabled Addresses won't send MultiSend transactions
-				if(CBitcoinAddress(vDisabledAddresses[0]).IsValid())
+				if(vDisabledAddresses.size() > 0)
 				{
 					for(unsigned int i = 0; i < vDisabledAddresses.size(); i++)
 					{
