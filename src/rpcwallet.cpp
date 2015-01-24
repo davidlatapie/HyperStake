@@ -2380,11 +2380,13 @@ Value multisend(const Array &params, bool fHelp)
 		}
 		else if(strCommand == "enableall")
 		{
-			pwalletMain->vDisabledAddresses.clear();
 			if(!walletdb.EraseMSDisabledAddresses(pwalletMain->vDisabledAddresses))
 				return "failed to clear old vector from walletDB";
 			else
+			{
+				pwalletMain->vDisabledAddresses.clear();
 				return "all addresses will now send MultiSend transactions";
+			}
 		}
 	}
 	if(params.size() == 2 && params[0].get_str() == "delete")
