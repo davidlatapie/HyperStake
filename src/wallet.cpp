@@ -1657,7 +1657,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 	
 	// The following split & combine thresholds are important to security
     // Should not be adjusted if you don't understand the consequences
-    static unsigned int nStakeSplitAge = (60 * 60 * 24 * 30);
 	const CBlockIndex* pIndex0 = GetLastBlockIndex(pindexBest, false);
     int64 nCombineThreshold = 0;
 	if(pIndex0->pprev)
@@ -1772,7 +1771,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 				uint64 nTotalSize = pcoin.first->vout[pcoin.second].nValue * (1+((txNew.nTime - block.GetBlockTime()) / (60*60*24)) * (7.5/365));
 				
 				
-                if ((block.GetBlockTime() + nStakeSplitAge > txNew.nTime) && ((nTotalSize / 2) > (nStakeSplitThreshold * COIN)))
+                if (nTotalSize / 2 > nStakeSplitThreshold * COIN)
                     txNew.vout.push_back(CTxOut(0, scriptPubKeyOut)); //split stake
 
                 if (fDebug && GetBoolArg("-printcoinstake"))
