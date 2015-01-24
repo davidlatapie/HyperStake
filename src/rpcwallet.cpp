@@ -2417,6 +2417,7 @@ Value multisend(const Array &params, bool fHelp)
 	//if no commands are used
 	if (fHelp || params.size() != 2)
         throw runtime_error(
+			"multisend <command>\n"
 			"****************************************************************\n"
 			"WHAT IS MULTISEND?\n"
 			"MultiSend is a rebuild of what used to be called Stake For Charity (s4c)\n"
