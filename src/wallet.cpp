@@ -1172,6 +1172,8 @@ bool CWallet::MultiSend()
 						scriptPubKey.SetDestination(strAddSend.Get());
 					vecSend.push_back(make_pair(scriptPubKey, nAmount));
 				}
+				//make sure splitblock is off
+				fSplitBlock = false;
 				
 				// Create the transaction and commit it to the network
 				bool fCreated = CreateTransaction(vecSend, wtx, keyChange, nFeeRet, 1, true, cControl);
