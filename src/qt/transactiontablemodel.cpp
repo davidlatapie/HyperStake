@@ -314,7 +314,12 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
                   if (wtx->credit + wtx->debit == 1000 * COIN) {
                     uint64_t capped = -wtx->debit * 7.5f * days / 365.f - 1000 * COIN;
                     status += "\n" + tr("About %1 HYP capped").arg(capped / (float)COIN);
+					float unCappedStake = (capped / (float)COIN) + 1000;
+					status += "\n" + tr("Uncapped Stake: %1").arg((unCappedStake));
+					status += "\n" +tr("Weight: %1").arg(unCappedStake * (days - (8/24)));
                   }
+				  else
+					status += "\n" +tr("Weight: %1").arg((wtx->credit + wtx->debit)/(float)COIN * (days - (8/24)));
                 }
               }
             }
