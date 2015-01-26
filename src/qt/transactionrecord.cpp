@@ -33,8 +33,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
     if (wtx.IsCoinStake())
     {
-        // Stake generation
-        parts.append(TransactionRecord(hash, nTime, TransactionRecord::StakeMint, "", -nDebit, wtx.GetValueOut()));
+        TransactionRecord txrCoinStake = TransactionRecord(hash, nTime, TransactionRecord::StakeMint, "", -nDebit, wtx.GetValueOut());
+		CTxDestination address;
+		if (ExtractDestination(wtx.vout[1].scriptPubKey, address))
+        {
+			txrCoinStake.address = CBitcoinAddress(address).ToString();
+        }
+		
+		// Stake generation
+        parts.append(txrCoinStake);
     }
     else if (nNet > 0 || wtx.IsCoinBase())
     {

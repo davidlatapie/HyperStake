@@ -418,6 +418,8 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     case TransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address);
     case TransactionRecord::SendToSelf:
+	case TransactionRecord::StakeMint:
+		return QString::fromStdString(wtx->address);
     default:
         return tr("(n/a)");
     }
