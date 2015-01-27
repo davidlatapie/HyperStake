@@ -19,6 +19,8 @@
 #include <QDateTime>
 #include <QtAlgorithms>
 
+#include <algorithm>
+
 // Amount column is right-aligned it contains numbers
 static int column_alignments[] = {
         Qt::AlignLeft|Qt::AlignVCenter,
@@ -316,10 +318,11 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
                     status += "\n" + tr("About %1 HYP capped").arg(capped / (float)COIN);
 					float unCappedStake = (capped / (float)COIN) + 1000;
 					status += "\n" + tr("Uncapped Stake: %1").arg((unCappedStake));
-					status += "\n" +tr("Weight: %1").arg(unCappedStake * (days - (8/24)));
+					//status += "\n" +tr("Weight: %1").arg(unCappedStake * (days - (8/24)));
                   }
-				  else
-					status += "\n" +tr("Weight: %1").arg((wtx->credit + wtx->debit)/(float)COIN * (days - (8/24)));
+					float nWeight = (-wtx->debit)/(float)COIN * (std::min(days, (float)(30 - (8/24))) - 8/24);
+					status += "\n" + tr("Original UTXO: %1").arg((float)(-wtx->debit)/COIN);
+					status += "\n" + tr("Weight: %1").arg(nWeight);
                 }
               }
             }
