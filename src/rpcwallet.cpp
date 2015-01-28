@@ -1961,6 +1961,27 @@ Value getstaketx(const Array& params, bool fHelp)
     return entry;
 }
 
+//presstab HyperStake
+Value getweight(const Array& params, bool fHelp)
+{
+	std::vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins);
+	
+	uint64 nWeightSum = 0;
+	BOOST_FOREACH(const COutput& out, vCoins)
+    {
+		int64 nHeight = nBestHeight - out.nDepth;
+		CBlockIndex* pindex = FindBlockByHeight(nHeight);
+		uint64 nWeight = 0;
+		pwalletMain->GetStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nWeight);
+		double dAge = double(GetTime() - pindex->nTime) / (60*60*24);
+		if(dAge < 8.8)
+			nWeight = 0;
+		nWeightSum += nWeight;
+	}
+	return (double)nWeightSum;
+}
+
 // presstab HyperStake
 Value setstakesplitthreshold(const Array& params, bool fHelp)
 {

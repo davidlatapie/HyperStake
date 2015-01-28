@@ -282,6 +282,7 @@ static const CRPCCommand vRPCCommands[] =
     { "cccustomchange",		&cccustomchange,	false,	false },
     { "ccreset",		&ccreset,	false,	false },
 	{ "ccsend",		&ccsend,	false,	false },
+	{ "getweight",	&getweight,	false,	false },
 };
 
 CRPCTable::CRPCTable()
