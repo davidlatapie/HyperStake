@@ -427,7 +427,7 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
         return QString::fromStdString(wtx->address);
     case TransactionRecord::SendToSelf:
 	case TransactionRecord::StakeMint:
-		return QString::fromStdString(wtx->address);
+		return lookupAddress(wtx->address, tooltip);
     default:
         return tr("(n/a)");
     }
