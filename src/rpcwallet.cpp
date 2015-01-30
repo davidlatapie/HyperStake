@@ -1265,6 +1265,42 @@ Value listsinceblock(const Array& params, bool fHelp)
     return ret;
 }
 
+Value getconfs(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getconfs <txid>\n"
+            "returns the number of confirmations for <txid>");
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+	
+	Object entry;
+	CTransaction tx;
+    uint256 hashBlock = 0;
+    if (GetTransaction(hash, tx, hashBlock))
+    {
+        if (hashBlock == 0)
+			entry.push_back(Pair("confirmations", 0));
+		else
+		{
+			map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+			if (mi != mapBlockIndex.end() && (*mi).second)
+			{
+				CBlockIndex* pindex = (*mi).second;
+				if (pindex->IsInMainChain())
+				{
+					entry.push_back(Pair("confirmations", 1 + nBestHeight - pindex->nHeight));
+				}
+				else
+					entry.push_back(Pair("confirmations", 0));
+            }
+        }
+		return entry;
+	}
+	else return "failed";
+}
+
 Value gettransaction(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
