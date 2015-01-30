@@ -91,10 +91,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         if (fAllFromMe && fAllToMe)
         {
             // Payment to self
-            int64 nChange = wtx.GetChange();
-
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-                            -(nDebit - nChange), nCredit - nChange));
+            int64 nChange = wtx.GetChange();	
+			TransactionRecord sub(hash, nTime);
+			sub.type = TransactionRecord::SendToSelf;
+			sub.credit = nCredit - nChange;
+			sub.debit =  -(nDebit - nChange);		
+			CTxDestination address;
+			if (ExtractDestination(wtx.vout[0].scriptPubKey, address))
+				 sub.address = CBitcoinAddress(address).ToString();
+			parts.append(sub);
         }
         else if (fAllFromMe)
         {
