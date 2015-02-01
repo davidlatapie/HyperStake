@@ -283,6 +283,7 @@ static const CRPCCommand vRPCCommands[] =
     { "ccreset",		&ccreset,	false,	false },
 	{ "ccsend",		&ccsend,	false,	false },
 	{ "getweight",	&getweight,	false,	false },
+	{ "getpotentialstake",	&getpotentialstake,	false,	false },
 	{ "getconfs",	&getconfs,	false,	false },
 };
 

@@ -2000,6 +2000,11 @@ Value getstaketx(const Array& params, bool fHelp)
 //presstab HyperStake
 Value getweight(const Array& params, bool fHelp)
 {
+	 if (fHelp)
+        throw runtime_error(
+            "getweight\n"
+            "This will return your total stake weight for confirmed outputs\n");
+			
 	std::vector<COutput> vCoins;
     pwalletMain->AvailableCoins(vCoins);
 	
@@ -2016,6 +2021,32 @@ Value getweight(const Array& params, bool fHelp)
 		nWeightSum += nWeight;
 	}
 	return (double)nWeightSum;
+}
+
+//presstab HyperStake
+Value getpotentialstake(const Array& params, bool fHelp)
+{
+	 if (fHelp)
+        throw runtime_error(
+            "getpotentialstake\n"
+            "This will return your total potential stake for confirmed outputs\n"
+			"Potential stake is the amount your output reward is worth if it stakes right now");
+			
+	std::vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins);
+	
+	double nRewardSum = 0;
+	BOOST_FOREACH(const COutput& out, vCoins)
+    {
+		int64 nHeight = nBestHeight - out.nDepth;
+		CBlockIndex* pindex = FindBlockByHeight(nHeight);
+		uint64 nAmount = out.tx->vout[out.i].nValue;
+		double dAge = double(GetTime() - pindex->nTime) / (60*60*24);
+		double nReward = 7.5 / 365 * dAge * (double)nAmount;
+		nReward = min(nReward  / COIN, double(1000));
+		nRewardSum += nReward;
+	}
+	return nRewardSum;
 }
 
 // presstab HyperStake
