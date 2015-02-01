@@ -1197,6 +1197,7 @@ Value deleteaddress(const Array& params, bool fHelp)
 	string strAdd = params[0].get_str();
 	
 	CWalletDB(pwalletMain->strWalletFile).EraseName(strAdd);
+	pwalletMain->TopUpKeyPool();
 	
 	string ret = "Success, please restart wallet if using QT";
 	return ret;
