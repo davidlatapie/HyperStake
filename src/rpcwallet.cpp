@@ -2350,8 +2350,8 @@ Array printMultiSend()
 		ret.push_back(disAdd);
 	}
 	
+	ret.push_back("MultiSend Addresses to Send To:");
 	Object vMS;
-	vMS.push_back(Pair("MultiSend Addresses to Send To:", ""));
 	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
 	{
 		vMS.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
