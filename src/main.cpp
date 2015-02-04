@@ -532,7 +532,7 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
 
     if (!MoneyRange(nMinFee))
         nMinFee = MAX_MONEY;
-    return nMinFee;
+    return max(nMinFee, MIN_TX_FEE);
 }
 
 
