@@ -9,8 +9,8 @@ INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"C:/deps/boost_1_55_0" \
  -I"c:/deps/db-4.8.30.NC/build_unix" \
- -L"/deps/miniupnpc" \
- -L"c:/deps/" \
+ -I"c:/deps/miniupnpc" \
+ -I"c:/deps/" \
  -I"c:/deps/openssl-1.0.1j/include"
  
 LIBPATHS= \
@@ -18,7 +18,7 @@ LIBPATHS= \
  -L"c:/deps/db-4.8.30.NC/build_unix" \
  -L"c:/deps/openssl-1.0.1j"  \
  -L"c:/deps/"	\
- -L"/deps/miniupnpc" 
+ -L"c:/deps/miniupnpc" 
  
 LIBS= \
  -l boost_system-mgw49-mt-s-1_55 \
