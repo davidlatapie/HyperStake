@@ -35,3 +35,8 @@ release/*
 makefile.release
 makefile.debug
 makefile
+HyperStake-qt.pro.user
+autom4te.cache
+aclocal.m4
+configure
+ltmain.sh
