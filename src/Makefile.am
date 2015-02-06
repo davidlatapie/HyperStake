@@ -102,6 +102,7 @@ libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS)
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \
   alert.cpp \
+  bitcoinrpc.cpp \
   blake.c \
   bmw.c \
   checkpoints.cpp \
@@ -177,7 +178,7 @@ if ENABLE_WALLET
 hyperstaked_LDADD += libbitcoin_wallet.a
 endif
 hyperstaked_SOURCES = \
-  bitcoinrpc.cpp
+  bitcoind.cpp
 
 #
 
