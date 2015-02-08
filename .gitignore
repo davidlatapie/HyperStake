@@ -117,3 +117,14 @@ build-aux/depcomp
 build-aux/install-sh
 build-aux/missing
 build-aux/test-driver
+src/qt/moc_blockbrowser.cpp
+src/qt/moc_calcdialog.cpp
+src/qt/moc_charitydialog.cpp
+src/qt/moc_qtipcserver.cpp
+src/qt/test/.dirstamp
+src/qt/test/moc_uritests.cpp
+src/qt/test/test_bitcoin-qt
+src/qt/test/.deps
+src/qt/forms/ui_blockbrowser.h
+src/qt/forms/ui_calcdialog.h
+src/qt/forms/ui_charitydialog.h
