@@ -205,6 +205,7 @@ extern json_spirit::Value cccustomchange(const json_spirit::Array& params, bool 
 extern json_spirit::Value ccreset(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value ccsend(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getweight(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value getpotentialstake(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getconfs(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value getrawtransaction(const json_spirit::Array& params, bool fHelp); // in rcprawtransaction.cpp

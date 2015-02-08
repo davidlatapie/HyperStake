@@ -1303,6 +1303,26 @@ bool CWallet::SelectCoinsMinConf(int64 nTargetValue, unsigned int nSpendTime, in
     return true;
 }
 
+bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, int64 nTargetAmount) const
+{
+	vector<COutput> vCoins;
+    AvailableCoins(vCoins, true);
+	int64 nAmountSelected = 0;
+	
+	BOOST_FOREACH(const COutput& out, vCoins)
+	{
+		if(nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
+		{
+			if(GetTime() - out.tx->GetTxTime() > nStakeMinAgeV2)
+			{
+				setCoins.insert(make_pair(out.tx, out.i));
+				nAmountSelected += out.tx->vout[out.i].nValue;
+			}
+		}
+	}
+	return true;
+}
+
 bool CWallet::SelectCoins(int64 nTargetValue, unsigned int nSpendTime, set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64& nValueRet, const CCoinControl* coinControl) const
 {
     vector<COutput> vCoins;
@@ -1533,13 +1553,13 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     vector<const CWalletTx*> vwtxPrev;
     int64 nValueIn = 0;
+	
+	if (!SelectCoins(nBalance - nReserveBalance, GetTime(), setCoins, nValueIn))
+		return false;
 
-    if (!SelectCoins(nBalance - nReserveBalance, GetTime(), setCoins, nValueIn))
-        return false;
-
-    if (setCoins.empty())
-        return false;
-
+	if(setCoins.empty())
+		return false;
+	
     CTxDB txdb("r");
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
@@ -1682,18 +1702,18 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     vector<const CWalletTx*> vwtxPrev;
-    int64 nValueIn = 0;
-    if (!SelectCoins(nBalance - nReserveBalance, txNew.nTime, setCoins, nValueIn))
-        return false;
 
+	if (!SelectStakeCoins(setCoins, nBalance - nReserveBalance))
+		return false;
+	
     if (setCoins.empty())
         return false;
 
     int64 nCredit = 0;
     CScript scriptPubKeyKernel;
+	CTxDB txdb("r");
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
-        CTxDB txdb("r");
         CTxIndex txindex;
 		{
 		    LOCK2(cs_main, cs_wallet);
@@ -1712,7 +1732,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         static int nMaxStakeSearchInterval = 60;
 		
 		// printf(">> block.GetBlockTime() = %"PRI64d", nStakeMinAge = %d, txNew.nTime = %d\n", block.GetBlockTime(), nStakeMinAge,txNew.nTime); 
-        if (block.GetBlockTime() + nStakeMinAge > txNew.nTime - nMaxStakeSearchInterval)
+        if (block.GetBlockTime() + nStakeMinAgeV2 > txNew.nTime - nMaxStakeSearchInterval)
             continue; // only count coins meeting min age requirement
 
         bool fKernelFound = false;

@@ -220,7 +220,7 @@ void ThreadIRCSeed2(void* parg)
         return;
 
     // ... or if IRC is not enabled.
-    if (!GetBoolArg("-irc", true))
+    if (!GetBoolArg("-irc", false))
         return;
 
     printf("ThreadIRCSeed started\n");

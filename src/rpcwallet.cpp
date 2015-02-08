@@ -1197,6 +1197,7 @@ Value deleteaddress(const Array& params, bool fHelp)
 	string strAdd = params[0].get_str();
 	
 	CWalletDB(pwalletMain->strWalletFile).EraseName(strAdd);
+	pwalletMain->TopUpKeyPool();
 	
 	string ret = "Success, please restart wallet if using QT";
 	return ret;
@@ -1998,11 +1999,10 @@ Value getstaketx(const Array& params, bool fHelp)
 }
 
 //presstab HyperStake
-Value getweight(const Array& params, bool fHelp)
+double getWeight()
 {
 	std::vector<COutput> vCoins;
     pwalletMain->AvailableCoins(vCoins);
-	
 	uint64 nWeightSum = 0;
 	BOOST_FOREACH(const COutput& out, vCoins)
     {
@@ -2016,6 +2016,43 @@ Value getweight(const Array& params, bool fHelp)
 		nWeightSum += nWeight;
 	}
 	return (double)nWeightSum;
+}
+
+//presstab HyperStake
+Value getweight(const Array& params, bool fHelp)
+{
+	if (fHelp)
+        throw runtime_error(
+            "getweight\n"
+            "This will return your total stake weight for confirmed outputs\n");
+			
+	getWeight();
+}
+
+//presstab HyperStake
+Value getpotentialstake(const Array& params, bool fHelp)
+{
+	 if (fHelp)
+        throw runtime_error(
+            "getpotentialstake\n"
+            "This will return your total potential stake for confirmed outputs\n"
+			"Potential stake is the amount your output reward is worth if it stakes right now");
+			
+	std::vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins);
+	
+	double nRewardSum = 0;
+	BOOST_FOREACH(const COutput& out, vCoins)
+    {
+		int64 nHeight = nBestHeight - out.nDepth;
+		CBlockIndex* pindex = FindBlockByHeight(nHeight);
+		uint64 nAmount = out.tx->vout[out.i].nValue;
+		double dAge = double(GetTime() - pindex->nTime) / (60*60*24);
+		double nReward = 7.5 / 365 * dAge * (double)nAmount;
+		nReward = min(nReward  / COIN, double(1000));
+		nRewardSum += nReward;
+	}
+	return nRewardSum;
 }
 
 // presstab HyperStake
@@ -2165,6 +2202,9 @@ Value cclistcoins(const Array& params, bool fHelp)
 		if(dAge < 8.8)
 			nWeight = 0;
 		coutput.push_back(Pair("Weight", int(nWeight)));
+		double nReward = 7.5 / 365 * dAge * dAmount;
+		nReward = min(nReward, double(1000));
+		coutput.push_back(Pair("Potential Stake", nReward));
 		result.push_back(coutput);
 	}
 	return result;
@@ -2319,8 +2359,8 @@ Array printMultiSend()
 		ret.push_back(disAdd);
 	}
 	
+	ret.push_back("MultiSend Addresses to Send To:");
 	Object vMS;
-	vMS.push_back(Pair("MultiSend Addresses to Send To:", ""));
 	for(unsigned int i = 0; i < pwalletMain->vMultiSend.size(); i++)
 	{
 		vMS.push_back(Pair("Address " + boost::lexical_cast<std::string>(i), pwalletMain->vMultiSend[i].first));
@@ -2449,10 +2489,11 @@ Value multisend(const Array &params, bool fHelp)
 	if(params.size() == 2 && params[0].get_str() == "delete")
 	{
 		int del = boost::lexical_cast<int>(params[1].get_str());
-		pwalletMain->vMultiSend.erase(pwalletMain->vMultiSend.begin() + del);
-		
 		if(!walletdb.EraseMultiSend(pwalletMain->vMultiSend))
 		   return "failed to delete old MultiSend vector from database";
+		
+		pwalletMain->vMultiSend.erase(pwalletMain->vMultiSend.begin() + del);
+		
 		if(!walletdb.WriteMultiSend(pwalletMain->vMultiSend))
 			return "walletdb WriteMultiSend failed!";
 		return printMultiSend();
