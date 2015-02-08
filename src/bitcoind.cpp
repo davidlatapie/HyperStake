@@ -71,6 +71,8 @@ extern void noui_connect();
 int main(int argc, char* argv[])
 {
     bool fRet = false;
+    fHaveGUI = false;
+
     
     // Connect bitcoind signal handlers
     noui_connect();
