@@ -7,7 +7,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Clam-Qt</string>
+	<string>HyperStake-Qt</string>
 	<key>CFBundleShortVersionString</key>
 	<string>@CLIENT_VERSION_MAJOR@.@CLIENT_VERSION_MINOR@</string>
 	<key>CFBundleSignature</key>
