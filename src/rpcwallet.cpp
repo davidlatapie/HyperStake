@@ -2026,7 +2026,7 @@ Value getweight(const Array& params, bool fHelp)
             "getweight\n"
             "This will return your total stake weight for confirmed outputs\n");
 			
-	getWeight();
+	return getWeight();
 }
 
 //presstab HyperStake
