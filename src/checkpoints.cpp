@@ -29,6 +29,8 @@ namespace Checkpoints
 	(31781, uint256("0x42265210870957b8d37f91a0834c6cda65949b2ca805bb3a7d527a4cd585a090")) //official hyp fork
 	(80987, uint256("0x6b943fa756e915ddd8b654844781e21090ae9ddfcb2147fba46cac529df5be08")) //not using even number because sync gets sticky
 	(129999, uint256("0x146b5d1320606e831edbacc0ebbc418079fe2ab1f4f5c598142c40ebb0986c7e"))
+	(199999, uint256("0x084b314dfee7db9d311a5db4dc4b8880df36eb7e9bb90ec98dd0bab5af2a7df2"))
+	(229999, uint256("0x0747353cbfd3f970ae6e27a60ebdc92a0f0a48392c0d303d8ea15797761463ba"))
 	;
 
     static MapCheckpoints mapCheckpointsTestnet =
