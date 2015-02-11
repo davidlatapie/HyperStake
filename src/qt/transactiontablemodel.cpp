@@ -552,6 +552,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxToAddress(rec, false);
         case Amount:
             return formatTxAmount(rec);
+		case Depth:
+			return QString::number(rec->status.depth);
         }
         break;
     case Qt::EditRole:
@@ -568,6 +570,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxToAddress(rec, true);
         case Amount:
             return rec->credit + rec->debit;
+		case Depth:
+			return rec->status.depth;
         }
         break;
     case Qt::ToolTipRole:

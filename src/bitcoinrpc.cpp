@@ -285,6 +285,7 @@ static const CRPCCommand vRPCCommands[] =
 	{ "getweight",	&getweight,	false,	false },
 	{ "getpotentialstake",	&getpotentialstake,	false,	false },
 	{ "getconfs",	&getconfs,	false,	false },
+	{ "stakemode",	&stakemode,	false,	false }
 };
 
 CRPCTable::CRPCTable()

@@ -86,6 +86,7 @@ extern std::set<CWallet*> setpwalletRegistered;
 extern unsigned char pchMessageStart[4];
 extern std::map<uint256, CBlock*> mapOrphanBlocks;
 extern bool fHaveGUI;
+extern std::map<unsigned int, unsigned int> mapHashedBlocks;
 
 // Settings
 extern int64 nTransactionFee;

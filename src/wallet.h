@@ -90,7 +90,6 @@ public:
 	bool fWalletUnlockMintOnly;
 
 	//SplitBlock
-	uint64 nStakeSplitThreshold;
 	bool fSplitBlock;
 	
 	//MultiSend
@@ -100,6 +99,10 @@ public:
 	std::string strMultiSendChangeAddress;
 	int nLastMultiSendHeight;
 	std::vector<std::string> vDisabledAddresses;
+	
+	// Stake Settings
+	unsigned int nHashDrift;
+	uint64 nStakeSplitThreshold;
 	
 	// DisableStake
 	bool fDisableStake;
@@ -117,7 +120,6 @@ public:
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
 		fWalletUnlockMintOnly = false;
-		nStakeSplitThreshold = 1000;
 		fSplitBlock = false;
 		
 		//DisableStake
@@ -126,6 +128,10 @@ public:
 		strDisableArg = "";
 		dUserNumber = 0;
 		fStakeRequirement =  false;
+		
+		// Stake Settings
+		nHashDrift = 300;
+		nStakeSplitThreshold = 2000;
 		
 		//MultiSend
 		vMultiSend.clear();
@@ -145,7 +151,6 @@ public:
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
 		fWalletUnlockMintOnly = false;
-		nStakeSplitThreshold = 1000;
 		fSplitBlock = false;
 		
 		//DisableStake
@@ -154,6 +159,10 @@ public:
 		strDisableArg = "";
 		dUserNumber = 0;
 		fStakeRequirement =  false;
+		
+		// Stake Settings
+		nHashDrift = 300;
+		nStakeSplitThreshold = 2000;
 		
 		//MultiSend
 		vMultiSend.clear();
