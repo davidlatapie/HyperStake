@@ -128,3 +128,5 @@ src/qt/test/.deps
 src/qt/forms/ui_blockbrowser.h
 src/qt/forms/ui_calcdialog.h
 src/qt/forms/ui_charitydialog.h
+moc_macnotificationhandler.cpp
+hyperstake/hyperstake.xcodeproj

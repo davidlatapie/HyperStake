@@ -43,6 +43,7 @@ QT_MOC_CPP = \
   qt/moc_editaddressdialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_macdockiconhandler.cpp \
+  qt/moc_macnotificationhandler.cpp \
   qt/moc_monitoreddatamapper.cpp \
   qt/moc_notificator.cpp \
   qt/moc_optionsdialog.cpp \
@@ -64,7 +65,8 @@ QT_MOC_CPP = \
   qt/moc_walletmodel.cpp
 
 BITCOIN_MM = \
-  qt/macdockiconhandler.mm
+  qt/macdockiconhandler.mm \
+  qt/macnotificationhandler.mm
 
 QT_MOC = \
   qt/bitcoin.moc \
@@ -95,6 +97,7 @@ BITCOIN_QT_H = \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/macdockiconhandler.h \
+  qt/macnotificationhandler.h \
   qt/monitoreddatamapper.h \
   qt/notificator.h \
   qt/optionsdialog.h \
