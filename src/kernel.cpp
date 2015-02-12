@@ -367,15 +367,14 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock& blockFrom, unsigned 
 		return stakeTargetHit(hashProofOfStake, (int64)nTimeTx - nTxPrevTime, nValueIn, bnTargetPerCoinDay);
 	}
 	
-	nHashDrift = min(nHashDrift, (unsigned int)(5*60)); // only allow 5 minutes of hashing in the future
-	nHashDrift *= 2; // double the value to hash equally into the past
+	nHashDrift = min(nHashDrift, (unsigned int)(10*60)); // only allow 10 minutes of hashing in the future
     bool fSuccess = false;
 	unsigned int nTryTime = 0;
 	unsigned int i;
-	for(i = 0; i < nHashDrift; i++) //iterate the hashing
+	for(i = 0; i < (nHashDrift*2); i++) //iterate the hashing
 	{
         //hash this iteration
-		nTryTime = nTimeTx + (nHashDrift/2) - i;
+		nTryTime = nTimeTx - nHashDrift + i;
 		hashProofOfStake = stakeHash(nTryTime, nTxPrevTime, ss, prevout.n, nTxPrevOffset, nTimeBlockFrom); 
 
 		// if stake hash does not meet the target then continue to next iteration
