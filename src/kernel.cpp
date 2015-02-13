@@ -297,21 +297,14 @@ static bool GetKernelStakeModifier(uint256 hashBlockFrom, uint64& nStakeModifier
 
 /** Presstab - HyperStake hashing
 I redesigned the hashing iteration in a few ways. 
-
 Code Reorginization - Instead of iterating the hashing in wallet.cpp, it is iterated in kernel.cpp inside of checkstakekernelhash, this allows
 the iteration to not need to initialize the variables for every iteration. This is also true for the stake modifier, which was previously
 calculated for each iteration. 
-
 liteStake - Previously the staking process would continuosly rehash the same hashes over and over, needlessly taking up valuable CPU power.
 I have added a std::map that tracks the block height and the last time the wallet hashed on this height. Depending on your staking settings,
 the wallet will not begin a new round of hashing until after a certain amount of time has passed, or a new block is accepted. This time delay
-can be found in main.cpp bitcoinminer(). This means that there will be 1-5 seconds of heavier CPU use once every few minutes, compared to
-continued heavy CPU use.
-
-Staking Modes - This allows the user to decide how much time they want to hash into the future and past. HYP has a max time drift of 15 minutes.
-The aggressive mode allows the user to hash 10 minutes into the future and 10 into the past. This will affect the chains timing a bit, and also
-might make difficulty more volatile in the short run. In my opinion it is more dangerous to allow a creative coder to do these same accepted
-practices without letting general users do the same.
+can be found in main.cpp bitcoinminer(). This means that there will be 1-5 seconds of hashing with the CPU once every few minutes, compared to
+continued hashing with the CPU.
 **/
 uint256 stakeHash(unsigned int nTimeTx, unsigned int nTxPrevTime, CDataStream ss, unsigned int prevoutIndex, unsigned int nTxPrevOffset, unsigned int nTimeBlockFrom)
 {
@@ -367,14 +360,13 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock& blockFrom, unsigned 
 		return stakeTargetHit(hashProofOfStake, (int64)nTimeTx - nTxPrevTime, nValueIn, bnTargetPerCoinDay);
 	}
 	
-	nHashDrift = min(nHashDrift, (unsigned int)(10*60)); // only allow 10 minutes of hashing in the future
     bool fSuccess = false;
 	unsigned int nTryTime = 0;
 	unsigned int i;
-	for(i = 0; i < (nHashDrift*2); i++) //iterate the hashing
+	for(i = 0; i < (nHashDrift); i++) //iterate the hashing
 	{
         //hash this iteration
-		nTryTime = nTimeTx - nHashDrift + i;
+		nTryTime = nTimeTx + nHashDrift - i;
 		hashProofOfStake = stakeHash(nTryTime, nTxPrevTime, ss, prevout.n, nTxPrevOffset, nTimeBlockFrom); 
 
 		// if stake hash does not meet the target then continue to next iteration
