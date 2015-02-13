@@ -130,3 +130,8 @@ src/qt/forms/ui_calcdialog.h
 src/qt/forms/ui_charitydialog.h
 moc_macnotificationhandler.cpp
 hyperstake/hyperstake.xcodeproj
+build-aux/m4/libtool.m4
+build-aux/m4/ltoptions.m4
+build-aux/m4/ltsugar.m4
+build-aux/m4/ltversion.m4
+build-aux/m4/lt~obsolete.m4
