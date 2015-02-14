@@ -310,7 +310,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/echo.c \
     src/qt/blockbrowser.cpp \
     src/qt/charitydialog.cpp \
-    src/simd.c
+    src/simd.c \
+    src/clientversion.cpp
 
 RESOURCES += \
     src/qt/bitcoin.qrc
