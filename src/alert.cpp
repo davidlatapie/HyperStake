@@ -10,6 +10,7 @@
 #include "net.h"
 #include "sync.h"
 #include "ui_interface.h"
+#include "clientversion.h"
 
 using namespace std;
 
