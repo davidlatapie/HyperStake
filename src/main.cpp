@@ -3008,7 +3008,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             return false;
         }
 		
-		if((fStrictProtocol || GetBoolArg("-strictprotocol", true) ) && pfrom->nVersion != PROTOCOL_VERSION)
+		if((fStrictProtocol) && pfrom->nVersion != PROTOCOL_VERSION)
 		{
 			printf("Strict Protocol: partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
             pfrom->fDisconnect = true;
