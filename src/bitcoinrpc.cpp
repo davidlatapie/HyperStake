@@ -285,7 +285,6 @@ static const CRPCCommand vRPCCommands[] =
 	{ "getweight",	&getweight,	false,	false },
 	{ "getpotentialstake",	&getpotentialstake,	false,	false },
 	{ "getconfs",	&getconfs,	false,	false },
-	{ "stakemode",	&stakemode,	false,	false }
 };
 
 CRPCTable::CRPCTable()
@@ -1213,7 +1212,12 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "ccselect" && n > 1)        		ConvertTo<int>(params[1]);
 	if (strMethod == "ccreturnchange" && n > 0)			ConvertTo<bool>(params[0]);
 	if (strMethod == "ccsend" && n > 1)        		ConvertTo<int>(params[1]);
-
+	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[2]);
+	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[3]);
+	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[4]);
+	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[5]);
+	if (strMethod == "sendalert" && n > 6)        		ConvertTo<int>(params[6]);
+	
     return params;
 }
 

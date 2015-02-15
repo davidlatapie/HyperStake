@@ -16,7 +16,7 @@ using namespace std;
 map<uint256, CAlert> mapAlerts;
 CCriticalSection cs_mapAlerts;
 
-static const char* pszMainKey = "";
+static const char* pszMainKey = "02d5e843832a712d6cbb7701ff84e13faa91cd11ccd9fe7aa9397aff3ad11900b6";
 
 // TestNet alerts pubKey
 static const char* pszTestKey = "";
@@ -173,9 +173,17 @@ CAlert CAlert::getAlertByHash(const uint256 &hash)
 bool CAlert::ProcessAlert()
 {
     if (!CheckSignature())
-        return false;
+	{
+		printf("***ALERT CHECKSIGNATURE FAILED *** \n");
+		return false;
+	}
+        
     if (!IsInEffect())
-        return false;
+	{
+		printf("*** ALERT NOT IN EFFECT *** \n");
+		return false;
+	}
+        
 
     // alert.nID=max is reserved for if the alert key is
     // compromised. It must have a pre-defined message,

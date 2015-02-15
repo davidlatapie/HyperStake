@@ -243,8 +243,14 @@ Value sendalert(const Array& params, bool fHelp)
     sMsg << (CUnsignedAlert)alert;
     alert.vchMsg = vector<unsigned char>(sMsg.begin(), sMsg.end());
 
-    vector<unsigned char> vchPrivKey = ParseHex(params[1].get_str());
-    key.SetPrivKey(CPrivKey(vchPrivKey.begin(), vchPrivKey.end())); // if key is not correct openssl may crash
+	string strSecret = params[1].get_str();
+	CBitcoinSecret vchSecret;
+    bool fGood = vchSecret.SetString(strSecret);
+    if (!fGood) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
+	 bool fCompressed;
+    CSecret secret = vchSecret.GetSecret(fCompressed);
+	key.SetSecret(secret, fCompressed);
+	
     if (!key.Sign(Hash(alert.vchMsg.begin(), alert.vchMsg.end()), alert.vchSig))
         throw runtime_error(
             "Unable to sign alert, check private key?\n");  

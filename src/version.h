@@ -11,7 +11,7 @@
 // network protocol versioning
 //
 
-static const int PROTOCOL_VERSION = 72000;
+static const int PROTOCOL_VERSION = 72001;
 static const int PROTOCOL_START = 71990;
 
 // earlier versions not supported as of Feb 2012, and are disconnected

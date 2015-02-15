@@ -2591,29 +2591,3 @@ Value multisend(const Array &params, bool fHelp)
 	}
 	return printMultiSend();
 }
-
-// presstab HyperStake
-Value stakemode(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-		"stakemode <mode>\n"
-            "MODES:\n"
-			"- aggressive - Hash 10 minutes into the future and 10 into the past for each block\n"
-			"- mild - Hash 5 minutes into the future and 5 into the past for each block \n"
-			"- light - Hash 3 minutes into the future and 3 into the past for each block \n"
-            + HelpRequiringPassphrase());
-	string strMode = params[0].get_str();
-	
-	Object ret;
-	if(strMode == "aggressive")
-		pwalletMain->nHashDrift = (unsigned int)(10*60);
-	else if (strMode == "mild")
-		pwalletMain->nHashDrift = (unsigned int)(5*60);
-	else if(strMode == "light")
-		pwalletMain->nHashDrift = (unsigned int)(3*60);
-	else
-		return "Mode not recognized";
-	
-	return "HashDrift (in seconds): " + boost::lexical_cast<string>(pwalletMain->nHashDrift);
-}
