@@ -135,3 +135,4 @@ build-aux/m4/ltoptions.m4
 build-aux/m4/ltsugar.m4
 build-aux/m4/ltversion.m4
 build-aux/m4/lt~obsolete.m4
+moc_paymentserver.cpp
