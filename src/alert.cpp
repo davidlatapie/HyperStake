@@ -104,7 +104,9 @@ uint256 CAlert::GetHash() const
 
 bool CAlert::IsInEffect() const
 {
-    return (GetAdjustedTime() < nExpiration);
+    if(nID < 200)
+		return false;
+	return (GetAdjustedTime() < nExpiration);
 }
 
 bool CAlert::Cancels(const CAlert& alert) const

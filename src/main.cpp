@@ -69,6 +69,7 @@ map<uint256, uint256> mapProofOfStake;
 map<uint256, CDataStream*> mapOrphanTransactions;
 map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 map<unsigned int, unsigned int> mapHashedBlocks;
+bool fStrictProtocol = false;
 
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
@@ -3006,6 +3007,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pfrom->fDisconnect = true;
             return false;
         }
+		
+		if((fStrictProtocol || GetBoolArg("-strictprotocol", true) ) && pfrom->nVersion != PROTOCOL_VERSION)
+		{
+			printf("Strict Protocol: partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
+            pfrom->fDisconnect = true;
+            return false;
+		}
 
         if (pfrom->nVersion == 10300)
             pfrom->nVersion = 300;

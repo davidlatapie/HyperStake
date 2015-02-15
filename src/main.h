@@ -94,6 +94,7 @@ extern unsigned char pchMessageStart[4];
 extern std::map<uint256, CBlock*> mapOrphanBlocks;
 extern bool fHaveGUI;
 extern std::map<unsigned int, unsigned int> mapHashedBlocks;
+extern bool fStrictProtocol;
 
 // Settings
 extern int64 nTransactionFee;
