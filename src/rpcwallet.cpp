@@ -2591,3 +2591,20 @@ Value multisend(const Array &params, bool fHelp)
 	}
 	return printMultiSend();
 }
+
+// presstab HyperStake
+Value strictprotocol(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "strictprotocol <true/false>\n"
+                "WARNING: if set true peer count will drop");
+    fStrictProtocol = params[0].get_bool();
+	if(fStrictProtocol)
+		return "Strict Protocol True";
+	else
+		return "Strict Protocol False";
+}
+	
+	
+	
