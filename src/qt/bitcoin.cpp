@@ -108,7 +108,9 @@ static void handleRunawayException(std::exception *e)
 int main(int argc, char *argv[])
 {
     fHaveGUI = true;
-
+    
+    // Command-line options take precedence:
+    ParseParameters(argc, argv);
     
     #if QT_VERSION < 0x050000
     // Internal string conversion is all UTF-8
@@ -128,10 +130,7 @@ int main(int argc, char *argv[])
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
 
-    // Command-line options take precedence:
-    ParseParameters(argc, argv);
-
-    // ... then bitcoin.conf:
+        // ... then bitcoin.conf:
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
         // This message can not be translated, as translation is not initialized yet
