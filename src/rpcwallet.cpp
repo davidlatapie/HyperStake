@@ -2598,13 +2598,28 @@ Value strictprotocol(const Array& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "strictprotocol <true/false>\n"
-                "WARNING: if set true peer count will drop");
+				"Refuse connections to other protocols\n"
+                "WARNING: if set true peer count will drop\n");
     fStrictProtocol = params[0].get_bool();
 	if(fStrictProtocol)
 		return "Strict Protocol True";
 	else
 		return "Strict Protocol False";
 }
-	
+
+// presstab HyperStake
+Value strictincoming(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "strictincoming <true/false>\n"
+			"drop connections from peers sending too many orphans or redundant requests"
+              "WARNING: if set true peer count will drop");
+    fStrictIncoming = params[0].get_bool();
+	if(fStrictIncoming)
+		return "Strict Incoming True";
+	else
+		return "Strict Incoming False";
+}	
 	
 	

@@ -69,7 +69,10 @@ map<uint256, uint256> mapProofOfStake;
 map<uint256, CDataStream*> mapOrphanTransactions;
 map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 map<unsigned int, unsigned int> mapHashedBlocks;
+map<std::string, std::pair<int, int> > mapGetBlocksRequests;
+std::map <std::string, int> mapPeerRejectedBlocks;
 bool fStrictProtocol = false;
+bool fStrictIncoming = false;
 
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
@@ -3348,10 +3351,39 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (pindex)
             pindex = pindex->pnext;
         int nLimit = 1000;
-        printf("getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().substr(0,20).c_str(), nLimit);
+		int nFirst = (pindex ? pindex->nHeight : -1);
+        printf("getblocks %d to %s limit %d\n", nFirst, hashStop.ToString().substr(0,20).c_str(), nLimit);
         for (; pindex; pindex = pindex->pnext)
         {
-            if (pindex->GetBlockHash() == hashStop)
+            if(fStrictIncoming)
+			{
+				std::string strFrom = pfrom->addrName;
+				if(mapGetBlocksRequests.count(strFrom))
+				{
+					if(mapGetBlocksRequests[strFrom].first == nFirst) // if the peer has already requested this
+						mapGetBlocksRequests[strFrom].second += 1; // count times this has been requested
+					else
+					{
+						// this has not been requested from this peer, so record it
+						mapGetBlocksRequests[strFrom].first = nFirst;
+						mapGetBlocksRequests[strFrom].second = 1;
+					}
+					if(mapGetBlocksRequests[strFrom].first != -1 && mapGetBlocksRequests[strFrom].second > 100)
+					{
+						printf("GetBlocksRequest: disconnect from peer %s that has requested the same thing more than 100 times\n", strFrom.c_str());
+						pfrom->fDisconnect = true;
+						return false;
+					}			
+				}
+				else
+				{	
+					// if peer hasn't requested any blocks yet then add them to map
+					printf("GetBlocksRequest: adding peer to map\n");
+					mapGetBlocksRequests[strFrom].first = nFirst;
+					mapGetBlocksRequests[strFrom].second = 1;
+				}
+			}
+			if (pindex->GetBlockHash() == hashStop)
             {
                 printf("  getblocks stopping at %d %s\n", pindex->nHeight, pindex->GetBlockHash().ToString().substr(0,20).c_str());
                 break;
@@ -3498,18 +3530,33 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CInv inv(MSG_BLOCK, block.GetHash());
         pfrom->AddInventoryKnown(inv);
 
-        if (ProcessBlock(pfrom, &block)) {
+        if (ProcessBlock(pfrom, &block)) 
             mapAlreadyAskedFor.erase(inv);
-        } else {
-        // Be more aggressive with blockchain download. Send getblocks() message after
-        // an error related to new block download
+		else 
+		{
+			if(fStrictIncoming)
+			{
+				string strFrom = pfrom->addrName; 
+				if(mapPeerRejectedBlocks.count(strFrom) == 0)
+					mapPeerRejectedBlocks[strFrom] = 1;
+				else
+					mapPeerRejectedBlocks[strFrom] += 1;
+				if (mapPeerRejectedBlocks[strFrom] > 100)
+				{
+					printf("MapPeerRejectedBlocks: %s has sent 100 orphans, disconnecting\n", strFrom.c_str());
+					pfrom->fDisconnect = true;
+					return false;
+				}
+			}
+			// Be more aggressive with blockchain download. Send getblocks() message after
+			// an error related to new block download
             int64 TimeSinceBestBlock = GetTime() - nTimeBestReceived;
-            if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK) {
-		printf("INFO: Waiting %"PRI64d" sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock);
+            if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK)
+			{
+				printf("INFO: Waiting %"PRI64d" sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock);
                 pfrom->PushGetBlocks(pindexBest, uint256(0));
             }
         }
-
         if (block.nDoS) pfrom->Misbehaving(block.nDoS);
     }
 

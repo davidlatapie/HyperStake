@@ -286,6 +286,7 @@ static const CRPCCommand vRPCCommands[] =
 	{ "getpotentialstake",	&getpotentialstake,	false,	false },
 	{ "getconfs",	&getconfs,	false,	false },
 	{ "strictprotocol",	&strictprotocol,	false,	false },
+	{ "strictincoming",	&strictincoming,	false,	false },
 	
 };
 
@@ -1221,6 +1222,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[6]);
 	if (strMethod == "sendalert" && n > 7)        		ConvertTo<int>(params[7]);
 	if (strMethod == "strictprotocol" && n > 0)       ConvertTo<bool>(params[0]);
+	if (strMethod == "strictincoming" && n > 0)      ConvertTo<bool>(params[0]);
 	
     return params;
 }
