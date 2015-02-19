@@ -948,16 +948,22 @@ static const int CUTOFF_HEIGHT = POW_CUTOFF_HEIGHT;
 // miner's coin base reward based on nBits
 int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash)
 {
-    int64 nSubsidy = 500 * COIN;
-
+    int64 nSubsidy = 0;
+	if(fTestNet)
+	{
+		if(nHeight == 1)
+			nSubsidy = 50000000 * COIN; // 50 million premine for testnet so we can be rich
+		else
+			nSubsidy = 1000 * COIN;
+		return nSubsidy + nFees;
+	}
+	
+	nSubsidy = 500 * COIN;
 	if(nHeight == 1)
 	{
 		nSubsidy = 120000 * COIN;
 		return nSubsidy + nFees;
 	}
-
-     
-
     return nSubsidy + nFees;
 }
 
@@ -2619,10 +2625,10 @@ bool LoadBlockIndex(bool fAllowNew)
         bnProofOfStakeLimit = bnProofOfStakeLimitTestNet; // 0x00000fff PoS base target is fixed in testnet
         bnProofOfWorkLimit = bnProofOfWorkLimitTestNet; // 0x0000ffff PoW base target is fixed in testnet
         nStakeMinAge = 20 * 60; // test net min age is 20 min
-        nStakeMaxAge = 4* 60 * 60; // test net min age is 60 min
+        nStakeMaxAge = 60 * 60 * 24; // test net min age is 24 hours
 
         nCoinbaseMaturity = 10; // test maturity is 10 blocks
-        nStakeTargetSpacing = 30; // test block spacing is 3 minutes
+        nStakeTargetSpacing = 90; // test block spacing is 90 seconds
     }
 
     //
@@ -2658,7 +2664,13 @@ bool LoadBlockIndex(bool fAllowNew)
         block.nTime    = 1401331380;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
         block.nNonce   = 1779291;
-        if (false ) {
+        if(fTestNet)
+		{
+			block.nTime = 1424304823;
+			block.nNonce = 0;
+		}
+		
+		if (false ) {
 
         // This will figure out a valid hash and Nonce if you're
         // creating a different genesis block:
@@ -2679,8 +2691,6 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("block.hashMerkleRoot == %s\n", block.hashMerkleRoot.ToString().c_str());
         printf("block.nTime = %u \n", block.nTime);
         printf("block.nNonce = %u \n", block.nNonce);
-
-
 
         assert(block.hashMerkleRoot == uint256("37ad323037e6e55553fadebbe60690a1bff2752f947b7af8cb6b54929f5fee3d"));
 		assert(block.GetHash() == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet));

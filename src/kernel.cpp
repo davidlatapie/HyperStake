@@ -15,7 +15,15 @@ extern int nStakeTargetSpacing;
 // Modifier interval: time to elapse before new modifier is computed
 // Set to 3-hour for production network and 20-minute for test network
 
-unsigned int nModifierInterval = MODIFIER_INTERVAL;
+unsigned int nModifierInterval = getIntervalVersion(fTestNet);
+unsigned int getIntervalVersion(bool fTestNet)
+{
+	if(fTestNet)
+		return MODIFIER_INTERVAL_TESTNET;
+	else
+		return MODIFIER_INTERVAL;
+}
+
 
 
 unsigned int nProtocolModifierIntervalChangeSwitchHeight     = 14420;

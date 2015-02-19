@@ -287,6 +287,8 @@ static const CRPCCommand vRPCCommands[] =
 	{ "getconfs",	&getconfs,	false,	false },
 	{ "strictprotocol",	&strictprotocol,	false,	false },
 	{ "strictincoming",	&strictincoming,	false,	false },
+	{ "setgenerate",            &setgenerate,            true,   false },
+    { "gethashespersec",        &gethashespersec,        true,   false },
 	
 };
 
