@@ -24,17 +24,6 @@ unsigned int getIntervalVersion(bool fTestNet)
 		return MODIFIER_INTERVAL;
 }
 
-
-
-unsigned int nProtocolModifierIntervalChangeSwitchHeight     = 14420;
-unsigned int nProtocolModifierIntervalChangeTestSwitchHeight = 100;
-
-bool IsProtocolModifierIntervalChange(unsigned int nBlockHeight)
-{
-    return false;
-}
-
-
 // Hard checkpoints of stake modifiers to ensure they are deterministic
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
     boost::assign::map_list_of
@@ -43,19 +32,12 @@ static std::map<int, unsigned int> mapStakeModifierCheckpoints =
 // Get time weight
 int64 GetWeight(int64 nIntervalBeginning, int64 nIntervalEnd)
 {
-    // Kernel hash weight starts from 0 at the min age
-    // this change increases active coins participating the hash and helps
-    // to secure the network when proof-of-stake difficulty is low
-
     return min(nIntervalEnd - nIntervalBeginning - nStakeMinAge, (int64)nStakeMaxAge);
 }
 
 // Get time weight 2 - This is added for informational purposes since staking takes 8.8 days min approx. because of bug
 int64 GetWeight2(int64 nIntervalBeginning, int64 nIntervalEnd)
 {
-    // Kernel hash weight starts from 0 at the min age
-    // this change increases active coins participating the hash and helps
-    // to secure the network when proof-of-stake difficulty is low
 	int64 nTimePassed = nIntervalEnd - nIntervalBeginning;
 	return min(nTimePassed, (int64)nStakeMaxAge) - nStakeMinAge;
 }
