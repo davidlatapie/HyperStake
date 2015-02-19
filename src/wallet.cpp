@@ -1312,7 +1312,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
 	{
 		if(nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
 		{
-			if(GetTime() - out.tx->GetTxTime() > nStakeMinAgeV2)
+			if(GetTime() - out.tx->GetTxTime() > fTestNet? nStakeMinAge : nStakeMinAgeV2)
 			{
 				setCoins.insert(make_pair(out.tx, out.i));
 				nAmountSelected += out.tx->vout[out.i].nValue;
@@ -1619,7 +1619,9 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 	
 	// variables for next stake calculation
 	uint64 nPrevAge = 0;
-	uint64 nStakeAge = 60 * 60 * 24 * 88 / 10;
+	uint64 nStakeAge = nStakeMinAgeV2;
+	if(fTestNet)
+		nStakeAge = nStakeMinAge;
 	
     CTxDB txdb("r");
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
@@ -1635,14 +1637,14 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 		uint64 nCurrentAge = (int64)GetTime() - (int64)pcoin.first->nTime;
 		if (nCurrentAge > nPrevAge)
 		{
+			nHoursToMaturity = ((nStakeAge - nCurrentAge) / 60 / 60) + 1;
 			nPrevAge = nCurrentAge;
-			nHoursToMaturity = ((nStakeAge - nPrevAge) / 60 / 60) + 1;
 		}
         int64 nTimeWeight = GetWeight2((int64)pcoin.first->nTime, (int64)GetTime());
 		//CBigNum bnAmount = CBigNum(pcoin.first->vout[pcoin.second].nValue) / COIN / 1000;
         CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
 		
-		if ((nStakeAge - nCurrentAge) < (60*60*24*8.8)) // if the age is less than 8.8 days, report weight as 0 because the stake modifier won't allow for stake yet
+		if (nCurrentAge < nStakeAge) // if the age is less than 8.8 days, report weight as 0 because the stake modifier won't allow for stake yet
 			bnCoinDayWeight = 0;
 
         // Weight is greater than zero
