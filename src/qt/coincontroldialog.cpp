@@ -785,7 +785,14 @@ void CoinControlDialog::updateView()
             nChildren++;
             
 			model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight);
-			if ((GetTime() - pindex->nTime) < (60*60*24*8.8))
+			int64 nStakeAge;
+			
+			if(fTestNet)
+				nStakeAge = nStakeMinAge;
+			else 
+				nStakeAge = nStakeMinAgeV2;
+			
+			if ((GetTime() - pindex->nTime) < nStakeAge)
 				nDisplayWeight = 0;
 			else
 				nDisplayWeight = nTxWeight;
@@ -866,7 +873,6 @@ void CoinControlDialog::updateView()
 			itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " "));
 			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
 			
-			
 			// Potential Stake
 			double nPotentialStake = min(7.5 / 365 * nBlockSize * nAge / (60*60*24), 1000.0); //min of the max reward or the stake rate
 			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake * COIN), 15, " ")); //use COIN for formatting
@@ -879,10 +885,10 @@ void CoinControlDialog::updateView()
 			uint64 nMin = 1;
 			nBlockSize = qMax(nBlockSize, nMin);
 			uint64 nTimeToMaturity = 0;
-			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * 8.8)); // default to using weight at 9.8 days for calc
+			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * (nStakeAge/60/60/24)));
 			double dAge = nAge;
-			if (760320 - dAge >= 0 ) // 760320 seconds is 8.8 days
-				nTimeToMaturity = (760320 - nAge);
+			if (nStakeAge - dAge >= 0 )
+				nTimeToMaturity = (nStakeAge - nAge);
 			else
 				nTimeToMaturity = 0;
 			uint64 nAccuracyAdjustment = 1; // this is a manual adjustment in an attempt to make staking estimate more accurate

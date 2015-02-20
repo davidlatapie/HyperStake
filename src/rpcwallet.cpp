@@ -2201,11 +2201,11 @@ Value cclistcoins(const Array& params, bool fHelp)
 		double dAmount = double(out.tx->vout[out.i].nValue) / double(COIN);
 		coutput.push_back(Pair("Value", dAmount));
 		coutput.push_back(Pair("Confirmations", int(out.nDepth)));
-		double dAge = double(GetTime() - pindex->nTime) / (60*60*24);
-		coutput.push_back(Pair("Age (days)", (dAge)));
+		double dAge = double(GetTime() - pindex->nTime);
+		coutput.push_back(Pair("Age (days)", (dAge/(60*60*24))));
 		uint64 nWeight = 0;
 		pwalletMain->GetStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nWeight);
-		if(dAge < 8.8)
+		if(dAge < fTestNet ? nStakeMinAge : nStakeMinAgeV2)
 			nWeight = 0;
 		coutput.push_back(Pair("Weight", int(nWeight)));
 		double nReward = 7.5 / 365 * dAge * dAmount;
