@@ -2010,8 +2010,14 @@ double getWeight()
 		CBlockIndex* pindex = FindBlockByHeight(nHeight);
 		uint64 nWeight = 0;
 		pwalletMain->GetStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nWeight);
-		double dAge = double(GetTime() - pindex->nTime) / (60*60*24);
-		if(dAge < 8.8)
+		int64 nAge = int64(GetTime() - pindex->nTime);
+		int64 nStakeAge;
+		if(fTestNet)
+			nStakeAge = nStakeMinAge;
+		else
+			nStakeAge = nStakeMinAgeV2;
+		
+		if(nAge < nStakeAge)
 			nWeight = 0;
 		nWeightSum += nWeight;
 	}
