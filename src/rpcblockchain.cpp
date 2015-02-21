@@ -305,7 +305,7 @@ Value listblocks(const Array& params, bool fHelp)
         CBlockIndex* pindex = FindBlockByHeight(nBlockNumber);
         blk.push_back(Pair("height", pindex->nHeight));
         blk.push_back(Pair("hash", pindex->GetBlockHash().GetHex()));
-        blk.push_back(Pair("time", pindex->GetBlockTime()));
+        blk.push_back(Pair("time", (boost::int64_t)pindex->GetBlockTime()));
         blk.push_back(Pair("difficulty", GetDifficulty(pindex)));
         if(pindex->IsProofOfStake())
             blk.push_back(Pair("type", "PoS"));
