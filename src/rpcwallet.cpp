@@ -23,6 +23,7 @@ CCoinControl* coinControl = new CCoinControl;
 static CCriticalSection cs_nWalletUnlockTime;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
+extern int64 nLastCoinStakeSearchInterval;
 
 std::string HelpRequiringPassphrase()
 {
@@ -93,6 +94,16 @@ Value getinfo(const Array& params, bool fHelp)
     obj.push_back(Pair("keypoololdest", (boost::int64_t)pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   pwalletMain->GetKeyPoolSize()));
     obj.push_back(Pair("paytxfee",      ValueFromAmount(nTransactionFee)));
+	obj.push_back(Pair("staking status", nLastCoinStakeSearchInterval ? "Staking Active" : "Staking Not Active"));
+	
+	std::string strLockState = "";
+	if(pwalletMain->IsLocked())
+		strLockState = "Wallet Locked";
+	else if(pwalletMain->fWalletUnlockMintOnly)
+		strLockState = "Wallet Unlocked for Minting Only";
+	else
+		strLockState = "Wallet is Unlocked";
+	obj.push_back(Pair("lock state", strLockState));
     if (pwalletMain->IsCrypted())
         obj.push_back(Pair("unlocked_until", (boost::int64_t)nWalletUnlockTime / 1000));
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
