@@ -1226,7 +1226,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "strictprotocol" && n > 0)      ConvertTo<bool>(params[0]);
 	if (strMethod == "strictincoming" && n > 0)      ConvertTo<bool>(params[0]);
 	if (strMethod == "listblocks" && n > 0)      ConvertTo<int>(params[0]);
-    if (strMethod == "listblocks" && n > 0)      ConvertTo<int>(params[1]);
+    if (strMethod == "listblocks" && n > 1)      ConvertTo<int>(params[1]);
     return params;
 }
 
