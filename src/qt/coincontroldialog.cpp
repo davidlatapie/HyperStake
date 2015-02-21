@@ -785,14 +785,14 @@ void CoinControlDialog::updateView()
             nChildren++;
             
 			model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight);
-			int64 nStakeAge;
+			double dStakeAge;
 			
 			if(fTestNet)
-				nStakeAge = nStakeMinAge;
+				dStakeAge = nStakeMinAge;
 			else 
-				nStakeAge = nStakeMinAgeV2;
+				dStakeAge = nStakeMinAgeV2;
 			
-			if ((GetTime() - pindex->nTime) < nStakeAge)
+			if ((GetTime() - pindex->nTime) < dStakeAge)
 				nDisplayWeight = 0;
 			else
 				nDisplayWeight = nTxWeight;
@@ -885,10 +885,10 @@ void CoinControlDialog::updateView()
 			uint64 nMin = 1;
 			nBlockSize = qMax(nBlockSize, nMin);
 			uint64 nTimeToMaturity = 0;
-			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * (nStakeAge/60/60/24)));
+			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * (dStakeAge/(60*60*24))));
 			double dAge = nAge;
-			if (nStakeAge - dAge >= 0 )
-				nTimeToMaturity = (nStakeAge - nAge);
+			if (dStakeAge - dAge >= 0 )
+				nTimeToMaturity = (dStakeAge - nAge);
 			else
 				nTimeToMaturity = 0;
 			uint64 nAccuracyAdjustment = 1; // this is a manual adjustment in an attempt to make staking estimate more accurate
