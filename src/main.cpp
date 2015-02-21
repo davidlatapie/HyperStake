@@ -2409,7 +2409,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 			uint64 nWeight;
 			uint64 nHoursToMaturity;
 			uint64 nAmount;
-			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
+			pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
 			
 			if(pwalletMain->strDisableArg == ">")
 			{

@@ -1253,7 +1253,7 @@ void BitcoinGUI::updateMintingWeights()
 		nAmount = 0;
 		
         if (pwalletMain)
-			pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
+			pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
 		
 		if (nHoursToMaturity > 212)
 			nHoursToMaturity = 0;

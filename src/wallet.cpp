@@ -1538,69 +1538,10 @@ bool CWallet::CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& w
     return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, 1, fAllowS4C, coinControl);
 }
 
-bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight)
+bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nHoursToMaturity, uint64& nAmount)
 {
     // Choose coins to use
     int64 nBalance = GetBalance();
-
-    int64 nReserveBalance = 0;
-    if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
-        return error("CreateCoinStake : invalid reserve balance amount");
-    if (nBalance <= nReserveBalance)
-        return false;
-
-    set<pair<const CWalletTx*,unsigned int> > setCoins;
-    vector<const CWalletTx*> vwtxPrev;
-    int64 nValueIn = 0;
-	
-	if (!SelectCoins(nBalance - nReserveBalance, GetTime(), setCoins, nValueIn))
-		return false;
-
-	if(setCoins.empty())
-		return false;
-	
-    CTxDB txdb("r");
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
-    {
-        CTxIndex txindex;
-        {
-            LOCK2(cs_main, cs_wallet);
-            if (!txdb.ReadTxIndex(pcoin.first->GetHash(), txindex))
-                continue;
-        }
-
-        int64 nTimeWeight = GetWeight((int64)pcoin.first->nTime, (int64)GetTime());
-        CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
-
-        // Weight is greater than zero
-        if (nTimeWeight > 0)
-        {
-            nWeight += bnCoinDayWeight.getuint64();
-        }
-
-        // Weight is greater than zero, but the maximum value isn't reached yet
-        if (nTimeWeight > 0 && nTimeWeight < nStakeMaxAge)
-        {
-            nMinWeight += bnCoinDayWeight.getuint64();
-        }
-
-        // Maximum weight was reached
-        if (nTimeWeight == nStakeMaxAge)
-        {
-            nMaxWeight += bnCoinDayWeight.getuint64();
-        }
-    }
-
-    return true;
-}
-
-//This is added for informational purposes since staking takes 8.8 days min approx. because of bug
-bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nHoursToMaturity, uint64& nAmount)
-{
-    // Choose coins to use
-    int64 nBalance = GetBalance();
-	
-	
     int64 nReserveBalance = 0;
     if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
         return error("CreateCoinStake : invalid reserve balance amount");
@@ -1613,12 +1554,10 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 
     if (!SelectCoins(nBalance - nReserveBalance, GetTime(), setCoins, nValueIn))
         return false;
-
     if (setCoins.empty())
         return false;
 	
-	// variables for next stake calculation
-	uint64 nPrevAge = 0;
+	uint64 nPrevAge = 0; // for nHoursToMaturity calculation
 	uint64 nStakeAge = nStakeMinAgeV2;
 	if(fTestNet)
 		nStakeAge = nStakeMinAge;
@@ -1640,33 +1579,26 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uin
 			nHoursToMaturity = ((nStakeAge - nCurrentAge) / 60 / 60) + 1;
 			nPrevAge = nCurrentAge;
 		}
+		
         int64 nTimeWeight = GetWeight2((int64)pcoin.first->nTime, (int64)GetTime());
-		//CBigNum bnAmount = CBigNum(pcoin.first->vout[pcoin.second].nValue) / COIN / 1000;
         CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
 		
-		if (nCurrentAge < nStakeAge) // if the age is less than 8.8 days, report weight as 0 because the stake modifier won't allow for stake yet
+		if (nCurrentAge < nStakeAge) // if the age is less than min stake age report it as 0
 			bnCoinDayWeight = 0;
 
-        // Weight is greater than zero
         if (nTimeWeight > 0)
         {
             nWeight += bnCoinDayWeight.getuint64();
 			nAmount += (uint64)pcoin.first->vout[pcoin.second].nValue / COIN;
         }
-
+		
         // Weight is greater than zero, but the maximum value isn't reached yet
         if (nTimeWeight > 0 && nTimeWeight < nStakeMaxAge)
-        {
             nMinWeight += bnCoinDayWeight.getuint64();
-        }
-
         // Maximum weight was reached
         if (nTimeWeight == nStakeMaxAge)
-        {
             nMaxWeight += bnCoinDayWeight.getuint64();
-        }
     }
-
     return true;
 }
 
