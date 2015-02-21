@@ -289,7 +289,7 @@ static const CRPCCommand vRPCCommands[] =
 	{ "strictincoming",	&strictincoming,	false,	false },
 	{ "setgenerate",            &setgenerate,            true,   false },
     { "gethashespersec",        &gethashespersec,        true,   false },
-	
+	{ "listblocks",        &listblocks,        false,   false },
 };
 
 CRPCTable::CRPCTable()
@@ -1223,9 +1223,10 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[5]);
 	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[6]);
 	if (strMethod == "sendalert" && n > 7)        		ConvertTo<int>(params[7]);
-	if (strMethod == "strictprotocol" && n > 0)       ConvertTo<bool>(params[0]);
+	if (strMethod == "strictprotocol" && n > 0)      ConvertTo<bool>(params[0]);
 	if (strMethod == "strictincoming" && n > 0)      ConvertTo<bool>(params[0]);
-	
+	if (strMethod == "listblocks" && n > 0)      ConvertTo<int>(params[0]);
+    if (strMethod == "listblocks" && n > 0)      ConvertTo<int>(params[1]);
     return params;
 }
 

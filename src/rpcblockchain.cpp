@@ -286,3 +286,33 @@ Value exportdifficulty(const Array& params, bool fHelp)
 	File.close(); 
     return "succesfully exported";
 }
+
+// presstab HyperStake
+Value listblocks(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "<listblocks> <highest height> <# of blocks to display>\n"
+            "list basic information about a range of blocks\n");
+    unsigned int nTopBlock = params[0].get_int();
+    unsigned int nRange = params[1].get_int();
+    Array arrRet;
+
+    for(unsigned int i = 0; i < nRange; i++) 
+    {
+        Object blk;
+        unsigned int nBlockNumber = nTopBlock - i;
+        CBlockIndex* pindex = FindBlockByHeight(nBlockNumber);
+        blk.push_back(Pair("height", pindex->nHeight));
+        blk.push_back(Pair("hash", pindex->GetBlockHash().GetHex()));
+        blk.push_back(Pair("time", pindex->GetBlockTime()));
+        blk.push_back(Pair("difficulty", GetDifficulty(pindex)));
+        if(pindex->IsProofOfStake())
+            blk.push_back(Pair("type", "PoS"));
+        else
+            blk.push_back(Pair("type", "PoW"));
+        arrRet.push_back(blk);
+    }  
+
+    return arrRet;
+}
