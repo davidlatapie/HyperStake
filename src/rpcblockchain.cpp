@@ -311,6 +311,9 @@ Value listblocks(const Array& params, bool fHelp)
             blk.push_back(Pair("type", "PoS"));
         else
             blk.push_back(Pair("type", "PoW"));
+        blk.push_back(Pair("minted", ValueFromAmount(pindex->nMint)));
+        blk.push_back(Pair("money supply", ValueFromAmount(pindex->nMoneySupply)));
+
         arrRet.push_back(blk);
     }  
 
