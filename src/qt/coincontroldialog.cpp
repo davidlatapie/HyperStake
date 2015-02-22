@@ -886,6 +886,7 @@ void CoinControlDialog::updateView()
 			nBlockSize = qMax(nBlockSize, nMin);
 			uint64 nTimeToMaturity = 0;
 			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * (dStakeAge/(60*60*24))));
+            nBlockWeight = qMax(nBlockWeight, (uint64)1);
 			double dAge = nAge;
 			if (dStakeAge - dAge >= 0 )
 				nTimeToMaturity = (dStakeAge - nAge);
