@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="bitcoin">res/icons/hyperstake-16.png</file>
+        <file alias="bitcoin">res/icons/hyperstake-128.png</file>
         <file alias="bitcoin16">res/icons/hyperstake-16.png</file>
         <file alias="bitcoin32">res/icons/hyperstake-32.png</file>
         <file alias="address-book">res/icons/address-book.png</file>
