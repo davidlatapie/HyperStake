@@ -24,6 +24,7 @@
 #include "bitcoinunits.h"
 #include "guiconstants.h"
 #include "askpassphrasedialog.h"
+#include "networkstyle.h"
 #include "notificator.h"
 #include "guiutil.h"
 #include "rpcconsole.h"
@@ -73,7 +74,7 @@ extern CWallet *pwalletMain;
 extern int64 nLastCoinStakeSearchInterval;
 extern unsigned int nStakeTargetSpacing;
 
-BitcoinGUI::BitcoinGUI(QWidget *parent):
+BitcoinGUI::BitcoinGUI(const NetworkStyle * networkStyle, QWidget *parent):
     QMainWindow(parent),
     clientModel(0),
     walletModel(0),
@@ -83,18 +84,28 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     lockWalletToggleAction(0),
     aboutQtAction(0),
     trayIcon(0),
+    trayIconMenu(0),
     notificator(0),
     rpcConsole(0)
 {
     resize(850, 550);
-    setWindowTitle(tr("HyperStake") + " - " + tr("Wallet"));
+    
+    QString windowTitle = tr("HyperStake") + " - " + tr("Wallet");
+    windowTitle += " " + networkStyle->getTitleAddText();
 #ifndef Q_OS_MAC
-    qApp->setWindowIcon(QIcon(":icons/bitcoin32"));
-    setWindowIcon(QIcon(":icons/bitcoin32"));
+    QApplication::setWindowIcon(networkStyle->getTrayAndWindowIcon());
+    setWindowIcon(networkStyle->getTrayAndWindowIcon());
 #else
-    setUnifiedTitleAndToolBarOnMac(true);
-    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+    MacDockIconHandler::instance()->setIcon(networkStyle->getAppIcon());
 #endif
+    setWindowTitle(windowTitle);
+    
+#if defined(Q_OS_MAC) && QT_VERSION < 0x050000
+    // This property is not implemented in Qt 5. Setting it has no effect.
+    // A replacement API (QtMacUnifiedToolBar) is available in QtMacExtras.
+    setUnifiedTitleAndToolBarOnMac(true);
+#endif
+    
     // Accept D&D of URIs
     setAcceptDrops(true);
 
@@ -103,6 +114,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     listThemes(themesList);
     /* /zeewolf: Hot swappable wallet themes */
     // Create actions for the toolbar, menu bar and tray/dock icon
+    // Needs walletFrame to be initialized
     createActions();
 
     // Create application menu bar
@@ -112,14 +124,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     createToolBars();
 
     // Create the tray icon (or setup the dock icon) abffaaassffffa
-    createTrayIcon();
-
-    /* don't override the background color of the toolbar on mac os x due to
-       the whole component it resides on not being paintable
-     */
-#ifdef Q_OS_MAC
-    //toolbar->setStyleSheet("QToolBar { background-color: transparent; border: 0px solid black; padding: 3px; }");
-#endif
+    createTrayIcon(networkStyle);
 
     // Create tabs
     overviewPage = new OverviewPage();
@@ -246,6 +251,7 @@ BitcoinGUI::~BitcoinGUI()
         trayIcon->hide();
 #ifdef Q_OS_MAC
     delete appMenuBar;
+    MacDockIconHandler::instance()->setMainWindow(NULL);
 #endif
 }
 
@@ -470,20 +476,15 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
     this->clientModel = clientModel;
     if(clientModel)
     {
+        // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
+        // while the client has not yet fully loaded
+        createTrayIconMenu();
+        
         // Replace some strings and icons, when using the testnet
         if(clientModel->isTestNet())
         {
-            setWindowTitle(windowTitle() + QString(" ") + tr("[testnet]"));
-#ifndef Q_OS_MAC
-            qApp->setWindowIcon(QIcon(":icons/bitcoin_testnet"));
-            setWindowIcon(QIcon(":icons/bitcoin_testnet"));
-#else
-            MacDockIconHandler::instance()->setIcon(QIcon(":icons/bitcoin_testnet"));
-#endif
             if(trayIcon)
             {
-                trayIcon->setToolTip(tr("HyperStake client") + QString(" ") + tr("[testnet]"));
-                trayIcon->setIcon(QIcon(":/icons/toolbar_testnet"));
                 toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
             }
 
@@ -536,24 +537,39 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
     }
 }
 
-void BitcoinGUI::createTrayIcon()
+void BitcoinGUI::createTrayIcon(const NetworkStyle *networkStyle)
 {
-    QMenu *trayIconMenu;
 #ifndef Q_OS_MAC
     trayIcon = new QSystemTrayIcon(this);
+    QString toolTip = tr("HyperStake client") + " " + networkStyle->getTitleAddText();
+    trayIcon->setToolTip(toolTip);
+    trayIcon->setIcon(networkStyle->getTrayAndWindowIcon());
+    trayIcon->show();
+#endif
+
+    notificator = new Notificator(qApp->applicationName(), trayIcon, this);
+}
+
+
+void BitcoinGUI::createTrayIconMenu()
+{
+#ifndef Q_OS_MAC
+    // return if trayIcon is unset (only on non-Mac OSes)
+    if (!trayIcon)
+        return;
+    
     trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setToolTip(tr("HyperStake client"));
-    trayIcon->setIcon(QIcon(":/icons/toolbar"));
+    
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
-    trayIcon->show();
 #else
     // Note: On Mac, the dock icon is used to provide the tray's functionality.
     MacDockIconHandler *dockIconHandler = MacDockIconHandler::instance();
+    dockIconHandler->setMainWindow((QMainWindow *)this);
     trayIconMenu = dockIconHandler->dockMenu();
 #endif
-
+    
     // Configuration of the tray icon (or dock icon) icon menu
     trayIconMenu->addAction(toggleHideAction);
     trayIconMenu->addSeparator();
@@ -569,9 +585,8 @@ void BitcoinGUI::createTrayIcon()
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 #endif
-
-    notificator = new Notificator(qApp->applicationName(), trayIcon, this);
 }
+
 
 #ifndef Q_OS_MAC
 void BitcoinGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
