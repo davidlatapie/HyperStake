@@ -480,17 +480,6 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
         // while the client has not yet fully loaded
         createTrayIconMenu();
         
-        // Replace some strings and icons, when using the testnet
-        if(clientModel->isTestNet())
-        {
-            if(trayIcon)
-            {
-                toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
-            }
-
-            aboutAction->setIcon(QIcon(":/icons/toolbar_testnet"));
-        }
-
         // Keep up to date with client
         setNumConnections(clientModel->getNumConnections());
         connect(clientModel, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
