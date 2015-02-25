@@ -2,15 +2,17 @@
  * W.J. van der Laan 2011-2012
  */
 #include "bitcoingui.h"
-#include "clientmodel.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
-#include "guiconstants.h"
 
+#include "clientmodel.h"
+#include "guiconstants.h"
+#include "guiutil.h"
 #include "init.h"
+#include "networkstyle.h"
+#include "optionsmodel.h"
 #include "ui_interface.h"
+
 #include "paymentserver.h"
+#include "walletmodel.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -109,9 +111,13 @@ int main(int argc, char *argv[])
 {
     fHaveGUI = true;
     
+    /// 1. Parse command-line options. These take precedence over anything else.
     // Command-line options take precedence:
     ParseParameters(argc, argv);
+
+    // Do not refer to data directory yet, this can be overridden by Intro::pickDataDirectory
     
+    /// 2. Basic Qt initialization (not dependent on parameters or configuration)
     #if QT_VERSION < 0x050000
     // Internal string conversion is all UTF-8
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
@@ -119,8 +125,16 @@ int main(int argc, char *argv[])
 	#endif
 	
     Q_INIT_RESOURCE(bitcoin);
+    
     QApplication app(argc, argv);
-
+#if QT_VERSION > 0x050100
+    // Generate high-dpi pixmaps
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+#ifdef Q_OS_MAC
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
+    
     // Do this early as we don't want to bother initializing if we are just calling IPC
     // ... but do it after creating app, so QCoreApplication::arguments is initialized:
     if (PaymentServer::ipcSendCommandLine())
@@ -139,17 +153,30 @@ int main(int argc, char *argv[])
                               QString("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
         return 1;
     }
-    ReadConfigFile(mapArgs, mapMultiArgs);
-
+    try {
+        ReadConfigFile(mapArgs, mapMultiArgs);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(0, QObject::tr("HyperStake"),
+                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
+        return false;
+    }
+    
+    
     // Application identification (must be set before OptionsModel is initialized,
     // as it is used to locate QSettings)
     app.setOrganizationName("HyperStake");
     app.setOrganizationDomain("HyperStake.su");
-    if(GetBoolArg("-testnet")) // Separate UI settings for testnet
-        app.setApplicationName("HyperStake-Qt-testnet");
-    else
-        app.setApplicationName("HyperStake-Qt");
-
+    
+    QString networkIDString = "main";
+    if (GetBoolArg("-testnet")){
+        networkIDString = "test";
+    }
+    
+    QScopedPointer<const NetworkStyle> networkStyle(NetworkStyle::instantiate(networkIDString));
+    assert(!networkStyle.isNull());
+    // Allow for separate UI settings for testnets
+    QApplication::setApplicationName(networkStyle->getAppName());
+    
     // ... then GUI settings:
     OptionsModel optionsModel;
 
@@ -222,7 +249,7 @@ int main(int argc, char *argv[])
         if (GUIUtil::GetStartOnSystemStartup())
             GUIUtil::SetStartOnSystemStartup(true);
 
-        BitcoinGUI window;
+        BitcoinGUI window(networkStyle.data(),0);
         guiref = &window;
         if(AppInit2())
         {

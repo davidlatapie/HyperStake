@@ -232,7 +232,9 @@ HEADERS += src/qt/bitcoingui.h \
     src/sph_echo.h \
     src/sph_shavite.h \
     src/sph_simd.h \
-    src/sph_types.h
+    src/sph_types.h \
+    src/qt/networkstyle.h \
+    src/qt/scicon.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/transactiontablemodel.cpp \
@@ -311,7 +313,9 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/blockbrowser.cpp \
     src/qt/charitydialog.cpp \
     src/simd.c \
-    src/clientversion.cpp
+    src/clientversion.cpp \
+    src/qt/networkstyle.cpp \
+    src/qt/scicon.cpp
 
 RESOURCES += \
     src/qt/bitcoin.qrc

@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="bitcoin">res/icons/hyperstake-16.png</file>
+        <file alias="bitcoin">res/icons/hyperstake-128.png</file>
         <file alias="bitcoin16">res/icons/hyperstake-16.png</file>
         <file alias="bitcoin32">res/icons/hyperstake-32.png</file>
         <file alias="address-book">res/icons/address-book.png</file>
@@ -24,8 +24,6 @@
         <file alias="editpaste">res/icons/editpaste.png</file>
         <file alias="editcopy">res/icons/editcopy.png</file>
         <file alias="add">res/icons/add.png</file>
-        <file alias="bitcoin_testnet">res/icons/hyperstake-16.png</file>
-        <file alias="toolbar_testnet">res/icons/hyperstake-16.png</file>
         <file alias="edit">res/icons/edit.png</file>
         <file alias="history">res/icons/history.png</file>
         <file alias="overview">res/icons/overview.png</file>

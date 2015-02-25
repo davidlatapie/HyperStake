@@ -6,18 +6,19 @@
 
 #include "util.h" // for uint64
 
-class TransactionTableModel;
-class ClientModel;
-class WalletModel;
-class TransactionView;
-class OverviewPage;
 class AddressBookPage;
+class BlockBrowser;
+class ClientModel;
+class NetworkStyle;
+class Notificator;
+class OverviewPage;
+class RPCConsole;
 class SendCoinsDialog;
 class SignVerifyMessageDialog;
-class Notificator;
-class RPCConsole;
 class StakeForCharityDialog;
-class BlockBrowser;
+class TransactionTableModel;
+class TransactionView;
+class WalletModel;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -38,7 +39,7 @@ class BitcoinGUI : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit BitcoinGUI(QWidget *parent = 0);
+    explicit BitcoinGUI(const NetworkStyle *networkStyle, QWidget *parent = 0);
     ~BitcoinGUI();
 
     /** Set the client model.
@@ -112,6 +113,7 @@ private:
 	
 
     QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
     Notificator *notificator;
     TransactionView *transactionView;
     RPCConsole *rpcConsole;
@@ -142,8 +144,11 @@ private:
     void createMenuBar();
     /** Create the toolbars */
     void createToolBars();
-    /** Create system tray (notification) icon */
-    void createTrayIcon();
+    /** Create system tray icon and notification */
+    void createTrayIcon(const NetworkStyle *networkStyle);
+    /** Create system tray menu (or setup the dock menu) */
+    void createTrayIconMenu();
+
 
 public slots:
     /** Set number of connections shown in the UI */
