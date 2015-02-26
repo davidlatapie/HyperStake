@@ -384,6 +384,7 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock& blockFrom, unsigned 
 				hashProofOfStake.ToString().c_str());
 		}
 	}
+	mapHashedBlocks.clear();
 	mapHashedBlocks[nBestHeight] = GetTime(); //store a time stamp of when we last hashed on this block
     return fSuccess;
 }

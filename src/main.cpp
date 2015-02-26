@@ -2981,10 +2981,11 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
 unsigned char pchMessageStart[4] = { 0xdb, 0xad, 0xbd, 0xda };
+unsigned int nLastMapGetBlocksClear = 0;
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {
-    static map<CService, CPubKey> mapReuseKey;
+	static map<CService, CPubKey> mapReuseKey;
     RandAddSeedPerfmon();
     if (fDebug)
         printf("received: %s (%"PRIszu" bytes)\n", strCommand.c_str(), vRecv.size());
@@ -2993,10 +2994,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         printf("dropmessagestest DROPPING RECV MESSAGE\n");
         return true;
     }
-
-
-
-
 
     if (strCommand == "version")
     {
@@ -3350,7 +3347,11 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
     else if (strCommand == "getblocks")
     {
-        CBlockLocator locator;
+        //clear our mapGetBlocksRequests every 3 minutes to prevent storing lots of data
+		if(nLastMapGetBlocksClear != 0 && GetTime() - nLastMapGetBlocksClear > (180))
+			mapGetBlocksRequests.clear();
+		
+		CBlockLocator locator;
         uint256 hashStop;
         vRecv >> locator >> hashStop;
 
@@ -3367,6 +3368,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         {
             if(fStrictIncoming)
 			{
+				nLastMapGetBlocksClear = GetTime();
 				std::string strFrom = pfrom->addrName;
 				if(mapGetBlocksRequests.count(strFrom))
 				{
