@@ -57,7 +57,18 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
         else
         {
             in.push_back(Pair("txid", txin.prevout.hash.GetHex()));
-            in.push_back(Pair("vout", (boost::int64_t)txin.prevout.n));
+			in.push_back(Pair("vout", (boost::int64_t)txin.prevout.n));
+			
+			CTransaction txoutspent;
+			uint256 tempHash = 0;
+			if(GetTransaction( txin.prevout.hash, txoutspent, tempHash))
+			{
+				in.push_back(Pair("value", ValueFromAmount(txoutspent.vout[txin.prevout.n].nValue)));
+				CTxDestination inputAddress;
+				ExtractDestination(txoutspent.vout[txin.prevout.n].scriptPubKey, inputAddress);
+				in.push_back(Pair("addressfrom", CBitcoinAddress(inputAddress).ToString()));
+			}
+            
             Object o;
             o.push_back(Pair("asm", txin.scriptSig.ToString()));
             o.push_back(Pair("hex", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
