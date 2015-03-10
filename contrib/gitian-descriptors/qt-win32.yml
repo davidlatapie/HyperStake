@@ -23,8 +23,8 @@ script: |
   sed 's/$TODAY/2011-01-30/' -i configure
   sed 's/i686-pc-mingw32-/i586-mingw32msvc-/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
   sed --posix 's|QMAKE_CFLAGS\t\t= -pipe|QMAKE_CFLAGS\t\t= -pipe -isystem /usr/i586-mingw32msvc/include/ -frandom-seed=qtbuild|' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
-  sed 's/QMAKE_CXXFLAGS_ETRKEPTIONS_ON = -fexceptions -mthreads/QMAKE_CXXFLAGS_ETRKEPTIONS_ON = -fexceptions/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
-  sed 's/QMAKE_LFLAGS_ETRKEPTIONS_ON = -mthreads/QMAKE_LFLAGS_ETRKEPTIONS_ON = -lmingwthrd/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
+  sed 's/QMAKE_CXXFLAGS_EXCEPTIONS_ON = -fexceptions -mthreads/QMAKE_CXXFLAGS_EXCEPTIONS_ON = -fexceptions/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
+  sed 's/QMAKE_LFLAGS_EXCEPTIONS_ON = -mthreads/QMAKE_LFLAGS_EXCEPTIONS_ON = -lmingwthrd/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
   sed --posix 's/QMAKE_MOC\t\t= i586-mingw32msvc-moc/QMAKE_MOC\t\t= moc/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
   sed --posix 's/QMAKE_RCC\t\t= i586-mingw32msvc-rcc/QMAKE_RCC\t\t= rcc/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf
   sed --posix 's/QMAKE_UIC\t\t= i586-mingw32msvc-uic/QMAKE_UIC\t\t= uic/' -i mkspecs/unsupported/win32-g++-cross/qmake.conf

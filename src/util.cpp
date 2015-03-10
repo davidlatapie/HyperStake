@@ -1010,10 +1010,10 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
 #endif
     if (pex)
         return strprintf(
-            "ETRKEPTION: %s       \n%s       \n%s in %s       \n", typeid(*pex).name(), pex->what(), pszModule, pszThread);
+            "EXCEPTION: %s       \n%s       \n%s in %s       \n", typeid(*pex).name(), pex->what(), pszModule, pszThread);
     else
         return strprintf(
-            "UNKNOWN ETRKEPTION       \n%s in %s       \n", pszModule, pszThread);
+            "UNKNOWN EXCEPTION       \n%s in %s       \n", pszModule, pszThread);
 }
 
 void LogException(std::exception* pex, const char* pszThread)
