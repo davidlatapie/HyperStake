@@ -42,7 +42,6 @@ BITCOIN_CORE_H = \
   clientversion.h \
   coincontrol.h \
   compat.h \
-  core.h \
   crypter.h \
   db.h \
   init.h \
@@ -70,9 +69,7 @@ BITCOIN_CORE_H = \
   sph_simd.h \
   sph_skein.h \
   sync.h \
-  threadsafety.h \
   tinyformat.h \
-  txdb.h \
   ui_interface.h \
   uint256.h \
   util.h \
