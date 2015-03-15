@@ -68,6 +68,7 @@ BITCOIN_CORE_H = \
   sph_shavite.h \
   sph_simd.h \
   sph_skein.h \
+  sph_types.h \
   sync.h \
   tinyformat.h \
   ui_interface.h \
