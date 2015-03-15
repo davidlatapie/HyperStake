@@ -44,6 +44,7 @@ BITCOIN_CORE_H = \
   compat.h \
   crypter.h \
   db.h \
+  hashblock.h \
   init.h \
   irc.h \
   kernel.h \
