@@ -56,6 +56,7 @@ BITCOIN_CORE_H = \
   pbkdf2.h \
   protocol.h \
   script.h \
+  scrypt_mine.h \
   serialize.h \
   sph_blake.h \
   sph_bmw.h \
