@@ -1,20 +1,18 @@
 bin_PROGRAMS += qt/test/test_bitcoin-qt
 TESTS += qt/test/test_bitcoin-qt
 
-TEST_QT_MOC_CPP = qt/test/moc_uritests.cpp
+TEST_QT_MOC_CPP =
 
 if ENABLE_WALLET
 endif
 
-TEST_QT_H = \
-  qt/test/uritests.h
+TEST_QT_H =
 
 qt_test_test_bitcoin_qt_CPPFLAGS = $(BITCOIN_INCLUDES) $(BITCOIN_QT_INCLUDES) \
   $(QT_INCLUDES) $(QT_TEST_INCLUDES) $(PROTOBUF_CFLAGS)
 
 qt_test_test_bitcoin_qt_SOURCES = \
-  qt/test/test_main.cpp \
-  qt/test/uritests.cpp \
+  qt/test/test_main.cpp
   $(TEST_QT_H)
 if ENABLE_WALLET
 endif
@@ -27,7 +25,7 @@ qt_test_test_bitcoin_qt_LDADD += $(LIBBITCOIN_WALLET)
 endif
 qt_test_test_bitcoin_qt_LDADD += $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) $(LIBBITCOIN_UNIVALUE) $(LIBLEVELDB) \
   $(LIBMEMENV) $(BOOST_LIBS) $(QT_DBUS_LIBS) $(QT_TEST_LIBS) $(QT_LIBS) \
-  $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) 
+  $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS)
 qt_test_test_bitcoin_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 CLEAN_BITCOIN_QT_TEST = $(TEST_QT_MOC_CPP) qt/test/*.gcda qt/test/*.gcno
