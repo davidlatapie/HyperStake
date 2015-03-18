@@ -146,6 +146,7 @@ RES_ICONS = \
   qt/res/icons/hyperstake-16.png \
   qt/res/icons/hyperstake-32.png \
   qt/res/icons/hyperstake-128.png \
+  qt/res/icons/info.png \
   qt/res/icons/key.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
