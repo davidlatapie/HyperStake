@@ -151,6 +151,7 @@ RES_ICONS = \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
   qt/res/icons/mining.png \
+  qt/res/icons/mining_inactive.png \
   qt/res/icons/notsynced.png \
   qt/res/icons/overview.png \
   qt/res/icons/qrcode.png \
