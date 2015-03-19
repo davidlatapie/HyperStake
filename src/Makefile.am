@@ -42,9 +42,9 @@ BITCOIN_CORE_H = \
   clientversion.h \
   coincontrol.h \
   compat.h \
-  core.h \
   crypter.h \
   db.h \
+  hashblock.h \
   init.h \
   irc.h \
   kernel.h \
@@ -57,6 +57,7 @@ BITCOIN_CORE_H = \
   pbkdf2.h \
   protocol.h \
   script.h \
+  scrypt_mine.h \
   serialize.h \
   sph_blake.h \
   sph_bmw.h \
@@ -69,10 +70,9 @@ BITCOIN_CORE_H = \
   sph_shavite.h \
   sph_simd.h \
   sph_skein.h \
+  sph_types.h \
   sync.h \
-  threadsafety.h \
   tinyformat.h \
-  txdb.h \
   ui_interface.h \
   uint256.h \
   util.h \
@@ -101,6 +101,7 @@ libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
 libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS)
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \
+  aes_helper.c \
   alert.cpp \
   bitcoinrpc.cpp \
   blake.c \

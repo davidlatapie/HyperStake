@@ -4,9 +4,7 @@ TEST_SRCDIR = test
 TEST_BINARY=test/test_bitcoin$(EXEEXT)
 
 
-EXTRA_DIST += \
-	test/bctest.py \
-	test/bitcoin-util-test.py
+EXTRA_DIST += 
 
 JSON_TEST_FILES = \
   test/data/script_valid.json \
