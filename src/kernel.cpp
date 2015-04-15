@@ -249,7 +249,7 @@ static bool GetKernelStakeModifier(uint256 hashBlockFrom, uint64& nStakeModifier
                     pindex->GetBlockHash().ToString().c_str(), pindex->nHeight, hashBlockFrom.ToString().c_str());
             else
 			{
-				printf("FAILED BECAUSE no pindexnext\n");
+				//printf("FAILED BECAUSE no pindexnext\n");
 				return false;
 			}
                 
