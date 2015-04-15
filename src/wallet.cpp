@@ -1322,6 +1322,19 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
 	return true;
 }
 
+bool CWallet::MintableCoins()
+{
+	vector<COutput> vCoins;
+    AvailableCoins(vCoins, true);
+	
+	BOOST_FOREACH(const COutput& out, vCoins)
+	{
+		if(GetTime() - out.tx->GetTxTime() > fTestNet? nStakeMinAge : nStakeMinAgeV2)
+			return true;
+	}
+	return false;
+}
+
 bool CWallet::SelectCoins(int64 nTargetValue, unsigned int nSpendTime, set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64& nValueRet, const CCoinControl* coinControl) const
 {
     vector<COutput> vCoins;

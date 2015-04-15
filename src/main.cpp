@@ -4478,8 +4478,6 @@ static int nLimitProcessors = -1;
 
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 {
-
-
     printf("CPUMiner started for proof-of-%s\n", fProofOfStake? "stake" : "work");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
@@ -4489,14 +4487,13 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
     // Each thread has its own key and counter
     CReserveKey reservekey(pwallet);
     unsigned int nExtraNonce = 0;
-
+	
     while (fGenerateBitcoins || fProofOfStake)
     {
         if (fShutdown)
             return;
         
-
-        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked())
+        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked()  ||  !pwallet->MintableCoins())
         {
             nLastCoinStakeSearchInterval = 0;
             Sleep(1000);
