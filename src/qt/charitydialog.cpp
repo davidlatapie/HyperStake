@@ -108,3 +108,8 @@ void StakeForCharityDialog::on_disableButton_clicked()
     ui->message->setText(tr("MultiSend is disabled"));
     return;
 }
+
+void StakeForCharityDialog::on_changeAddressBookButton_clicked()
+{
+	
+}
