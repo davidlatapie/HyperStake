@@ -309,8 +309,8 @@ void BitcoinGUI::createActions()
     aboutAction->setToolTip(tr("Show information about HyperStake"));
     aboutAction->setMenuRole(QAction::AboutRole);
 
-    charityAction = new QAction(QIcon(":/icons/s4c"), tr("&S4C"), this);
-    charityAction->setToolTip(tr("Enable Stake For Charity"));
+    charityAction = new QAction(QIcon(":/icons/s4c"), tr("&MultiSend"), this);
+    charityAction->setToolTip(tr("MultiSend Settings"));
     charityAction->setCheckable(true);
 	charityAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
 	tabGroup->addAction(charityAction);
