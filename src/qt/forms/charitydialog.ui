@@ -19,7 +19,7 @@
   <widget class="QLineEdit" name="charityPercentEdit">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>140</x>
      <y>120</y>
      <width>131</width>
      <height>20</height>
@@ -35,7 +35,7 @@
   <widget class="QLineEdit" name="charityAddressEdit">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>140</x>
      <y>150</y>
      <width>401</width>
      <height>21</height>
@@ -52,7 +52,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>20</y>
+     <y>10</y>
      <width>451</width>
      <height>91</height>
     </rect>
@@ -124,7 +124,7 @@ MultiSend will not be activated unless you have clicked Activate</string>
   <widget class="QPushButton" name="addressBookButton">
    <property name="geometry">
     <rect>
-     <x>480</x>
+     <x>540</x>
      <y>150</y>
      <width>28</width>
      <height>21</height>
@@ -150,7 +150,7 @@ MultiSend will not be activated unless you have clicked Activate</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
      <y>120</y>
      <width>61</width>
      <height>20</height>
@@ -166,7 +166,7 @@ MultiSend will not be activated unless you have clicked Activate</string>
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
      <y>150</y>
      <width>91</width>
      <height>16</height>
