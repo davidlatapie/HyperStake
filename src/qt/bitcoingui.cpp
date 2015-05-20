@@ -431,7 +431,7 @@ void BitcoinGUI::createMenuBar()
     settings->addAction(changePassphraseAction);
 	settings->addAction(checkWalletAction);
 	settings->addAction(repairWalletAction);
-	//settings->addAction(charityAction);
+	settings->addAction(charityAction);
 	settings->addAction(calcAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
@@ -462,7 +462,7 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
-	//toolbar->addAction(charityAction);
+	toolbar->addAction(charityAction);
 
     QToolBar *toolbar2 = addToolBar(tr("Actions toolbar"));
     toolbar2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
