@@ -1336,7 +1336,7 @@ bool CWallet::MintableCoins()
 	
 	BOOST_FOREACH(const COutput& out, vCoins)
 	{
-		if(GetTime() - out.tx->GetTxTime() > fTestNet? nStakeMinAge : nStakeMinAgeV2)
+		if(GetTime() - out.tx->GetTxTime() > (fTestNet? nStakeMinAge : nStakeMinAgeV2))
 			return true;
 	}	
 	
