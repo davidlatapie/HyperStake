@@ -1312,7 +1312,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
 	{
 		if(nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
 		{
-			if(GetTime() - out.tx->GetTxTime() > fTestNet? nStakeMinAge : nStakeMinAgeV2)
+			if(GetTime() - out.tx->GetTxTime() > (fTestNet ? nStakeMinAge : nStakeMinAgeV2))
 			{
 				setCoins.insert(make_pair(out.tx, out.i));
 				nAmountSelected += out.tx->vout[out.i].nValue;
