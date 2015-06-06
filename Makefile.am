@@ -73,6 +73,7 @@ $(OSX_APP)/Contents/MacOS/Hyperstake-Qt: $(BITCOIN_QT_BIN)
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
 
 $(OSX_APP)/Contents/MacOS/themes: $(THEMES)
+	$(MKDIR_P) $(@D)
 	cp -R $(THEMES) $(@D)
 
 OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
