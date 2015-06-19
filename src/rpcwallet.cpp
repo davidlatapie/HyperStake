@@ -2216,7 +2216,7 @@ Value cclistcoins(const Array& params, bool fHelp)
 		coutput.push_back(Pair("Age (days)", (dAge/(60*60*24))));
 		uint64 nWeight = 0;
 		pwalletMain->GetStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nWeight);
-		if(dAge < fTestNet ? nStakeMinAge : nStakeMinAgeV2)
+		if(dAge < (fTestNet ? nStakeMinAge : nStakeMinAgeV2))
 			nWeight = 0;
 		coutput.push_back(Pair("Weight", int(nWeight)));
 		double nReward = 7.5 / 365 * dAge * dAmount;
