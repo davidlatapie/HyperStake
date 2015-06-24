@@ -164,6 +164,12 @@ public:
 		}
 		return ret;
 	}
+	//presstab HyperStake
+	bool WriteHashDrift(unsigned int nHashDrift)
+	{
+		nWalletDBUpdated++;
+		return Write(std::string("hashdrift"), nHashDrift, true);
+	}
     bool WriteDefaultKey(const CPubKey& vchPubKey)
     {
         nWalletDBUpdated++;

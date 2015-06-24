@@ -131,7 +131,7 @@ public:
 		fStakeRequirement =  false;
 		
 		// Stake Settings
-		nHashDrift = 60;
+		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
 		
 		//MultiSend
@@ -162,7 +162,7 @@ public:
 		fStakeRequirement =  false;
 		
 		// Stake Settings
-		nHashDrift = 60;
+		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
 		
 		//MultiSend

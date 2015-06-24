@@ -94,7 +94,12 @@ Value getinfo(const Array& params, bool fHelp)
     obj.push_back(Pair("keypoololdest", (boost::int64_t)pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   pwalletMain->GetKeyPoolSize()));
     obj.push_back(Pair("paytxfee",      ValueFromAmount(nTransactionFee)));
-	obj.push_back(Pair("staking status", mapHashedBlocks.count(nBestHeight) ? "Staking Active" : "Staking Not Active"));
+	bool nStaking = false;
+	if(mapHashedBlocks.count(nBestHeight))
+		nStaking = true;
+	else if(mapHashedBlocks.count(nBestHeight - 1) && nLastCoinStakeSearchInterval)
+		nStaking = true;	
+	obj.push_back(Pair("staking status", (nStaking ? "Staking Active" : "Staking Not Active")));
 	
 	std::string strLockState = "";
 	if(pwalletMain->IsLocked())
@@ -2639,4 +2644,24 @@ Value strictincoming(const Array& params, bool fHelp)
 		return "Strict Incoming False";
 }	
 	
+// presstab HyperStake
+Value hashdrift(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+            "hashdrift <seconds to hash into the future>\n"
+              "WARNING: too high of a hash drift will cause orphans");
+    if(params.size() < 1)
+		return boost::lexical_cast<string>(pwalletMain->nHashDrift);
+	
+	CWalletDB walletdb(pwalletMain->strWalletFile);
+	unsigned int nHashDrift = boost::lexical_cast<unsigned int>(params[0].get_str());
+	bool fSuccess = walletdb.WriteHashDrift(nHashDrift);
+	pwalletMain->nHashDrift = nHashDrift;
+	
+	if(fSuccess)
+		return "Hashdrift set and save to DB";
+	else
+		return "Hashdrift set but failed to write to DB";
+}	
 	
