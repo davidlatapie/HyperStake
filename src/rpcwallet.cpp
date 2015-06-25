@@ -2656,6 +2656,9 @@ Value hashdrift(const Array& params, bool fHelp)
 	
 	CWalletDB walletdb(pwalletMain->strWalletFile);
 	unsigned int nHashDrift = boost::lexical_cast<unsigned int>(params[0].get_str());
+	if(nHashDrift > 60)
+		return "You can not set your hashdrift to be greater than 60 seconds";
+	
 	bool fSuccess = walletdb.WriteHashDrift(nHashDrift);
 	pwalletMain->nHashDrift = nHashDrift;
 	
