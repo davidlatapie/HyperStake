@@ -29,7 +29,7 @@ StakeForCharityDialog::~StakeForCharityDialog()
 
 void StakeForCharityDialog::setModel(WalletModel *model)
 {
-
+	this->model = model;
 }
 
 void StakeForCharityDialog::setAddress(const QString &address)
