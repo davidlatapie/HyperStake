@@ -1,15 +1,5 @@
 #include "calcdialog.h"
 #include "ui_calcdialog.h"
-
-#include "clientmodel.h"
-#include "notificator.h"
-#include "version.h"
-
-#include "wallet.h"
-#include "walletdb.h"
-#include "main.h"
-#include "init.h"
-
 #include <QString>
 
 calcDialog::calcDialog(QWidget *parent) :
