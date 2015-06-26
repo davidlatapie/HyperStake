@@ -103,6 +103,7 @@ public:
 	
 	// Stake Settings
 	unsigned int nHashDrift;
+	unsigned int nHashInterval;
 	uint64 nStakeSplitThreshold;
 	
 	// DisableStake
@@ -133,6 +134,7 @@ public:
 		// Stake Settings
 		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
+		nHashInterval = 22;
 		
 		//MultiSend
 		vMultiSend.clear();
@@ -164,6 +166,7 @@ public:
 		// Stake Settings
 		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
+		nHashInterval = 22;
 		
 		//MultiSend
 		vMultiSend.clear();

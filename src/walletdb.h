@@ -170,6 +170,12 @@ public:
 		nWalletDBUpdated++;
 		return Write(std::string("hashdrift"), nHashDrift, true);
 	}
+	//presstab HyperStake
+	bool WriteHashInterval(unsigned int nHashInterval)
+	{
+		nWalletDBUpdated++;
+		return Write(std::string("hashinterval"), nHashInterval, true);
+	}
     bool WriteDefaultKey(const CPubKey& vchPubKey)
     {
         nWalletDBUpdated++;

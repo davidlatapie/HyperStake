@@ -2645,26 +2645,64 @@ Value strictincoming(const Array& params, bool fHelp)
 }	
 	
 // presstab HyperStake
-Value hashdrift(const Array& params, bool fHelp)
+Value hashsettings(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 2 || params.size() == 0)
         throw runtime_error(
-            "hashdrift <seconds to hash into the future>\n"
-              "WARNING: too high of a hash drift will cause orphans");
-    if(params.size() < 1)
-		return boost::lexical_cast<string>(pwalletMain->nHashDrift);
+            "hashsettings <drift/interval><seconds>\n"
+			"ex: 'hashsettings drift' will return the current drift settings\n"
+			"ex: 'hashsettings interval' will return the current interval settings\n"
+			"ex: hashsettings drift 45\n"
+			"ex: hashsettings interval 20\n"
+			"ex: 'hashsettings default' returns the settings to default\n"
+			"hashdrift is how many second into the future your wallet will stake in one hashing burst\n"
+			"interval is how often your client will search for new hashes\n"
+			"if you set your hashdrift to 45, then your client will create 45 unique proof of stake hashes, the only thing changing the hash result is the timestamp included, thus you hash 45 seconds into the future.\n"
+			"Each hash is an attempt to meet the staking target. If you don't hit the staking target, your client will pause staking for the set interval. \n"
+			"If the interval is 22 seconds, the wallet will create 45 hashes, wait 22 seconds, then create 45 hashes. Approximately 23 of those hashes will be identical as the previous rounds hashes.\n"
+              "WARNING: timedrift allowance is 60 seconds too high of a hash drift will cause orphans");
+    if(params.size() < 2)
+	{
+		if(params[0].get_str() == "drift") 
+			return boost::lexical_cast<string>(pwalletMain->nHashDrift);
+		else if(params[0].get_str() == "interval") 
+			return boost::lexical_cast<string>(pwalletMain->nHashInterval);
+		else if(params[0].get_str() == "default")
+		{
+			CWalletDB walletdb(pwalletMain->strWalletFile);
+			pwalletMain->nHashDrift = 45;
+			pwalletMain->nHashInterval = 22;
+			walletdb.WriteHashDrift(45);
+			walletdb.WriteHashInterval(22);
+			return "Hash Settings returned to default";
+		}
+	}
 	
 	CWalletDB walletdb(pwalletMain->strWalletFile);
-	unsigned int nHashDrift = boost::lexical_cast<unsigned int>(params[0].get_str());
-	if(nHashDrift > 60)
-		return "You can not set your hashdrift to be greater than 60 seconds";
-	
-	bool fSuccess = walletdb.WriteHashDrift(nHashDrift);
-	pwalletMain->nHashDrift = nHashDrift;
-	
-	if(fSuccess)
-		return "Hashdrift set and save to DB";
-	else
-		return "Hashdrift set but failed to write to DB";
+	if(params[0].get_str() == "drift") 
+	{
+		unsigned int nHashDrift = boost::lexical_cast<unsigned int>(params[1].get_str());
+		if(nHashDrift > 60)
+			return "You can not set your hashdrift to be greater than 60 seconds";
+		else if(nHashDrift < 1)
+			return "Hash drift too low";
+		
+		pwalletMain->nHashDrift = nHashDrift;
+		if(walletdb.WriteHashDrift(nHashDrift))
+			return "Hashdrift set and save to DB";
+		else
+			return "Hashdrift set but failed to write to DB";
+	}
+	else if(params[0].get_str() == "interval") 
+	{
+		unsigned int nHashInterval = boost::lexical_cast<unsigned int>(params[1].get_str());
+		if(nHashInterval < 1)
+			return "Interval too low";
+		pwalletMain->nHashInterval = nHashInterval;
+		if(walletdb.WriteHashInterval(nHashInterval))
+			return "HashInterval set and save to DB";
+		else
+			return "HashInterval set but failed to write to DB";
+	}
 }	
 	

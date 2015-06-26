@@ -406,6 +406,12 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 		   ssValue >> nHashDrift;
 		   pwallet->nHashDrift = nHashDrift;
 		}
+		else if(strType == "hashinterval")//presstab HyperStake
+		{
+		   unsigned int nHashInterval;
+		   ssValue >> nHashInterval;
+		   pwallet->nHashInterval = nHashInterval;
+		}
     } catch (...)
     {
         return false;
