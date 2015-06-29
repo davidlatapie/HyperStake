@@ -6,7 +6,7 @@
 #include "version.h"
 
 // Client version number
-#define CLIENT_VERSION_SUFFIX   "HyperStake-1.1.1.2"
+#define CLIENT_VERSION_SUFFIX   "HyperStake-1.1.1.3"
 
 
 // The following part of the code determines the CLIENT_BUILD variable.
