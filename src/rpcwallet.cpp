@@ -2704,5 +2704,6 @@ Value hashsettings(const Array& params, bool fHelp)
 		else
 			return "HashInterval set but failed to write to DB";
 	}
+	return false;
 }	
 	
