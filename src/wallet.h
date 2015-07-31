@@ -235,7 +235,7 @@ public:
     void ReacceptWalletTransactions();
     void ResendWalletTransactions();
     int64 GetBalance() const;
-	int64 GetBalanceV1() const;
+	int64 GetBalanceInMainChain() const;
     int64 GetUnconfirmedBalance() const;
     int64 GetImmatureBalance() const;
     int64 GetStake() const;
@@ -699,9 +699,11 @@ public:
         return (GetDebit() > 0);
     }
 
-    bool IsConfirmed() const
+    bool IsConfirmedInMainChain() const
     {
-        // Quick answer in most cases
+        //presstab - removed code that checks walletdb for confirmation, we want blockchain info only
+		
+		// Quick answer in most cases
         if (!IsFinal())
             return false;
         if (GetDepthInMainChain() >= 1)
@@ -709,12 +711,10 @@ public:
         if (!IsFromMe()) // using wtx's cached debit
             return false;
 		
-		//presstab HyperStake, removed code that checks walletdb for confirmation, we want blockchain info only
-		
         return false;
     }
 
-	bool IsConfirmedV1() const //will use this for rpc getbalance, so that it reports unconfirmed intrawallet transfers as part of your total balance
+	bool IsConfirmed() const
     {
         // Quick answer in most cases
         if (!IsFinal())

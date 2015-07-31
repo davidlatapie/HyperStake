@@ -977,7 +977,7 @@ int64 CWallet::GetBalance() const
     return nTotal;
 }
 
-int64 CWallet::GetBalanceV1() const //use this for getbalance rpc call so that it will return intra wallet transactions as confirmed
+int64 CWallet::GetBalanceInMainChain() const //use this for getbalance rpc call so that it will return intra wallet transactions as confirmed
 {
     int64 nTotal = 0;
     {
@@ -985,7 +985,7 @@ int64 CWallet::GetBalanceV1() const //use this for getbalance rpc call so that i
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (pcoin->IsFinal() && pcoin->IsConfirmedV1())
+            if (pcoin->IsFinal() && pcoin->IsConfirmedInMainChain())
                 nTotal += pcoin->GetAvailableCredit();
         }
     }
@@ -2337,7 +2337,7 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64& nBalanceInQuestion, int&
 		// presstab HyperStake
 		// This finds and deletes transactions that were never accepted by the network
 		// needs to be located above the readtxindex code or else it will not be triggered
-		if(!pcoin->IsConfirmed() && (GetTime() - pcoin->GetTxTime()) > (60*10)) //give the tx 10 minutes before considering it failed
+		if(!pcoin->IsConfirmedInMainChain() && (GetTime() - pcoin->GetTxTime()) > (60*10)) //give the tx 10 minutes before considering it failed
         {
            nOrphansFound++;
            if (!fCheckOnly)
