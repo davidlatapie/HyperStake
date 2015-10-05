@@ -140,6 +140,11 @@ public:
 		pSettings.second = nLastMultiSendHeight;
 		return Write(std::string("msettings"), pSettings, true);
 	}
+	bool WriteMCoinStake(bool fMultiSendCoinStake)
+	{
+		nWalletDBUpdated++;
+		return Write(std::string("mcoinstake"), fMultiSendCoinStake, true);
+	}
 	//presstab HyperStake
 	bool WriteMSDisabledAddresses(std::vector<std::string> vDisabledAddresses)
 	{

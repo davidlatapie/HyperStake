@@ -2370,6 +2370,7 @@ Array printMultiSend()
 	Array ret;
 	Object act;
 	act.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
+	act.push_back(Pair("MultiSend in CoinStake?", pwalletMain->fMultiSendCoinStake));
 	ret.push_back(act);
 	if(pwalletMain->vDisabledAddresses.size() >= 1)
 	{
@@ -2537,6 +2538,28 @@ Value multisend(const Array &params, bool fHelp)
 		}
 		
 	}
+	if(params.size() == 2 && params[0].get_str() == "coinstake")
+	{
+		std::string strCoinStake = params[1].get_str();
+		if(strCoinStake == "true")
+		{
+			pwalletMain->fMultiSendCoinStake = true;
+			if(walletdb.WriteMCoinStake(true))
+				return "MultiSend CoinStake enabled and saved to wallet DB";
+			else
+				return "MultiSend CoinStake enabled but failed to save to wallet DB";
+		}
+		else if(strCoinStake == "false")
+		{
+			pwalletMain->fMultiSendCoinStake = false;
+			if(walletdb.WriteMCoinStake(false))
+				return "MultiSend CoinStake disabled and saved to wallet DB";
+			else
+				return "MultiSend CoinStake edisabled but failed to save to wallet DB";
+		}	
+		else
+			return "Did not recognize parameter";
+	}
 	//if no commands are used
 	if (fHelp || params.size() != 2)
         throw runtime_error(
@@ -2556,6 +2579,7 @@ Value multisend(const Array &params, bool fHelp)
 			"   delete <Address #> - deletes an address from the MultiSend vector \n"
 			"   disable <address> - prevents a specific address from sending MultiSend transactions\n"
 			"   enableall - enables all addresses to be eligible to send MultiSend transactions\n"
+			"   coinstake <true/false> - this will send the multisend transaction in the coinstake transaction\n"
 			
 			"****************************************************************\n"
 			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"

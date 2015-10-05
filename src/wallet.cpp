@@ -1732,8 +1732,20 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 			txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 			uint64 nTotalSize = pcoin.first->vout[pcoin.second].nValue * (1+((txNew.nTime - block.GetBlockTime()) / (60*60*24)) * (7.5/365));
 				
-			if (nTotalSize / 2 > nStakeSplitThreshold * COIN)
+			//presstab HyperStake
+			//if MultiSend is set to send in coinstake we will add our outputs here (values asigned further down)
+			if(fMultiSend && fMultiSendCoinStake)
+			{
+				for(unsigned int i = 0; i < vMultiSend.size(); i++)
+				{
+					CScript scriptPubKeyMultiSend;
+					scriptPubKeyMultiSend.SetDestination(CBitcoinAddress(vMultiSend[i].first).Get());
+					txNew.vout.push_back(CTxOut(0, scriptPubKeyMultiSend));
+				}
+			}
+			else if (nTotalSize / 2 > nStakeSplitThreshold * COIN || fMultiSend)
 				txNew.vout.push_back(CTxOut(0, scriptPubKeyOut)); //split stake
+			
 			if (fDebug && GetBoolArg("-printcoinstake"))
 				printf("CreateCoinStake : added kernel type=%d\n", whichType);
 			fKernelFound = true;
@@ -1773,6 +1785,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         }
     }
     // Calculate coin age reward
+	uint64 nReward;
     {
         uint64 nCoinAge;
         CTxDB txdb("r");
@@ -1780,14 +1793,27 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
         if (!txNew.GetCoinAge(txdb, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
-        nCredit += GetProofOfStakeReward(nCoinAge, nBits, txNew.nTime, pIndex0->nHeight);
+		
+		nReward = GetProofOfStakeReward(nCoinAge, nBits, txNew.nTime, pIndex0->nHeight);
+        nCredit += nReward;
     }
 
     int64 nMinFee = 0;
     while (true)
     {
         // Set output amount
-        if (txNew.vout.size() == 3)
+        if(fMultiSend && fMultiSendCoinStake)
+		{
+			uint64 nMultiSendAmount = 0;
+			for(unsigned int i = 0; i < vMultiSend.size(); i++)
+			{
+				int nOut = 2 + i;
+				txNew.vout[nOut].nValue = nReward * vMultiSend[i].second / 100;
+				nMultiSendAmount += txNew.vout[nOut].nValue;
+			}
+			txNew.vout[1].nValue = nCredit - nMinFee - nMultiSendAmount;
+		}
+		else if (txNew.vout.size() == 3)
         {
             txNew.vout[1].nValue = ((nCredit - nMinFee) / 2 / CENT) * CENT;
             txNew.vout[2].nValue = nCredit - nMinFee - txNew.vout[1].nValue;
