@@ -1743,7 +1743,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 					txNew.vout.push_back(CTxOut(0, scriptPubKeyMultiSend));
 				}
 			}
-			else if (nTotalSize / 2 > nStakeSplitThreshold * COIN || fMultiSend)
+			else if (nTotalSize / 2 > nStakeSplitThreshold * COIN)
 				txNew.vout.push_back(CTxOut(0, scriptPubKeyOut)); //split stake
 			
 			if (fDebug && GetBoolArg("-printcoinstake"))
