@@ -291,6 +291,7 @@ static const CRPCCommand vRPCCommands[] =
     { "gethashespersec",        &gethashespersec,        true,   false },
 	{ "listblocks",        &listblocks,        false,   false },
 	{ "hashsettings",        &hashsettings,        false,   false },
+	{ "gettxfee",        &gettxfee,        false,   false },
 };
 
 CRPCTable::CRPCTable()
