@@ -2224,7 +2224,7 @@ Value cclistcoins(const Array& params, bool fHelp)
 		if(dAge < (fTestNet ? nStakeMinAge : nStakeMinAgeV2))
 			nWeight = 0;
 		coutput.push_back(Pair("Weight", int(nWeight)));
-		double nReward = 7.5 / 365 * dAge * dAmount / COIN;
+		double nReward = 7.5 / 365 * dAge/(60*60*24) * dAmount;
 		nReward = min(nReward, double(1000));
 		coutput.push_back(Pair("Potential Stake", nReward));
 		result.push_back(coutput);
