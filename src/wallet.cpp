@@ -1652,19 +1652,27 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nBalance <= nReserveBalance)
         return false;
 
-    set<pair<const CWalletTx*,unsigned int> > setCoins;
-    vector<const CWalletTx*> vwtxPrev;
+    // presstab HyperStake - Initialize as static and don't update the set on every run of CreateCoinStake() in order to lighten resource use
+	static std::set<pair<const CWalletTx*,unsigned int> > setStakeCoins;
+	static int nLastStakeSetUpdate = 0;
 
-	if (!SelectStakeCoins(setCoins, nBalance - nReserveBalance))
-		return false;
+    if(GetTime() - nLastStakeSetUpdate > nStakeSetUpdateTime)
+	{
+		setStakeCoins.clear();
+		if (!SelectStakeCoins(setStakeCoins, nBalance - nReserveBalance))
+			return false;
+		nLastStakeSetUpdate = GetTime();
+	}
 	
-    if (setCoins.empty())
+	if (setStakeCoins.empty())
         return false;
-
+	
+	vector<const CWalletTx*> vwtxPrev;
+	
     int64 nCredit = 0;
     CScript scriptPubKeyKernel;
 	CTxDB txdb("r");
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
+    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setStakeCoins)
     {
         CTxIndex txindex;
 		{
@@ -1752,12 +1760,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 			break;
 		}
         if (fKernelFound || fShutdown)
-            break; // if kernel is found stop searching
+			break; // if kernel is found stop searching
+            
     }
     if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
         return false;
 
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
+    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setStakeCoins)
     {
         // Attempt to add more inputs
         // Only add coins of the same key/address as kernel
@@ -1849,6 +1858,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     // Successfully generated coinstake
+	nLastStakeSetUpdate = 0; //this will trigger stake set to repopulate next round
     return true;
 }
 

@@ -106,6 +106,7 @@ public:
 	unsigned int nHashDrift;
 	unsigned int nHashInterval;
 	uint64 nStakeSplitThreshold;
+	int nStakeSetUpdateTime;
 	
 	// DisableStake
 	bool fDisableStake;
@@ -136,6 +137,7 @@ public:
 		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
 		nHashInterval = 22;
+		nStakeSetUpdateTime = 300; // 5 minutes
 		
 		//MultiSend
 		vMultiSend.clear();
@@ -169,6 +171,7 @@ public:
 		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
 		nHashInterval = 22;
+		nStakeSetUpdateTime = 300; // 5 minutes
 		
 		//MultiSend
 		vMultiSend.clear();
