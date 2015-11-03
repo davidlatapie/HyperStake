@@ -407,8 +407,10 @@ void TransactionView::showDetails()
 
 void TransactionView::enableDateRangeWidget(bool enable)
 {
-    dateFrom->setEnabled(enable);
-    dateTo->setEnabled(enable);
+    dateFrom->setVisible(enable);
+    dateTo->setVisible(enable);
+    to->setVisible(enable);
+    range->setVisible(enable);
 }
 
 QWidget *TransactionView::createDateRangeWidget()
@@ -420,7 +422,8 @@ QWidget *TransactionView::createDateRangeWidget()
     QHBoxLayout *layout = new QHBoxLayout(dateRangeWidget);
     layout->setContentsMargins(0,0,0,0);
     layout->addSpacing(23);
-    layout->addWidget(new QLabel(tr("Range:")));
+    range = new QLabel(tr("Range:"));
+    layout->addWidget(range);
 
     dateFrom = new QDateTimeEdit(this);
     dateFrom->setDisplayFormat("dd/MM/yy");
@@ -428,7 +431,8 @@ QWidget *TransactionView::createDateRangeWidget()
     dateFrom->setMinimumWidth(100);
     dateFrom->setDate(QDate::currentDate().addDays(-7));
     layout->addWidget(dateFrom);
-    layout->addWidget(new QLabel(tr("to")));
+    to = new QLabel(tr("to"));
+    layout->addWidget(to);
 
     dateTo = new QDateTimeEdit(this);
     dateTo->setDisplayFormat("dd/MM/yy");
@@ -441,7 +445,8 @@ QWidget *TransactionView::createDateRangeWidget()
     layout->addWidget(new QLabel(tr("Total:")));
     totalAmountWidget = new QLabel(this);
     totalAmountWidget->setText("0");
-    totalAmountWidget->setFixedWidth(100);
+    totalAmountWidget->setFixedWidth(120);
+    totalAmountWidget->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     layout->addWidget(totalAmountWidget);
 
     // Hide by default
