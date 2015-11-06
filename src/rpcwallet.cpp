@@ -2674,6 +2674,7 @@ Value hashsettings(const Array& params, bool fHelp)
     if (fHelp || params.size() > 2 || params.size() == 0)
         throw runtime_error(
             "hashsettings <drift/interval><seconds>\n"
+			"hashsettings <combineduse><true/false>\n"
 			"ex: 'hashsettings drift' will return the current drift settings\n"
 			"ex: 'hashsettings interval' will return the current interval settings\n"
 			"ex: hashsettings drift 45\n"
@@ -2684,7 +2685,9 @@ Value hashsettings(const Array& params, bool fHelp)
 			"if you set your hashdrift to 45, then your client will create 45 unique proof of stake hashes, the only thing changing the hash result is the timestamp included, thus you hash 45 seconds into the future.\n"
 			"Each hash is an attempt to meet the staking target. If you don't hit the staking target, your client will pause staking for the set interval. \n"
 			"If the interval is 22 seconds, the wallet will create 45 hashes, wait 22 seconds, then create 45 hashes. Approximately 23 of those hashes will be identical as the previous rounds hashes.\n"
-              "WARNING: timedrift allowance is 60 seconds too high of a hash drift will cause orphans");
+              "WARNING: timedrift allowance is 60 seconds too high of a hash drift will cause orphans\n"
+			  "Combine dust is a setting in the staking parameters that will iterate through your entire wallet contents to looks for small coins that it can combine into your coinstake transaction." 
+			  "set this to false to prevent any combination from occurring \n");
     if(params.size() < 2)
 	{
 		if(params[0].get_str() == "drift") 
@@ -2700,6 +2703,8 @@ Value hashsettings(const Array& params, bool fHelp)
 			walletdb.WriteHashInterval(22);
 			return "Hash Settings returned to default";
 		}
+		else if(params[0].get_str() == "combinedust")
+			return pwalletMain->fCombineDust;
 	}
 	
 	CWalletDB walletdb(pwalletMain->strWalletFile);
@@ -2728,6 +2733,23 @@ Value hashsettings(const Array& params, bool fHelp)
 		else
 			return "HashInterval set but failed to write to DB";
 	}
-	return false;
+	else if(params[0].get_str() == "combinedust")
+	{
+		bool fCombineDust;
+		string strCombineDust = params[1].get_str();
+		if(strCombineDust == "true")
+			fCombineDust = true;
+		else if(strCombineDust == "false")
+			fCombineDust = false;
+		else
+			return "failed to understand true/false parameter";
+		
+		pwalletMain->fCombineDust = fCombineDust;
+		if(walletdb.WriteCombineDust(fCombineDust))
+			return "Combine dust setting saved and written to DB";
+		else
+			return "Combine dust setting saved and but failed to write to DB";
+	}
+	return "Failed to recognize commands";
 }	
 	

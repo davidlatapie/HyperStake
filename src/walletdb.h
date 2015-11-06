@@ -181,6 +181,11 @@ public:
 		nWalletDBUpdated++;
 		return Write(std::string("hashinterval"), nHashInterval, true);
 	}
+	bool WriteCombineDust(bool fCombineDust)
+	{
+		nWalletDBUpdated++;
+		return Write(std::string("combinedust"), fCombineDust, true);
+	}
     bool WriteDefaultKey(const CPubKey& vchPubKey)
     {
         nWalletDBUpdated++;

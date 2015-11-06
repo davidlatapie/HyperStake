@@ -107,6 +107,7 @@ public:
 	unsigned int nHashInterval;
 	uint64 nStakeSplitThreshold;
 	int nStakeSetUpdateTime;
+	bool fCombineDust;
 	
 	// DisableStake
 	bool fDisableStake;
@@ -138,6 +139,7 @@ public:
 		nStakeSplitThreshold = 2000;
 		nHashInterval = 22;
 		nStakeSetUpdateTime = 300; // 5 minutes
+		fCombineDust = true;
 		
 		//MultiSend
 		vMultiSend.clear();
@@ -172,6 +174,7 @@ public:
 		nStakeSplitThreshold = 2000;
 		nHashInterval = 22;
 		nStakeSetUpdateTime = 300; // 5 minutes
+		fCombineDust = true;
 		
 		//MultiSend
 		vMultiSend.clear();
