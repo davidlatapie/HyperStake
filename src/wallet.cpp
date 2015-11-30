@@ -1738,10 +1738,16 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 			nCredit += pcoin.first->vout[pcoin.second].nValue;
 			vwtxPrev.push_back(pcoin.first);
 			txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
-			uint64 nTotalSize = pcoin.first->vout[pcoin.second].nValue * (1+((txNew.nTime - block.GetBlockTime()) / (60*60*24)) * (7.5/365));
+			
+			//presstab HyperStake - calculate the total size of our new output including the stake reward so that we can use it to decide whether to split the stake outputs
+			uint64 nCoinAge;
+			CTxDB txdb("r");
+			const CBlockIndex* pIndex0 = GetLastBlockIndex(pindexBest, false);
+			if (!txNew.GetCoinAge(txdb, nCoinAge))
+				return error("CreateCoinStake : failed to calculate coin age");
+			uint64 nTotalSize = pcoin.first->vout[pcoin.second].nValue + GetProofOfStakeReward(nCoinAge, nBits, txNew.nTime, pIndex0->nHeight);
 				
-			//presstab HyperStake
-			//if MultiSend is set to send in coinstake we will add our outputs here (values asigned further down)
+			//presstab HyperStake - if MultiSend is set to send in coinstake we will add our outputs here (values asigned further down)
 			if(fMultiSend && fMultiSendCoinStake)
 			{
 				for(unsigned int i = 0; i < vMultiSend.size(); i++)
