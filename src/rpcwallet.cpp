@@ -2680,6 +2680,7 @@ Value hashsettings(const Array& params, bool fHelp)
 			"ex: hashsettings drift 45\n"
 			"ex: hashsettings interval 20\n"
 			"ex: 'hashsettings default' returns the settings to default\n"
+			"ex: 'hashsettings combinedust true' dust outputs will be combined when staking if eligible\n"
 			"hashdrift is how many second into the future your wallet will stake in one hashing burst\n"
 			"interval is how often your client will search for new hashes\n"
 			"if you set your hashdrift to 45, then your client will create 45 unique proof of stake hashes, the only thing changing the hash result is the timestamp included, thus you hash 45 seconds into the future.\n"
