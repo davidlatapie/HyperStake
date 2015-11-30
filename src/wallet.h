@@ -96,6 +96,7 @@ public:
 	//MultiSend
 	std::vector<std::pair<std::string, int> > vMultiSend;
 	bool fMultiSend;
+	bool fMultiSendCoinStake;
 	bool fMultiSendNotify;
 	std::string strMultiSendChangeAddress;
 	int nLastMultiSendHeight;
@@ -105,6 +106,8 @@ public:
 	unsigned int nHashDrift;
 	unsigned int nHashInterval;
 	uint64 nStakeSplitThreshold;
+	int nStakeSetUpdateTime;
+	bool fCombineDust;
 	
 	// DisableStake
 	bool fDisableStake;
@@ -135,10 +138,13 @@ public:
 		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
 		nHashInterval = 22;
+		nStakeSetUpdateTime = 300; // 5 minutes
+		fCombineDust = true;
 		
 		//MultiSend
 		vMultiSend.clear();
 		fMultiSend = false;
+		fMultiSendCoinStake = false;
 		fMultiSendNotify = false;
 		strMultiSendChangeAddress = "";
 		nLastMultiSendHeight = 0;
@@ -167,10 +173,13 @@ public:
 		nHashDrift = 45;
 		nStakeSplitThreshold = 2000;
 		nHashInterval = 22;
+		nStakeSetUpdateTime = 300; // 5 minutes
+		fCombineDust = true;
 		
 		//MultiSend
 		vMultiSend.clear();
 		fMultiSend = false;
+		fMultiSendCoinStake = false;
 		fMultiSendNotify = false;
 		strMultiSendChangeAddress = "";
 		nLastMultiSendHeight = 0;

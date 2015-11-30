@@ -1652,19 +1652,27 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nBalance <= nReserveBalance)
         return false;
 
-    set<pair<const CWalletTx*,unsigned int> > setCoins;
-    vector<const CWalletTx*> vwtxPrev;
+    // presstab HyperStake - Initialize as static and don't update the set on every run of CreateCoinStake() in order to lighten resource use
+	static std::set<pair<const CWalletTx*,unsigned int> > setStakeCoins;
+	static int nLastStakeSetUpdate = 0;
 
-	if (!SelectStakeCoins(setCoins, nBalance - nReserveBalance))
-		return false;
+    if(GetTime() - nLastStakeSetUpdate > nStakeSetUpdateTime)
+	{
+		setStakeCoins.clear();
+		if (!SelectStakeCoins(setStakeCoins, nBalance - nReserveBalance))
+			return false;
+		nLastStakeSetUpdate = GetTime();
+	}
 	
-    if (setCoins.empty())
+	if (setStakeCoins.empty())
         return false;
-
+	
+	vector<const CWalletTx*> vwtxPrev;
+	
     int64 nCredit = 0;
     CScript scriptPubKeyKernel;
 	CTxDB txdb("r");
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
+    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setStakeCoins)
     {
         CTxIndex txindex;
 		{
@@ -1732,47 +1740,64 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 			txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 			uint64 nTotalSize = pcoin.first->vout[pcoin.second].nValue * (1+((txNew.nTime - block.GetBlockTime()) / (60*60*24)) * (7.5/365));
 				
-			if (nTotalSize / 2 > nStakeSplitThreshold * COIN)
+			//presstab HyperStake
+			//if MultiSend is set to send in coinstake we will add our outputs here (values asigned further down)
+			if(fMultiSend && fMultiSendCoinStake)
+			{
+				for(unsigned int i = 0; i < vMultiSend.size(); i++)
+				{
+					CScript scriptPubKeyMultiSend;
+					scriptPubKeyMultiSend.SetDestination(CBitcoinAddress(vMultiSend[i].first).Get());
+					txNew.vout.push_back(CTxOut(0, scriptPubKeyMultiSend));
+				}
+			}
+			else if (nTotalSize / 2 > nStakeSplitThreshold * COIN)
 				txNew.vout.push_back(CTxOut(0, scriptPubKeyOut)); //split stake
+			
 			if (fDebug && GetBoolArg("-printcoinstake"))
 				printf("CreateCoinStake : added kernel type=%d\n", whichType);
 			fKernelFound = true;
 			break;
 		}
         if (fKernelFound || fShutdown)
-            break; // if kernel is found stop searching
+			break; // if kernel is found stop searching
+            
     }
     if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
         return false;
 
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
-    {
-        // Attempt to add more inputs
-        // Only add coins of the same key/address as kernel
-        if (txNew.vout.size() == 2 && ((pcoin.first->vout[pcoin.second].scriptPubKey == scriptPubKeyKernel || pcoin.first->vout[pcoin.second].scriptPubKey == txNew.vout[1].scriptPubKey))
-            && pcoin.first->GetHash() != txNew.vin[0].prevout.hash)
-        {
-            // Stop adding more inputs if already too many inputs
-            if (txNew.vin.size() >= 100)
-                break;
-            // Stop adding more inputs if value is already pretty significant
-            if (nCredit > nCombineThreshold)
-                break;
-            // Stop adding inputs if reached reserve limit
-            if (nCredit + pcoin.first->vout[pcoin.second].nValue > nBalance - nReserveBalance)
-                break;
-            // Do not add additional significant input
-            if (pcoin.first->vout[pcoin.second].nValue > nCombineThreshold)
-                continue;
-            // Do not add input that is still too young
-            if (pcoin.first->nTime + nStakeMaxAge > txNew.nTime)
-                continue;
-            txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
-            nCredit += pcoin.first->vout[pcoin.second].nValue;
-            vwtxPrev.push_back(pcoin.first);
-        }
-    }
+	if(fCombineDust) //presstab HyperStake - this combination code iterates through all of your outputs on successful coinstake, so its useful to have user be able to choose whether this is necessary
+	{
+		BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setStakeCoins)
+		{
+			// Attempt to add more inputs
+			// Only add coins of the same key/address as kernel
+			if (txNew.vout.size() == 2 && ((pcoin.first->vout[pcoin.second].scriptPubKey == scriptPubKeyKernel || pcoin.first->vout[pcoin.second].scriptPubKey == txNew.vout[1].scriptPubKey))
+				&& pcoin.first->GetHash() != txNew.vin[0].prevout.hash)
+			{
+				// Stop adding more inputs if already too many inputs
+				if (txNew.vin.size() >= 100)
+					break;
+				// Stop adding more inputs if value is already pretty significant
+				if (nCredit > nCombineThreshold)
+					break;
+				// Stop adding inputs if reached reserve limit
+				if (nCredit + pcoin.first->vout[pcoin.second].nValue > nBalance - nReserveBalance)
+					break;
+				// Do not add additional significant input
+				if (pcoin.first->vout[pcoin.second].nValue > nCombineThreshold)
+					continue;
+				// Do not add input that is still too young
+				if (pcoin.first->nTime + nStakeMaxAge > txNew.nTime)
+					continue;
+				txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
+				nCredit += pcoin.first->vout[pcoin.second].nValue;
+				vwtxPrev.push_back(pcoin.first);
+			}
+		}
+	}
     // Calculate coin age reward
+	uint64 nReward;
     {
         uint64 nCoinAge;
         CTxDB txdb("r");
@@ -1780,14 +1805,27 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
         if (!txNew.GetCoinAge(txdb, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
-        nCredit += GetProofOfStakeReward(nCoinAge, nBits, txNew.nTime, pIndex0->nHeight);
+		
+		nReward = GetProofOfStakeReward(nCoinAge, nBits, txNew.nTime, pIndex0->nHeight);
+        nCredit += nReward;
     }
 
     int64 nMinFee = 0;
     while (true)
     {
         // Set output amount
-        if (txNew.vout.size() == 3)
+        if(fMultiSend && fMultiSendCoinStake)
+		{
+			uint64 nMultiSendAmount = 0;
+			for(unsigned int i = 0; i < vMultiSend.size(); i++)
+			{
+				int nOut = 2 + i;
+				txNew.vout[nOut].nValue = nReward * vMultiSend[i].second / 100;
+				nMultiSendAmount += txNew.vout[nOut].nValue;
+			}
+			txNew.vout[1].nValue = nCredit - nMinFee - nMultiSendAmount;
+		}
+		else if (txNew.vout.size() == 3)
         {
             txNew.vout[1].nValue = ((nCredit - nMinFee) / 2 / CENT) * CENT;
             txNew.vout[2].nValue = nCredit - nMinFee - txNew.vout[1].nValue;
@@ -1823,6 +1861,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     // Successfully generated coinstake
+	nLastStakeSetUpdate = 0; //this will trigger stake set to repopulate next round
     return true;
 }
 

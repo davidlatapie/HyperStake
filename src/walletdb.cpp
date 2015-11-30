@@ -394,6 +394,12 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 		   pwallet->fMultiSend = pSettings.first;
 		   pwallet->nLastMultiSendHeight = pSettings.second;
 		}
+		else if (strType == "mcoinstake")
+		{
+			bool fMultiSendCoinStake;
+			ssValue >> fMultiSendCoinStake;
+			pwallet->fMultiSendCoinStake = fMultiSendCoinStake;
+		}
 		else if(strType == "mdisabled")//presstab HyperStake
 		{
 		   std::string strDisabledAddress;
@@ -411,6 +417,12 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 		   unsigned int nHashInterval;
 		   ssValue >> nHashInterval;
 		   pwallet->nHashInterval = nHashInterval;
+		}
+		else if(strType == "combinedust")//presstab HyperStake
+		{
+		   bool fCombineDust;
+		   ssValue >> fCombineDust;
+		   pwallet->fCombineDust = fCombineDust;
 		}
     } catch (...)
     {

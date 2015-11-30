@@ -541,3 +541,32 @@ Value sendrawtransaction(const Array& params, bool fHelp)
 
     return hashTx.GetHex();
 }
+
+Value gettxfee(const Array& params, bool fHelp)  
+{  
+    if (fHelp || params.size() != 1)   
+        throw runtime_error(  
+            "gettxfee <transaction id>\n");  
+	
+	uint256 hash;
+    hash.SetHex(params[0].get_str());
+	CTransaction tx;
+    uint256 hashBlock = 0;
+    if (!GetTransaction(hash, tx, hashBlock))
+        return "Transaction not found";
+	
+	int64 nTotalIn = 0;
+	for(unsigned int i = 0; i < tx.vin.size(); i++)
+	{
+		CTransaction tx2;
+		uint256 hashBlock2 = 0;
+		if (!GetTransaction(tx.vin[i].prevout.hash, tx2, hashBlock2))
+			return 0;
+		nTotalIn += tx2.vout[tx.vin[i].prevout.n].nValue;
+	}
+	int64 nTotalOut = 0;
+	for(unsigned int i = 0; i < tx.vout.size(); i++)
+		nTotalOut += tx.vout[i].nValue;
+	
+	return ValueFromAmount(nTotalIn - nTotalOut);
+}

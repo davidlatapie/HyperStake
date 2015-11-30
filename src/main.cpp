@@ -2361,7 +2361,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
     printf("ProcessBlock: ACCEPTED\n");
 	// If turned on MultiSend will send a transaction (or more) on the 30th confirmation of a stake
-	if (pwalletMain->fMultiSend)
+	if (pwalletMain->fMultiSend && !pwalletMain->fMultiSendCoinStake)
 		if (!pwalletMain->MultiSend() )
 			printf("ERROR While trying to use MultiSend");
 	
@@ -4488,12 +4488,22 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
     CReserveKey reservekey(pwallet);
     unsigned int nExtraNonce = 0;
 	
+	//control the amount of times the client will check for mintable coins
+	static bool fMintableCoins = false;
+	static int nMintableLastCheck = 0;
+	
+	if(GetTime() - nMintableLastCheck > 60) // 5 minute check time 
+	{
+		nMintableLastCheck = GetTime();
+		fMintableCoins = pwallet->MintableCoins();
+	}
+	
     while (fGenerateBitcoins || fProofOfStake)
     {
         if (fShutdown)
             return;
         
-        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked()  ||  !pwallet->MintableCoins())
+        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked()  ||  !fMintableCoins)
         {
             nLastCoinStakeSearchInterval = 0;
             Sleep(1000);

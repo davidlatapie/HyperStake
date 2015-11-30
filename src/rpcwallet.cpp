@@ -2224,7 +2224,7 @@ Value cclistcoins(const Array& params, bool fHelp)
 		if(dAge < (fTestNet ? nStakeMinAge : nStakeMinAgeV2))
 			nWeight = 0;
 		coutput.push_back(Pair("Weight", int(nWeight)));
-		double nReward = 7.5 / 365 * dAge * dAmount;
+		double nReward = 7.5 / 365 * dAge/(60*60*24) * dAmount;
 		nReward = min(nReward, double(1000));
 		coutput.push_back(Pair("Potential Stake", nReward));
 		result.push_back(coutput);
@@ -2370,6 +2370,7 @@ Array printMultiSend()
 	Array ret;
 	Object act;
 	act.push_back(Pair("MultiSend Activated?", pwalletMain->fMultiSend));
+	act.push_back(Pair("MultiSend in CoinStake?", pwalletMain->fMultiSendCoinStake));
 	ret.push_back(act);
 	if(pwalletMain->vDisabledAddresses.size() >= 1)
 	{
@@ -2537,6 +2538,28 @@ Value multisend(const Array &params, bool fHelp)
 		}
 		
 	}
+	if(params.size() == 2 && params[0].get_str() == "coinstake")
+	{
+		std::string strCoinStake = params[1].get_str();
+		if(strCoinStake == "true")
+		{
+			pwalletMain->fMultiSendCoinStake = true;
+			if(walletdb.WriteMCoinStake(true))
+				return "MultiSend CoinStake enabled and saved to wallet DB";
+			else
+				return "MultiSend CoinStake enabled but failed to save to wallet DB";
+		}
+		else if(strCoinStake == "false")
+		{
+			pwalletMain->fMultiSendCoinStake = false;
+			if(walletdb.WriteMCoinStake(false))
+				return "MultiSend CoinStake disabled and saved to wallet DB";
+			else
+				return "MultiSend CoinStake edisabled but failed to save to wallet DB";
+		}	
+		else
+			return "Did not recognize parameter";
+	}
 	//if no commands are used
 	if (fHelp || params.size() != 2)
         throw runtime_error(
@@ -2556,6 +2579,7 @@ Value multisend(const Array &params, bool fHelp)
 			"   delete <Address #> - deletes an address from the MultiSend vector \n"
 			"   disable <address> - prevents a specific address from sending MultiSend transactions\n"
 			"   enableall - enables all addresses to be eligible to send MultiSend transactions\n"
+			"   coinstake <true/false> - this will send the multisend transaction in the coinstake transaction\n"
 			
 			"****************************************************************\n"
 			"TO CREATE OR ADD TO THE MULTISEND VECTOR:\n"
@@ -2650,6 +2674,7 @@ Value hashsettings(const Array& params, bool fHelp)
     if (fHelp || params.size() > 2 || params.size() == 0)
         throw runtime_error(
             "hashsettings <drift/interval><seconds>\n"
+			"hashsettings <combineduse><true/false>\n"
 			"ex: 'hashsettings drift' will return the current drift settings\n"
 			"ex: 'hashsettings interval' will return the current interval settings\n"
 			"ex: hashsettings drift 45\n"
@@ -2660,7 +2685,9 @@ Value hashsettings(const Array& params, bool fHelp)
 			"if you set your hashdrift to 45, then your client will create 45 unique proof of stake hashes, the only thing changing the hash result is the timestamp included, thus you hash 45 seconds into the future.\n"
 			"Each hash is an attempt to meet the staking target. If you don't hit the staking target, your client will pause staking for the set interval. \n"
 			"If the interval is 22 seconds, the wallet will create 45 hashes, wait 22 seconds, then create 45 hashes. Approximately 23 of those hashes will be identical as the previous rounds hashes.\n"
-              "WARNING: timedrift allowance is 60 seconds too high of a hash drift will cause orphans");
+              "WARNING: timedrift allowance is 60 seconds too high of a hash drift will cause orphans\n"
+			  "Combine dust is a setting in the staking parameters that will iterate through your entire wallet contents to looks for small coins that it can combine into your coinstake transaction." 
+			  "set this to false to prevent any combination from occurring \n");
     if(params.size() < 2)
 	{
 		if(params[0].get_str() == "drift") 
@@ -2676,6 +2703,8 @@ Value hashsettings(const Array& params, bool fHelp)
 			walletdb.WriteHashInterval(22);
 			return "Hash Settings returned to default";
 		}
+		else if(params[0].get_str() == "combinedust")
+			return pwalletMain->fCombineDust;
 	}
 	
 	CWalletDB walletdb(pwalletMain->strWalletFile);
@@ -2704,5 +2733,23 @@ Value hashsettings(const Array& params, bool fHelp)
 		else
 			return "HashInterval set but failed to write to DB";
 	}
+	else if(params[0].get_str() == "combinedust")
+	{
+		bool fCombineDust;
+		string strCombineDust = params[1].get_str();
+		if(strCombineDust == "true")
+			fCombineDust = true;
+		else if(strCombineDust == "false")
+			fCombineDust = false;
+		else
+			return "failed to understand true/false parameter";
+		
+		pwalletMain->fCombineDust = fCombineDust;
+		if(walletdb.WriteCombineDust(fCombineDust))
+			return "Combine dust setting saved and written to DB";
+		else
+			return "Combine dust setting saved and but failed to write to DB";
+	}
+	return "Failed to recognize commands";
 }	
 	

@@ -57,6 +57,8 @@ private:
     QFrame *dateRangeWidget;
     QDateTimeEdit *dateFrom;
     QDateTimeEdit *dateTo;
+    QLabel *to;
+    QLabel *range;
 
     QWidget *createDateRangeWidget();
 
