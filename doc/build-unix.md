@@ -21,6 +21,7 @@ To Build
 make
 make install # optional
 ```
+NOTE: Depending on your BDB setup, you may need to use './configure --with-incompatible-bdb'
 
 This will build hyperstake-qt as well if the dependencies are met.
 
