@@ -186,7 +186,7 @@ BitcoinGUI::BitcoinGUI(const NetworkStyle * networkStyle, QWidget *parent):
     labelMintingIcon->setEnabled(false);
     // Add timer to update minting info
     QTimer *timerMintingIcon = new QTimer(labelMintingIcon);
-    timerMintingIcon->start(MODEL_UPDATE_DELAY);
+    timerMintingIcon->start(MINTING_UPDATE_DELAY);
     connect(timerMintingIcon, SIGNAL(timeout()), this, SLOT(updateMintingIcon()));
     // Add timer to update minting weights
     QTimer *timerMintingWeights = new QTimer(labelMintingIcon);
@@ -1247,29 +1247,31 @@ void BitcoinGUI::updateMintingIcon()
     }
 }
 
+uint nLastWeightCheck = 0;
 void BitcoinGUI::updateMintingWeights()
 {
     // Only update if we have the network's current number of blocks, or weight(s) are zero (fixes lagging GUI)
     if ((clientModel && clientModel->getNumBlocks() >= clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
     {
-        nWeight = 0;
-		
-		nAmount = 0;
-		
-        if (pwalletMain)
-			pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
-		
-		if (nHoursToMaturity > 212)
-			nHoursToMaturity = 0;
-        nNetworkWeight = GetPoSKernelPS();
+       //only update weight every 120 seconds in order to reduce resource consumption
+	   if(GetTime() - nLastWeightCheck > 120)
+	   {
+			nWeight = 0;
+			nAmount = 0;
+			if (pwalletMain)
+				pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
+			
+			if (nHoursToMaturity > 212)
+				nHoursToMaturity = 0;
+			nNetworkWeight = GetPoSKernelPS();
+			
+			nLastWeightCheck = GetTime();
+	   }
     }
 	
 	//MultiSend check
 	if(walletModel)
-	{
 		fMultiSend = pwalletMain->fMultiSend;
-	}
-		
 }
 
 void BitcoinGUI::charityClicked(QString addr)
