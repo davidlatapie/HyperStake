@@ -2872,6 +2872,7 @@ bool LoadExternalBlockFile(FILE* fileIn)
                     blkdat >> block;
 					
 					// no reason to partially scan every block we have just to print to log that we have it
+					if(nLoaded < nStartHeight)
 					{
 						nLoaded++;
 						nPos += 4 + nSize;
