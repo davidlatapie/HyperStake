@@ -25,6 +25,7 @@
 using namespace std;
 QList<qint64> CoinControlDialog::payAmounts;
 CCoinControl* CoinControlDialog::coinControl = new CCoinControl();
+extern int nStakeMaxAge;
 
 CoinControlDialog::CoinControlDialog(QWidget *parent) :
     QDialog(parent, Qt::WindowMaximizeButtonHint),
@@ -769,29 +770,25 @@ void CoinControlDialog::updateView()
 		uint64 nDisplayWeight = 0;
 		uint64 nTxWeightSum = 0;
 		uint64 nPotentialStakeSum = 0;
-		GetLastBlockIndex(pindexBest, false);
-		int64 nBestHeight = pindexBest->nHeight;
 		uint64 nNetworkWeight = GetPoSKernelPS();
 		
         BOOST_FOREACH(const COutput& out, coins.second)
         {
-            
-			int64 nHeight = nBestHeight - out.nDepth;
-			CBlockIndex* pindex = FindBlockByHeight(nHeight);
-			
 			int nInputSize = 148; // 180 if uncompressed public key
             nSum += out.tx->vout[out.i].nValue;
             nChildren++;
             
-			model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight);
-			double dStakeAge;
+			//calculate weight
+			double nTimeWeight = min(GetTime() - out.tx->GetTxTime(), (int64)nStakeMaxAge) - nStakeMinAge;
+			nTxWeight = out.tx->vout[out.i].nValue / COIN * nTimeWeight / 86400;
 			
+			double dStakeAge;
 			if(fTestNet)
 				dStakeAge = nStakeMinAge;
 			else 
 				dStakeAge = nStakeMinAgeV2;
 			
-			if ((GetTime() - pindex->nTime) < dStakeAge)
+			if ((GetTime() - out.tx->GetTxTime()) < dStakeAge)
 				nDisplayWeight = 0;
 			else
 				nDisplayWeight = nTxWeight;
@@ -839,12 +836,12 @@ void CoinControlDialog::updateView()
             }
 
             // amount
-			uint64 nBlockSize = out.tx->vout[out.i].nValue / 1000000; //used in formulas below
+			uint64 nBlockSize = out.tx->vout[out.i].nValue / COIN;
             itemOutput->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, out.tx->vout[out.i].nValue));
-            itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " ")); // padding so that sorting works correctly
+            itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " "));
 
             // date
-			int64 nTime = pindex->nTime;
+			int64 nTime = out.tx->GetTxTime();
             itemOutput->setText(COLUMN_DATE, QDateTime::fromTime_t(nTime).toString("yy-MM-dd hh:mm"));
             
             // immature PoS reward
@@ -868,34 +865,28 @@ void CoinControlDialog::updateView()
 			
 			// Age
 			uint64 nAge = (GetTime() - nTime);
-			int64 age = COIN * nAge / (1440 * 60);
-			itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " "));
-			itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " "));
+			itemOutput->setText(COLUMN_AGE, QString::number((double)nAge / 86400, 'f', 2));
+			itemOutput->setText(COLUMN_AGE_INT64, QString::number((double)nAge / 86400, 'f', 2));
 			
 			// Potential Stake
-			double nPotentialStake = min(7.5 / 365 * nBlockSize * nAge / (60*60*24), 1000.0); //min of the max reward or the stake rate
-			itemOutput->setText(COLUMN_POTENTIALSTAKE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nPotentialStake * COIN), 15, " ")); //use COIN for formatting
+			double nPotentialStake = min(7.5 / 365 * nBlockSize * nAge / (86400), 1000.0); //min of the max reward or the stake rate
+			itemOutput->setText(COLUMN_POTENTIALSTAKE, QString::number(nPotentialStake, 'f', 2));
 			itemOutput->setText(COLUMN_POTENTIALSTAKE_INT64, strPad(QString::number((int64)nPotentialStake), 16, " "));
 			
 			// Potential Stake Sum for Tree View
 			nPotentialStakeSum += nPotentialStake * COIN;
 			
 			// Estimated Stake Time
-			uint64 nMin = 1;
-			nBlockSize = qMax(nBlockSize, nMin);
-			uint64 nTimeToMaturity = 0;
-			uint64 nBlockWeight = qMax(nDisplayWeight, uint64(nBlockSize * (dStakeAge/(60*60*24))));
+			nBlockSize = qMax(nBlockSize, uint64(1));
+			uint64 nBlockWeight = nTxWeight;
             nBlockWeight = qMax(nBlockWeight, (uint64)1);
-			double dAge = nAge;
-			if (dStakeAge - dAge >= 0 )
+			double nTimeToMaturity = 0;
+			if (dStakeAge - nAge >= 0 )
 				nTimeToMaturity = (dStakeAge - nAge);
-			else
-				nTimeToMaturity = 0;
-			uint64 nAccuracyAdjustment = 1; // this is a manual adjustment in an attempt to make staking estimate more accurate
-			uint64 nEstimateTime = 90 * nNetworkWeight / nBlockWeight / nAccuracyAdjustment; // 90 seconds is block target
-			uint64 nMax = 999 * COIN; // qmin cannot compar int64, so convert to uint64 prior
-			nEstimateTime = qMin((nEstimateTime + nTimeToMaturity) * COIN / (60*60*24), nMax); // multiply by coin to use built in formatting
-			itemOutput->setText(COLUMN_TIMEESTIMATE, strPad(BitcoinUnits::formatAge(nDisplayUnit, nEstimateTime), 15, " "));
+			double nEstimateTime = 90 * nNetworkWeight / nBlockWeight; // 90 seconds is block target
+			nEstimateTime = min((nEstimateTime + nTimeToMaturity) / 86400, double(999));
+			
+			itemOutput->setText(COLUMN_TIMEESTIMATE, QString::number(nEstimateTime, 'f', 2));
 			
             // transaction hash
             uint256 txhash = out.tx->GetHash();
@@ -903,16 +894,7 @@ void CoinControlDialog::updateView()
     
             // vout index
             itemOutput->setText(COLUMN_VOUT_INDEX, QString::number(out.i));
-            
-            // disable locked coins     
-            /*if (model->isLockedCoin(txhash, out.i))
-            {
-                COutPoint outpt(txhash, out.i);
-                coinControl->UnSelect(outpt); // just to be sure
-                itemOutput->setDisabled(true);
-                itemOutput->setIcon(COLUMN_CHECKBOX, QIcon(":/icons/lock_closed"));
-            }*/
-              
+
             // set checkbox
             if (coinControl->IsSelected(txhash, out.i))
                 itemOutput->setCheckState(COLUMN_CHECKBOX,Qt::Checked);
