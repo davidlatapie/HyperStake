@@ -1204,6 +1204,16 @@ static const char *strDNSSeed[][2] = {
 
 void ThreadDNSAddressSeed(void* parg)
 {
+    // goal: only query DNS seeds if address need is acute
+    if ((addrman.size() > 0) && (!GetBoolArg("-forcednsseed", false)))
+    {
+        Sleep(11000);
+
+        LOCK(cs_vNodes);
+        if (vNodes.size() >= 3)
+            return;
+    }
+
     // Make this thread recognisable as the DNS seeding thread
     RenameThread("bitcoin-dnsseed");
 
