@@ -755,10 +755,6 @@ void CWalletTx::AddSupportingTransactions(CTxDB& txdb)
                 {
                     tx = *mapWalletPrev[hash];
                 }
-                else if (!fClient && txdb.ReadDiskTx(hash, tx))
-                {
-                    ;
-                }
                 else
                 {
                     printf("ERROR: AddSupportingTransactions() : unsupported transaction\n");
@@ -882,7 +878,7 @@ void CWalletTx::RelayWalletTransaction(CTxDB& txdb)
 {
     BOOST_FOREACH(const CMerkleTx& tx, vtxPrev)
     {
-        if (!(tx.IsCoinBase() || tx.IsCoinStake()))
+        if (!(tx.IsCoinBase() || tx.IsCoinStake()) && !tx.vin.empty())
         {
             uint256 hash = tx.GetHash();
             if (!txdb.ContainsTx(hash))
