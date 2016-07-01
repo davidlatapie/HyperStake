@@ -42,7 +42,7 @@ The homebrew package for berkeley-db4 has been broken for some time.  It will in
 
 Running this command takes you into brew's interactive mode, which allows you to configure, make, and install by hand:
 ```
-$ brew install https://raw.github.com/homebrew/homebrew/master/Library/Formula/berkeley-db4.rb -–without-java
+$ brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/berkeley-db4.rb -–without-java
 ```
 
 The rest of these commands are run inside brew interactive mode:
