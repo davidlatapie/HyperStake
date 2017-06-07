@@ -66,7 +66,6 @@ inline int64 GetClockDrift(int64 nTime)
 }
 static const int64 MAX_TIME_SINCE_BEST_BLOCK = 10; // how many seconds to wait before sending next PushGetBlocks()
 extern CScript COINBASE_FLAGS;
-
 extern CCriticalSection cs_main;
 extern std::map<uint256, CBlockIndex*> mapBlockIndex;
 extern std::set<std::pair<COutPoint, unsigned int> > setStakeSeen;
@@ -104,7 +103,6 @@ extern int64 nTransactionFee;
 
 // Minimum disk space required - used in CheckDiskSpace()
 static const uint64 nMinDiskSpace = 52428800;
-
 
 class CReserveKey;
 class CTxDB;
@@ -144,16 +142,6 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan);
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake);
 void ResendWalletTransactions();
-
-
-
-
-
-
-
-
-
-
 bool GetWalletFile(CWallet* pwallet, std::string &strWalletFileOut);
 
 /** Position on disk for a particular transaction. */
@@ -207,8 +195,6 @@ public:
     }
 };
 
-
-
 /** An inpoint - a combination of a transaction and an index n into its vin */
 class CInPoint
 {
@@ -221,8 +207,6 @@ public:
     void SetNull() { ptx = NULL; n = (unsigned int) -1; }
     bool IsNull() const { return (ptx == NULL && n == (unsigned int) -1); }
 };
-
-
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
@@ -262,9 +246,6 @@ public:
         printf("%s\n", ToString().c_str());
     }
 };
-
-
-
 
 /** An input of a transaction.  It contains the location of the previous
  * transaction's output that it claims and a signature that matches the
@@ -345,9 +326,6 @@ public:
         printf("%s\n", ToString().c_str());
     }
 };
-
-
-
 
 /** An output of a transaction.  It contains the public key that the next input
  * must be able to sign with to claim it.
@@ -431,9 +409,6 @@ public:
         printf("%s\n", ToString().c_str());
     }
 };
-
-
-
 
 enum GetMinFee_mode
 {
@@ -736,10 +711,6 @@ protected:
     const CTxOut& GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const;
 };
 
-
-
-
-
 /** A transaction with a merkle branch linking it to the block chain. */
 class CMerkleTx : public CTransaction
 {
@@ -788,9 +759,6 @@ public:
     bool AcceptToMemoryPool(CTxDB& txdb, bool fCheckInputs=true);
     bool AcceptToMemoryPool();
 };
-
-
-
 
 /**  A txdb record that contains the disk location of a transaction and the
  * locations of transactions that spend its outputs.  vSpent is really only
@@ -845,10 +813,6 @@ public:
     int GetDepthInMainChain() const;
 
 };
-
-
-
-
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -1121,11 +1085,6 @@ private:
     bool SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew);
 };
 
-
-
-
-
-
 /** The block chain is a tree shaped structure starting with the
  * genesis block at the root, with each block potentially having multiple
  * candidates to be the next block.  pprev and pnext link a path through the
@@ -1359,8 +1318,6 @@ public:
     }
 };
 
-
-
 /** Used to marshal pointers into hashes for db storage. */
 class CDiskBlockIndex : public CBlockIndex
 {
@@ -1451,13 +1408,6 @@ public:
         printf("%s\n", ToString().c_str());
     }
 };
-
-
-
-
-
-
-
 
 /** Describes a place in the block chain to another node such that if the
  * other node doesn't have the same branch, it can find a recent common trunk.
@@ -1585,13 +1535,6 @@ public:
         return pindex->nHeight;
     }
 };
-
-
-
-
-
-
-
 
 class CTxMemPool
 {

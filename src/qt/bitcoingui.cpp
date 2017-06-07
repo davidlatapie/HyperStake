@@ -1257,28 +1257,29 @@ void BitcoinGUI::updateMintingWeights()
     // Only update if we have the network's current number of blocks, or weight(s) are zero (fixes lagging GUI)
     if ((clientModel && clientModel->getNumBlocks() >= clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
     {
-       //only update weight every 120 seconds in order to reduce resource consumption
-	   if(GetTime() - nLastWeightCheck > 120)
-	   {
-            if(pwalletMain && pwalletMain->bnStakeWeightCached != 0)
+        //only update weight every 120 seconds in order to reduce resource consumption
+	    if(GetTime() - nLastWeightCheck > 120)
+	    {
+            nWeight = 0;
+            nAmount = 0;
+            nNetworkWeight = GetPoSKernelPS();
+            nLastWeightCheck = GetTime();
+
+            if(!pwalletMain)
+                return;
+
+            if(pwalletMain->MintableCoins())
+                nHoursToMaturity = 0;
+            else
+                nHoursToMaturity = pwalletMain->GetTimeToNextMaturity() / (60*60);
+
+            if(pwalletMain->bnStakeWeightCached != 0)
             {
                 nHoursToMaturity = 0;
                 nWeight = pwalletMain->bnStakeWeightCached.getuint64();
-
             }
             else
-            {
-                nWeight = 0;
-                nAmount = 0;
-                if (pwalletMain)
-                    pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
-
-                if (nHoursToMaturity > 212)
-                    nHoursToMaturity = 0;
-            }
-
-            nNetworkWeight = GetPoSKernelPS();
-			nLastWeightCheck = GetTime();
+                pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nAmount);
 	   }
     }
 	
