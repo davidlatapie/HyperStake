@@ -89,6 +89,7 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 	bool fWalletUnlockMintOnly;
+    CBigNum bnStakeWeightCached;
 
 	//SplitBlock
 	bool fSplitBlock;
@@ -126,6 +127,7 @@ public:
         nOrderPosNext = 0;
 		fWalletUnlockMintOnly = false;
 		fSplitBlock = false;
+        bnStakeWeightCached = 0;
 		
 		//DisableStake
 		fDisableStake = false;
@@ -161,6 +163,7 @@ public:
         nOrderPosNext = 0;
 		fWalletUnlockMintOnly = false;
 		fSplitBlock = false;
+        bnStakeWeightCached = 0;
 		
 		//DisableStake
 		fDisableStake = false;
