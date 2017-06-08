@@ -31,6 +31,7 @@
 #include "wallet.h"
 #include "bitcoinrpc.h"
 #include "blockbrowser.h"
+#include "../wallet.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -184,14 +185,17 @@ BitcoinGUI::BitcoinGUI(const NetworkStyle * networkStyle, QWidget *parent):
 
     // Set minting pixmap
     labelMintingIcon->setEnabled(false);
+
     // Add timer to update minting info
     QTimer *timerMintingIcon = new QTimer(labelMintingIcon);
     timerMintingIcon->start(MINTING_UPDATE_DELAY);
     connect(timerMintingIcon, SIGNAL(timeout()), this, SLOT(updateMintingIcon()));
+
     // Add timer to update minting weights
     QTimer *timerMintingWeights = new QTimer(labelMintingIcon);
     timerMintingWeights->start(1 * 5000); // 5 second update time
     connect(timerMintingWeights, SIGNAL(timeout()), this, SLOT(updateMintingWeights()));
+
     // Set initial values for user and network weights
     nWeight = 0;
 	nHoursToMaturity = 0;
@@ -1253,19 +1257,29 @@ void BitcoinGUI::updateMintingWeights()
     // Only update if we have the network's current number of blocks, or weight(s) are zero (fixes lagging GUI)
     if ((clientModel && clientModel->getNumBlocks() >= clientModel->getNumBlocksOfPeers()) || !nWeight || !nNetworkWeight)
     {
-       //only update weight every 120 seconds in order to reduce resource consumption
-	   if(GetTime() - nLastWeightCheck > 120)
-	   {
-			nWeight = 0;
-			nAmount = 0;
-			if (pwalletMain)
-				pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity, nAmount);
-			
-			if (nHoursToMaturity > 212)
-				nHoursToMaturity = 0;
-			nNetworkWeight = GetPoSKernelPS();
-			
-			nLastWeightCheck = GetTime();
+        //only update weight every 120 seconds in order to reduce resource consumption
+	    if(GetTime() - nLastWeightCheck > 120)
+	    {
+            nWeight = 0;
+            nAmount = 0;
+            nNetworkWeight = GetPoSKernelPS();
+            nLastWeightCheck = GetTime();
+
+            if(!pwalletMain)
+                return;
+
+            if(pwalletMain->MintableCoins())
+                nHoursToMaturity = 0;
+            else
+                nHoursToMaturity = pwalletMain->GetTimeToNextMaturity() / (60*60);
+
+            if(pwalletMain->bnStakeWeightCached != 0)
+            {
+                nHoursToMaturity = 0;
+                nWeight = pwalletMain->bnStakeWeightCached.getuint64();
+            }
+            else
+                pwalletMain->GetStakeWeight(*pwalletMain, nMinMax, nMinMax, nWeight, nAmount);
 	   }
     }
 	
