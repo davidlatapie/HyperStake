@@ -898,7 +898,7 @@ public:
 
     uint256 GetHash() const
     {
-            return Hash9(BEGIN(nVersion), END(nNonce));
+        return Hash9(BEGIN(nVersion), END(nNonce));
     }
 
     int64 GetBlockTime() const
@@ -1379,6 +1379,9 @@ public:
 
     uint256 GetBlockHash() const
     {
+        if(blockHash != 0)
+            return blockHash;
+
         CBlock block;
         block.nVersion        = nVersion;
         block.hashPrevBlock   = hashPrev;
