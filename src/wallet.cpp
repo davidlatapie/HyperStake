@@ -1563,7 +1563,7 @@ uint64 CWallet::GetTimeToNextMaturity()
     if (!SelectCoins(GetBalance(), GetTime(), setCoins, nValueIn))
         return false;
 
-    uint64 nTimeToNextMaturity = ~1;
+    uint64 nTimeToNextMaturity = -1;
     uint64 nStakeAge = (fTestNet ? nStakeMinAge : nStakeMinAgeV2);
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
