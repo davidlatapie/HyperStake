@@ -2833,7 +2833,49 @@ bool LoadExternalBlockFile(FILE* fileIn)
     return nLoaded > 0;
 }
 
+CBigNum GetWeightSpent(CBlockIndex* pindex)
+{
+    if(pindex->IsProofOfWork())
+        return 0;
 
+    CBlock block;
+    if(!block.ReadFromDisk(pindex, true))
+        return 0;
+
+    //txin that was staked
+    CTxIn txInStake = block.vtx[1].vin[1];
+
+    //find the tx that txin came from
+    CTxDB txdb("r");
+    CTransaction txPrev;
+    if(!txdb.ReadDiskTx(txInStake.prevout, txPrev))
+        return 0;
+
+    unsigned int nAge = block.GetBlockTime() - txPrev.nTime;
+    uint64 nAmount = txPrev.vout[txInStake.prevout.n].nValue;
+
+    //note that it is slightly different in real weight calc, but small enough that this simplification is better
+    //for users to see
+    return CBigNum(nAge / (60*60*24) * nAmount / COIN);
+}
+
+CBigNum GetAverageWeightOverPeriod(int nBlocksCount)
+{
+    if(nBestHeight - nBlocksCount <= 0)
+        return 0;
+
+    CBlockIndex* pindex = FindBlockByHeight(nBestHeight);
+
+    unsigned int nEndHeight = nBestHeight - nBlocksCount;
+    CBigNum bnWeightSpent = 0;
+    while(pindex->nHeight > nEndHeight - 1)
+    {
+        bnWeightSpent += GetWeightSpent(pindex);
+        pindex = pindex->pprev;
+    }
+
+    return bnWeightSpent;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
