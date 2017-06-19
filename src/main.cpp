@@ -4398,16 +4398,21 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 
 void static ThreadBitcoinMiner(void* parg);
 
-static bool fGenerateBitcoins = false;
+bool fGenerateBitcoins = false;
 static bool fLimitProcessors = false;
 static int nLimitProcessors = -1;
 
-
+bool fMintableCoins = false;
+int nMintableLastCheck = 0;
 
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 {
     printf("CPUMiner started for proof-of-%s\n", fProofOfStake? "stake" : "work");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
+
+    // If we are minting, then make sure fGenerateBitcoins knows that
+    if(fProofOfStake)
+        fGenerateBitcoins = true;
 
     // Make this thread recognisable as the mining thread
     RenameThread("bitcoin-miner");
@@ -4417,10 +4422,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
     unsigned int nExtraNonce = 0;
 	
 	//control the amount of times the client will check for mintable coins
-	static bool fMintableCoins = false;
-	static int nMintableLastCheck = 0;
-	
-	if(GetTime() - nMintableLastCheck > 60) // 5 minute check time 
+	if(pwallet->GetMintableOutputCount() < 2 || GetTime() - nMintableLastCheck > 60) //check for mintable coins every 60 seconds
 	{
 		nMintableLastCheck = GetTime();
 		fMintableCoins = pwallet->MintableCoins();
@@ -4443,9 +4445,9 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 
         if(mapHashedBlocks.count(nBestHeight)) //search our map of hashed blocks, see if bestblock has been hashed yet
         {
-            if(GetTime() - mapHashedBlocks[nBestHeight] < max(pwallet->nHashInterval, (unsigned int)1)) // wait half of the nHashDrift with max wait of 3 minutes
+            if(GetTime() - mapHashedBlocks[nBestHeight] < max(pwallet->nHashInterval, (unsigned int)1)) // wait a 'hash interval' until trying to hash again
             {
-				Sleep(2500); // 2.5 second sleep
+				Sleep(1000); // 2.5 second sleep for this thread
                 continue;
             }
         }

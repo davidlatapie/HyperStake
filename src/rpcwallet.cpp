@@ -24,6 +24,7 @@ static CCriticalSection cs_nWalletUnlockTime;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
 extern int64 nLastCoinStakeSearchInterval;
+extern bool fGenerateBitcoins;
 
 std::string HelpRequiringPassphrase()
 {
@@ -2754,5 +2755,48 @@ Value hashsettings(const Array& params, bool fHelp)
 			return "Combine dust setting saved and but failed to write to DB";
 	}
 	return "Failed to recognize commands";
-}	
+}
+
+// PIVX
+Value getstakingstatus(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "getstakingstatus\n"
+                        "Returns an object containing various staking information.\n"
+                        "\nResult:\n"
+                        "{\n"
+                        "  \"generatebitcoins\": true|false,   (boolean) if the internal generate bitcoins flag is activated\n"
+                        "  \"haveconnections\": true|false,    (boolean) if network connections are present\n"
+                        "  \"blockchainsynced\": true|false,   (boolean) if blockchain is fully synced\n"
+                        "  \"walletunlocked\": true|false,     (boolean) if the wallet is unlocked\n"
+                        "  \"mintablecoins\": true|false,      (boolean) if the wallet has mintable coins\n"
+                        "  \"enoughcoins\": true|false,        (boolean) if available coins are greater than reserve balance\n"
+                        "  \"staking status\": true|false,     (boolean) if the wallet is staking or not\n"
+                        "}\n");
+
+    Object obj;
+    obj.push_back(Pair("generatebitcoins", fGenerateBitcoins));
+    obj.push_back(Pair("haveconnections", !vNodes.empty()));
+    obj.push_back(Pair("blockchainsynced", !IsInitialBlockDownload()));
+    if (pwalletMain) {
+        obj.push_back(Pair("walletunlocked", !pwalletMain->IsLocked()));
+        obj.push_back(Pair("mintablecoins", pwalletMain->MintableCoins()));
+
+        int64 nReserveBalance = 0;
+        if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
+            nReserveBalance = 0;
+
+        obj.push_back(Pair("enoughcoins", nReserveBalance <= pwalletMain->GetBalance()));
+    }
+
+    bool fStaking = false;
+    if (mapHashedBlocks.count(nBestHeight))
+        fStaking = true;
+    else if (mapHashedBlocks.count(nBestHeight - 1) && nLastCoinStakeSearchInterval)
+        fStaking = true;
+    obj.push_back(Pair("staking status", fStaking));
+
+    return obj;
+}
 	

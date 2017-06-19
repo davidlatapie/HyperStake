@@ -194,8 +194,6 @@ Value stop(const Array& params, bool fHelp)
 //
 // Call Table
 //
-
-
 static const CRPCCommand vRPCCommands[] =
 { //  name                      function                 safemd  unlocked
   //  ------------------------  -----------------------  ------  --------
@@ -273,24 +271,25 @@ static const CRPCCommand vRPCCommands[] =
     { "resendtx",               &resendtx,               false,  true},
     { "makekeypair",            &makekeypair,            false,  true},
     { "sendalert",              &sendalert,              false,  false},
-	{ "multisend",        &multisend,        false,  false },
+	{ "multisend",              &multisend,              false,  false },
 	{ "cclistcoins", 			&cclistcoins, 			 false,  false },
 	{ "ccselect",        		&ccselect,               false,  false },
-	{ "cclistselected",        	&cclistselected,         false,  false },
-    { "ccreturnchange",		&ccreturnchange,	false,	false },
-    { "cccustomchange",		&cccustomchange,	false,	false },
-    { "ccreset",		&ccreset,	false,	false },
-	{ "ccsend",		&ccsend,	false,	false },
-	{ "getweight",	&getweight,	false,	false },
-	{ "getpotentialstake",	&getpotentialstake,	false,	false },
-	{ "getconfs",	&getconfs,	false,	false },
-	{ "strictprotocol",	&strictprotocol,	false,	false },
-	{ "strictincoming",	&strictincoming,	false,	false },
+    { "cclistselected",         &cclistselected,         false,  false },
+    { "ccreturnchange",         &ccreturnchange,         false,  false },
+    { "cccustomchange",         &cccustomchange,         false,  false },
+    { "ccreset",                &ccreset,                false,  false },
+	{ "ccsend",                 &ccsend,                 false,  false },
+	{ "getweight",              &getweight,              false,  false },
+	{ "getpotentialstake",      &getpotentialstake,      false,  false },
+	{ "getconfs",               &getconfs,               false,  false },
+	{ "strictprotocol",         &strictprotocol,         false,  false },
+	{ "strictincoming",         &strictincoming,         false,  false },
 	{ "setgenerate",            &setgenerate,            true,   false },
     { "gethashespersec",        &gethashespersec,        true,   false },
-	{ "listblocks",        &listblocks,        false,   false },
-	{ "hashsettings",        &hashsettings,        false,   false },
-	{ "gettxfee",        &gettxfee,        false,   false },
+	{ "listblocks",             &listblocks,             false,  false },
+	{ "hashsettings",           &hashsettings,           false,  false },
+	{ "gettxfee",               &gettxfee,               false,  false },
+    { "getstakingstatus",       &getstakingstatus,       false,  false },
 };
 
 CRPCTable::CRPCTable()

@@ -97,6 +97,7 @@ extern std::map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 extern std::map <std::string, int> mapPeerRejectedBlocks;
 extern bool fStrictProtocol;
 extern bool fStrictIncoming;
+extern bool fGenerateBitcoins;
 
 // Settings
 extern int64 nTransactionFee;

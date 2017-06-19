@@ -79,6 +79,9 @@ private:
     // the maximum wallet format version: memory-only variable that specifies to what version this wallet may be upgraded
     int nWalletMaxVersion;
 
+    //how many UTXO's are eligible to be staked
+    unsigned int nMintableOutputs;
+
 public:
 	bool MintableCoins();
     mutable CCriticalSection cs_wallet;
@@ -128,6 +131,7 @@ public:
 		fWalletUnlockMintOnly = false;
 		fSplitBlock = false;
         bnStakeWeightCached = 0;
+        nMintableOutputs = 0;
 		
 		//DisableStake
 		fDisableStake = false;
@@ -164,6 +168,7 @@ public:
 		fWalletUnlockMintOnly = false;
 		fSplitBlock = false;
         bnStakeWeightCached = 0;
+        nMintableOutputs = 0;
 		
 		//DisableStake
 		fDisableStake = false;
@@ -252,7 +257,7 @@ public:
     int64 GetImmatureBalance() const;
     int64 GetStake() const;
     int64 GetNewMint() const;
-	bool StakeForCharity();
+    unsigned int GetMintableOutputCount();
 	bool MultiSend();
     bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, int nSplitBlock, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
