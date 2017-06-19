@@ -1315,7 +1315,13 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
 			}
 		}
 	}
+
 	return true;
+}
+
+unsigned int CWallet::GetMintableOutputCount()
+{
+    return nMintableOutputs;
 }
 
 bool CWallet::MintableCoins()
@@ -1681,10 +1687,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 		nLastStakeSetUpdate = GetTime();
 	}
 
-    bnStakeWeightCached = 0;
+    //update mintable outputs count
+    nMintableOutputs = setStakeCoins.size();
 	if (setStakeCoins.empty())
         return false;
-	
+
+    bnStakeWeightCached = 0;
 	vector<const CWalletTx*> vwtxPrev;
 	
     int64 nCredit = 0;
