@@ -42,7 +42,7 @@ Start up the new hyperstaked.
 
 
 See the hyperstake site:
-  http://hyperstake.com/
+  http://hyperstake.io
 for help and more information.
 
 Wallet themes
