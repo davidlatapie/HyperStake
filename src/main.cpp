@@ -2843,7 +2843,7 @@ CBigNum GetWeightSpent(CBlockIndex* pindex)
         return 0;
 
     //txin that was staked
-    CTxIn txInStake = block.vtx[1].vin[1];
+    CTxIn txInStake = block.vtx[1].vin[0];
 
     //find the tx that txin came from
     CTxDB txdb("r");
@@ -2851,30 +2851,34 @@ CBigNum GetWeightSpent(CBlockIndex* pindex)
     if(!txdb.ReadDiskTx(txInStake.prevout, txPrev))
         return 0;
 
-    unsigned int nAge = block.GetBlockTime() - txPrev.nTime;
+    unsigned int nAge = min(block.GetBlockTime() - txPrev.nTime, (long long int)nStakeMaxAge);
     uint64 nAmount = txPrev.vout[txInStake.prevout.n].nValue;
 
     //note that it is slightly different in real weight calc, but small enough that this simplification is better
     //for users to see
-    return CBigNum(nAge / (60*60*24) * nAmount / COIN);
+    return CBigNum((nAge / (60*60*24)) * (nAmount/COIN));
 }
 
-CBigNum GetAverageWeightOverPeriod(int nBlocksCount)
+CBigNum GetMedianWeightOverPeriod(int nBlocksCount)
 {
     if(nBestHeight - nBlocksCount <= 0)
         return 0;
 
-    CBlockIndex* pindex = FindBlockByHeight(nBestHeight);
+    CBlockIndex* pindex = pindexBest;
 
-    unsigned int nEndHeight = nBestHeight - nBlocksCount;
+
+    int nEndHeight = pindex->nHeight - nBlocksCount;
     CBigNum bnWeightSpent = 0;
+    vector<CBigNum> vWeights;
     while(pindex->nHeight > nEndHeight - 1)
     {
-        bnWeightSpent += GetWeightSpent(pindex);
+        vWeights.push_back(GetWeightSpent(pindex));
         pindex = pindex->pprev;
     }
 
-    return bnWeightSpent;
+    sort(vWeights.begin(), vWeights.end());
+
+    return vWeights[(int)vWeights.size()/2];
 }
 
 

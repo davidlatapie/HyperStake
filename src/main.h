@@ -134,7 +134,7 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
 int64 GetProofOfStakeRewardV1(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight);
 int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight);
 CBigNum GetWeightSpent(CBlockIndex* pindex);
-CBigNum GetAverageWeightOverPeriod(int nBlocksCount);
+CBigNum GetMedianWeightOverPeriod(int nBlocksCount);
 unsigned int ComputeMinWork(unsigned int nBase, int64 nTime);
 unsigned int ComputeMinStake(unsigned int nBase, int64 nTime, unsigned int nBlockTime);
 int GetNumBlocksOfPeers();
@@ -847,6 +847,7 @@ public:
 
     // memory only
     mutable std::vector<uint256> vMerkleTree;
+    uint256 hashBlock;
 
     // Denial-of-service detection:
     mutable int nDoS;
@@ -892,6 +893,7 @@ public:
         vchBlockSig.clear();
         vMerkleTree.clear();
         nDoS = 0;
+        hashBlock = 0;
     }
 
     bool IsNull() const

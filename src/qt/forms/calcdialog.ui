@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>300</height>
+    <height>352</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>250</y>
+     <x>1</x>
+     <y>301</y>
      <width>161</width>
      <height>32</height>
     </rect>
@@ -30,19 +30,6 @@
    </property>
    <property name="centerButtons">
     <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="blockSizeEdit">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>80</y>
-     <width>171</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>Enter Block Size</string>
    </property>
   </widget>
   <widget class="QLabel" name="label">
@@ -82,7 +69,7 @@
     <number>1</number>
    </property>
    <property name="text">
-    <string>Calculate Optimal Block Sizes by Seeing Potential Reward</string>
+    <string>Calculate optimal stake input sizing based on current network statistics</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -91,238 +78,102 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="day9Label">
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>130</y>
-     <width>41</width>
-     <height>21</height>
+     <x>30</x>
+     <y>180</y>
+     <width>191</width>
+     <height>121</height>
     </rect>
    </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>9 Days:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="avgWeightResult">
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignTop</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QLabel" name="day9Result">
+  <widget class="QWidget" name="formLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>130</y>
-     <width>41</width>
-     <height>21</height>
+     <x>30</x>
+     <y>80</y>
+     <width>191</width>
+     <height>81</height>
     </rect>
    </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>100</y>
-     <width>81</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Calculate</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day12Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>150</y>
-     <width>51</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>12 Days:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day15Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>170</y>
-     <width>51</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>15 Days:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day20Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>190</y>
-     <width>51</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>20 Days:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day12Result">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>150</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day15Result">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>170</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day20Result">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>190</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day30Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>210</y>
-     <width>51</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>30 Days:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="day30Result">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>210</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Target Days To Stake:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="comboBoxTargetDays">
+      <item>
+       <property name="text">
+        <string>10</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>15</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>20</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>25</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>30</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="blockSizeEdit">
+      <property name="placeholderText">
+       <string>HYP</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Amount of HYP to Split</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>Calculate</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
