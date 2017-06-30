@@ -38,9 +38,7 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     QAction *copyAddressAction = new QAction(tr("Copy address"), this);
     QAction *copyLabelAction = new QAction(tr("Copy label"), this);
     QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
-             copyTransactionHashAction = new QAction(tr("Copy transaction ID"), this);  // we need to enable/disable this
-             //lockAction = new QAction(tr("Lock unspent"), this);                        // we need to enable/disable this
-             //unlockAction = new QAction(tr("Unlock unspent"), this);                    // we need to enable/disable this
+    copyTransactionHashAction = new QAction(tr("Copy transaction ID"), this);  // we need to enable/disable this
 
     // context menu
     contextMenu = new QMenu();
@@ -48,9 +46,6 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     contextMenu->addAction(copyLabelAction);
     contextMenu->addAction(copyAmountAction);
     contextMenu->addAction(copyTransactionHashAction);
-    //contextMenu->addSeparator();
-    //contextMenu->addAction(lockAction);
-    //contextMenu->addAction(unlockAction);
 
     // context menu signals
     connect(ui->treeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showMenu(QPoint)));
@@ -58,8 +53,6 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
     connect(copyTransactionHashAction, SIGNAL(triggered()), this, SLOT(copyTransactionHash()));
-    //connect(lockAction, SIGNAL(triggered()), this, SLOT(lockCoin()));
-    //connect(unlockAction, SIGNAL(triggered()), this, SLOT(unlockCoin()));
 
     // clipboard actions
     QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -98,9 +91,9 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
 
     // click on header
 	#if QT_VERSION < 0x050000
-    ui->treeWidget->header()->setClickable(true);
+        ui->treeWidget->header()->setClickable(true);
 	#else
-	ui->treeWidget->header()->setSectionsClickable(true);
+        ui->treeWidget->header()->setSectionsClickable(true);
 	#endif
     connect(ui->treeWidget->header(), SIGNAL(sectionClicked(int)), this, SLOT(headerSectionClicked(int)));
 
@@ -155,7 +148,6 @@ void CoinControlDialog::setModel(WalletModel *model)
     if(model && model->getOptionsModel() && model->getAddressTableModel())
     {
         updateView();
-        //updateLabelLocked();
         CoinControlDialog::updateLabels(model, this);
     }
 }
@@ -310,22 +302,10 @@ void CoinControlDialog::showMenu(const QPoint &point)
         if (item->text(COLUMN_TXHASH).length() == 64) // transaction hash is 64 characters (this means its a child node, so its not a parent node in tree mode)
         {
             copyTransactionHashAction->setEnabled(true);
-            //if (model->isLockedCoin(uint256(item->text(COLUMN_TXHASH).toStdString()), item->text(COLUMN_VOUT_INDEX).toUInt()))
-            //{
-            //    lockAction->setEnabled(false);
-            //    unlockAction->setEnabled(true);
-            //}
-            //else
-            //{
-            //    lockAction->setEnabled(true);
-            //    unlockAction->setEnabled(false);
-            //}
         }
         else // this means click on parent node in tree mode -> disable all
         {
             copyTransactionHashAction->setEnabled(false);
-            //lockAction->setEnabled(false);
-            //unlockAction->setEnabled(false);
         }
 
         // show context menu
@@ -362,29 +342,6 @@ void CoinControlDialog::copyTransactionHash()
 {
     QApplication::clipboard()->setText(contextMenuItem->text(COLUMN_TXHASH));
 }
-
-// context menu action: lock coin
-/*void CoinControlDialog::lockCoin()
-{
-    if (contextMenuItem->checkState(COLUMN_CHECKBOX) == Qt::Checked)
-        contextMenuItem->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
-
-    COutPoint outpt(uint256(contextMenuItem->text(COLUMN_TXHASH).toStdString()), contextMenuItem->text(COLUMN_VOUT_INDEX).toUInt());
-    model->lockCoin(outpt);
-    contextMenuItem->setDisabled(true);
-    contextMenuItem->setIcon(COLUMN_CHECKBOX, QIcon(":/icons/lock_closed"));
-    updateLabelLocked();
-}*/
-
-// context menu action: unlock coin
-/*void CoinControlDialog::unlockCoin()
-{
-    COutPoint outpt(uint256(contextMenuItem->text(COLUMN_TXHASH).toStdString()), contextMenuItem->text(COLUMN_VOUT_INDEX).toUInt());
-    model->unlockCoin(outpt);
-    contextMenuItem->setDisabled(false);
-    contextMenuItem->setIcon(COLUMN_CHECKBOX, QIcon());
-    updateLabelLocked();
-}*/
 
 // copy label "Quantity" to clipboard
 void CoinControlDialog::clipboardQuantity()
@@ -527,19 +484,6 @@ QString CoinControlDialog::getPriorityLabel(double dPriority)
         else                            return tr("lowest");
     }
 }
-
-// shows count of locked unspent outputs
-/*void CoinControlDialog::updateLabelLocked()
-{
-    vector<COutPoint> vOutpts;
-    model->listLockedCoins(vOutpts);
-    if (vOutpts.size() > 0)
-    {
-       ui->labelLocked->setText(tr("(%1 locked)").arg(vOutpts.size()));
-       ui->labelLocked->setVisible(true); 
-    }
-    else ui->labelLocked->setVisible(false);
-}*/
 
 void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 {
@@ -696,11 +640,6 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     l7->setStyleSheet((fLowOutput) ? "color:red;" : "");                    // Low Output = "yes"
     l8->setStyleSheet((nChange > 0 && nChange < CENT) ? "color:red;" : ""); // Change < 0.01BTC
 
-    //l5->setProperty("error", (nBytes >= 10000) ? true : false);              // Bytes >= 10000
-    //l6->setProperty("error", (dPriority <= 576000) ? true : false);          // Priority < "medium"
-    //l7->setProperty("error", fLowOutput ? true : false);                     // Low Output = "yes"
-    //l8->setProperty("error", (nChange > 0 && nChange < CENT) ? true : false);// Change < 0.01BTC
-
     // tool tips
     l5->setToolTip(tr("This label turns red, if the transaction size is bigger than 10000 bytes.\n\n This means a fee of at least %1 per kb is required.\n\n Can vary +/- 1 Byte per input.").arg(BitcoinUnits::formatWithUnit(nDisplayUnit, CENT)));
     l6->setToolTip(tr("Transactions with higher priority get more likely into a block.\n\nThis label turns red, if the priority is smaller than \"medium\".\n\n This means a fee of at least %1 per kb is required.").arg(BitcoinUnits::formatWithUnit(nDisplayUnit, CENT)));
@@ -766,7 +705,6 @@ void CoinControlDialog::updateView()
         double dPrioritySum = 0;
         int nChildren = 0;
         int nInputSum = 0;
-		uint64 nTxWeight = 0;
 		uint64 nDisplayWeight = 0;
 		uint64 nTxWeightSum = 0;
 		uint64 nPotentialStakeSum = 0;
@@ -779,8 +717,8 @@ void CoinControlDialog::updateView()
             nChildren++;
             
 			//calculate weight
-			double nTimeWeight = min(GetTime() - out.tx->GetTxTime(), (int64)nStakeMaxAge) - nStakeMinAge;
-			nTxWeight = out.tx->vout[out.i].nValue / COIN * nTimeWeight / 86400;
+            uint64 nTxWeight;
+            model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight);
 			
 			double dStakeAge;
 			if(fTestNet)
@@ -883,7 +821,7 @@ void CoinControlDialog::updateView()
 			double nTimeToMaturity = 0;
 			if (dStakeAge - nAge >= 0 )
 				nTimeToMaturity = (dStakeAge - nAge);
-			double nEstimateTime = 90 * nNetworkWeight / nBlockWeight; // 90 seconds is block target
+            double nEstimateTime = 60 * nNetworkWeight / nBlockWeight; // 90 seconds is block target
 			nEstimateTime = min((nEstimateTime + nTimeToMaturity) / 86400, double(999));
 			
 			itemOutput->setText(COLUMN_TIMEESTIMATE, QString::number(nEstimateTime, 'f', 2));

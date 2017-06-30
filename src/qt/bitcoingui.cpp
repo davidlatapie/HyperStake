@@ -1216,7 +1216,7 @@ void BitcoinGUI::updateMintingIcon()
     else if (nLastCoinStakeSearchInterval)
     {	
 		uint64 nAccuracyAdjustment = 1; // this is a manual adjustment param if needed to make more accurate
-        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
+        uint64 nEstimateTime = 60 * nNetworkWeight / nWeight / nAccuracyAdjustment;
 	
 		uint64 nRangeLow = nEstimateTime;
 		uint64 nRangeHigh = nEstimateTime * 1.5;

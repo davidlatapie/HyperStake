@@ -35,11 +35,11 @@ int64 GetWeight(int64 nIntervalBeginning, int64 nIntervalEnd)
     return min(nIntervalEnd - nIntervalBeginning - nStakeMinAge, (int64)nStakeMaxAge);
 }
 
-// Get time weight 2 - This is added for informational purposes since staking takes 8.8 days min approx. because of bug
+// Get time weight 2 - This calculation is technically incorrect and is dumbed down math that is easier for the general public to understand
 int64 GetWeight2(int64 nIntervalBeginning, int64 nIntervalEnd)
 {
 	int64 nTimePassed = nIntervalEnd - nIntervalBeginning;
-	return min(nTimePassed, (int64)nStakeMaxAge) - nStakeMinAge;
+    return min(nTimePassed, (int64)nStakeMaxAge);
 }
 
 // Get the last stake modifier and its generation time from a given block
