@@ -15,6 +15,7 @@ class OverviewPage;
 class RPCConsole;
 class SendCoinsDialog;
 class SignVerifyMessageDialog;
+class Bip38ToolDialog;
 class StakeForCharityDialog;
 class TransactionTableModel;
 class TransactionView;
@@ -70,6 +71,7 @@ private:
     AddressBookPage *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     SignVerifyMessageDialog *signVerifyMessageDialog;
+    Bip38ToolDialog *bip38Dialog;
 	StakeForCharityDialog *stakeForCharityDialog;
 	BlockBrowser *blockBrowser;
 
@@ -98,6 +100,7 @@ private:
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
     QAction *lockWalletToggleAction;
+    QAction *bip38ToolAction;
 	QAction *checkWalletAction;
 	QAction *repairWalletAction;
     QAction *aboutQtAction;
@@ -109,8 +112,6 @@ private:
 	QAction *stakingIconAction;
 	QAction *charityAction;
 	QAction *calcAction;
-	
-	
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -191,6 +192,8 @@ private slots:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
+    /** Show BIP 38 tool - default to Encryption tab */
+    void gotoBip38Tool();
 	/** Allow user to unlock wallet from click */
 	void lockIconClicked();
     /** Show configuration dialog */

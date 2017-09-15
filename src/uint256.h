@@ -345,6 +345,14 @@ public:
         return (GetHex());
     }
 
+    std::string ToStringReverseEndian() const
+    {
+        char psz[sizeof(pn) * 2 + 1];
+        for (unsigned int i = 0; i < sizeof(pn); i++)
+            sprintf(psz + i * 2, "%02x", ((unsigned char*)pn)[i]);
+        return std::string(psz, psz + sizeof(pn) * 2);
+    }
+
     unsigned char* begin()
     {
         return (unsigned char*)&pn[0];
