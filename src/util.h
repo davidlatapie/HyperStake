@@ -306,9 +306,28 @@ std::string HexStr(const T itbegin, const T itend, bool fSpaces=false)
     return rv;
 }
 
+template <typename T>
+inline std::string HexStr(const T& vch, bool fSpaces = false)
+{
+    return HexStr(vch.begin(), vch.end(), fSpaces);
+}
+
 inline std::string HexStr(const std::vector<unsigned char>& vch, bool fSpaces=false)
 {
     return HexStr(vch.begin(), vch.end(), fSpaces);
+}
+
+/** Reverse the endianess of a string */
+inline std::string ReverseEndianString(std::string in)
+{
+    std::string out = "";
+    unsigned int s = in.size();
+    for(unsigned int i = 0; i < s; i+=2)
+    {
+        out += in.substr(s - i - 2, 2);
+    }
+
+    return out;
 }
 
 template<typename T>

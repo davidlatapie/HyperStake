@@ -4,6 +4,7 @@
  * W.J. van der Laan 2011-2012
  * The Bitcoin Developers 2011-2012
  */
+#include "bip38tooldialog.h"
 #include "bitcoingui.h"
 #include "transactiontablemodel.h"
 #include "addressbookpage.h"
@@ -83,6 +84,7 @@ BitcoinGUI::BitcoinGUI(const NetworkStyle * networkStyle, QWidget *parent):
 	unlockWalletAction(0),
     changePassphraseAction(0),
     lockWalletToggleAction(0),
+    bip38ToolAction(0),
     aboutQtAction(0),
     trayIcon(0),
     trayIconMenu(0),
@@ -137,17 +139,11 @@ BitcoinGUI::BitcoinGUI(const NetworkStyle * networkStyle, QWidget *parent):
     transactionsPage->setLayout(vbox);
 
     addressBookPage = new AddressBookPage(AddressBookPage::ForEditing, AddressBookPage::SendingTab);
-
     receiveCoinsPage = new AddressBookPage(AddressBookPage::ForEditing, AddressBookPage::ReceivingTab);
-
     sendCoinsPage = new SendCoinsDialog(this);
-
     signVerifyMessageDialog = new SignVerifyMessageDialog(this);
-	
+    bip38Dialog = new Bip38ToolDialog(this);
 	stakeForCharityDialog = new StakeForCharityDialog(this);
-
-	
-	
 	blockBrowser = new BlockBrowser((this));
 	
     centralWidget = new QStackedWidget(this);
@@ -347,6 +343,8 @@ void BitcoinGUI::createActions()
     lockWalletToggleAction = new QAction(this);
     signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
     verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
+    bip38ToolAction = new QAction(QIcon(":/icons/key"), tr("&BIP38 tool"), this);
+    bip38ToolAction->setToolTip(tr("Encrypt and decrypt private keys using a passphrase"));
 	
 	checkWalletAction = new QAction(QIcon(":/icons/transaction_confirmed"), tr("&Check Wallet..."), this);
 	checkWalletAction->setStatusTip(tr("Check wallet integrity and report findings"));
@@ -379,6 +377,7 @@ void BitcoinGUI::createActions()
     connect(lockWalletToggleAction, SIGNAL(triggered()), this, SLOT(lockWalletToggle()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
+    connect(bip38ToolAction, SIGNAL(triggered()), this, SLOT(gotoBip38Tool()));
 	connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWalletForMint()));
 	
 	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
@@ -437,6 +436,7 @@ void BitcoinGUI::createMenuBar()
 	settings->addAction(repairWalletAction);
 	settings->addAction(charityAction);
 	settings->addAction(calcAction);
+    settings->addAction(bip38ToolAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
 
@@ -516,6 +516,7 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
         signVerifyMessageDialog->setModel(walletModel);
+        bip38Dialog->setModel(walletModel);
 		stakeForCharityDialog->setModel(walletModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
@@ -909,6 +910,11 @@ void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 
     if(!addr.isEmpty())
         signVerifyMessageDialog->setAddress_VM(addr);
+}
+
+void BitcoinGUI::gotoBip38Tool()
+{
+    bip38Dialog->showTab_ENC(true);
 }
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)

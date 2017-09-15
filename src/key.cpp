@@ -8,6 +8,7 @@
 #include <openssl/obj_mac.h>
 
 #include "key.h"
+#include "bignum.h"
 
 // Generate a private key from just the secret parameter
 int EC_KEY_regenerate_key(EC_KEY *eckey, BIGNUM *priv_key)
@@ -183,10 +184,9 @@ void CKey::MakeNewKey(bool fCompressed)
     fSet = true;
 }
 
-bool CKey::SetPrivKey(const CPrivKey& vchPrivKey)
+bool CKey::SetPrivKey(const unsigned char* pbegin, unsigned int size)
 {
-    const unsigned char* pbegin = &vchPrivKey[0];
-    if (d2i_ECPrivateKey(&pkey, &pbegin, vchPrivKey.size()))
+    if (d2i_ECPrivateKey(&pkey, &pbegin, size))
     {
         // In testing, d2i_ECPrivateKey can return true
         // but fill in pkey with a key that fails
@@ -204,6 +204,11 @@ bool CKey::SetPrivKey(const CPrivKey& vchPrivKey)
     pkey = NULL;
     Reset();
     return false;
+}
+
+bool CKey::SetPrivKey(const CPrivKey& vchPrivKey)
+{
+    return SetPrivKey(&vchPrivKey[0], vchPrivKey.size());
 }
 
 bool CKey::SetSecret(const CSecret& vchSecret, bool fCompressed)
@@ -254,6 +259,41 @@ CPrivKey CKey::GetPrivKey() const
     if (i2d_ECPrivateKey(pkey, &pbegin) != nSize)
         throw key_error("CKey::GetPrivKey() : i2d_ECPrivateKey returned unexpected size");
     return vchPrivKey;
+}
+
+uint256 CKey::GetPrivKey_256() const
+{
+    bool fCompressed;
+    CSecret pk = GetSecret(fCompressed);
+    const BIGNUM* big = EC_KEY_get0_private_key(pkey);
+    void* vp = (void*)big;
+    CBigNum* bnPriv = (CBigNum*)vp;
+
+    return bnPriv->getuint256();
+}
+
+bool CKey::SetPrivKey_Raw(const uint256& privKey, bool fCompressed)
+{
+    CBigNum bnPrivKey(privKey);
+    void* vp = (void*)&bnPrivKey;
+    BIGNUM* bn = (BIGNUM*)vp;
+
+    EC_KEY_free(pkey);
+    pkey = EC_KEY_new_by_curve_name(NID_secp256k1);
+    if (pkey == NULL)
+        throw key_error("CKey::SetSecret() : EC_KEY_new_by_curve_name failed");
+    if (bn == NULL)
+        throw key_error("CKey::SetSecret() : BN_bin2bn failed");
+    if (!EC_KEY_regenerate_key(pkey,bn))
+    {
+        BN_clear_free(bn);
+        throw key_error("CKey::SetSecret() : EC_KEY_regenerate_key failed");
+    }
+    BN_clear_free(bn);
+    fSet = true;
+    if (fCompressed || fCompressedPubKey)
+        SetCompressedPubKey();
+    return true;
 }
 
 bool CKey::SetPubKey(const CPubKey& vchPubKey)

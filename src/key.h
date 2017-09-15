@@ -66,12 +66,32 @@ private:
     std::vector<unsigned char> vchPubKey;
     friend class CKey;
 
+    //! Compute the length of a pubkey with a given first byte.
+    unsigned int static GetLen(unsigned char chHeader)
+    {
+        if (chHeader == 2 || chHeader == 3)
+            return 33;
+        if (chHeader == 4 || chHeader == 6 || chHeader == 7)
+            return 65;
+        return 0;
+    }
+
+    //! Set this key data to be invalid
+    void Invalidate()
+    {
+        vchPubKey[0] = 0xFF;
+    }
+
 public:
     CPubKey() { }
     CPubKey(const std::vector<unsigned char> &vchPubKeyIn) : vchPubKey(vchPubKeyIn) { }
     friend bool operator==(const CPubKey &a, const CPubKey &b) { return a.vchPubKey == b.vchPubKey; }
     friend bool operator!=(const CPubKey &a, const CPubKey &b) { return a.vchPubKey != b.vchPubKey; }
     friend bool operator<(const CPubKey &a, const CPubKey &b) { return a.vchPubKey < b.vchPubKey; }
+
+    unsigned int size() const { return GetLen(vchPubKey[0]); }
+    const unsigned char* begin() const { return static_cast<const unsigned char*>(&vchPubKey[0]); }
+    const unsigned char* end() const { return begin() + size(); }
 
     IMPLEMENT_SERIALIZE(
         READWRITE(vchPubKey);
@@ -95,6 +115,23 @@ public:
 
     std::vector<unsigned char> Raw() const {
         return vchPubKey;
+    }
+
+    //! Initialize a public key using begin/end iterators to byte data.
+    template <typename T>
+    void Set(const T pbegin, const T pend)
+    {
+        int len = pend == pbegin ? 0 : GetLen(pbegin[0]);
+        if (len && len == (pend - pbegin)) {
+         //memcpy(vchPubKey, (unsigned char*)&pbegin[0], len);
+            vchPubKey.clear();
+            for(unsigned int i = 0; i < len; ++i)
+            {
+                vchPubKey[i] = pbegin[i];
+            }
+        }
+        else
+            Invalidate();
     }
 };
 
@@ -130,10 +167,13 @@ public:
     bool IsCompressed() const;
 
     void MakeNewKey(bool fCompressed);
+    bool SetPrivKey(const unsigned char* pbegin, unsigned int size);
     bool SetPrivKey(const CPrivKey& vchPrivKey);
+    bool SetPrivKey_Raw(const uint256& privKey, bool fCompressed);
     bool SetSecret(const CSecret& vchSecret, bool fCompressed = false);
     CSecret GetSecret(bool &fCompressed) const;
     CPrivKey GetPrivKey() const;
+    uint256 GetPrivKey_256() const;
     bool SetPubKey(const CPubKey& vchPubKey);
     CPubKey GetPubKey() const;
 

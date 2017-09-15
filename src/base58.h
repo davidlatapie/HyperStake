@@ -125,6 +125,22 @@ inline bool DecodeBase58(const std::string& str, std::vector<unsigned char>& vch
     return DecodeBase58(str.c_str(), vchRet);
 }
 
+inline std::string DecodeBase58_cstr(const char *psz)
+{
+    std::vector<unsigned char> vch;
+    DecodeBase58(psz, vch);
+    std::stringstream ss;
+    ss << std::hex;
+
+    for(unsigned int i = 0; i < vch.size(); i++)
+    {
+        unsigned char* c = &vch[i];
+        ss  << std::setw(2) << std::setfill('0') << static_cast<int>(c[0]);
+    }
+
+    return ss.str();
+}
+
 
 
 
