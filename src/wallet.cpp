@@ -1303,10 +1303,26 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
 	vector<COutput> vCoins;
     AvailableCoins(vCoins, true);
 	int64 nAmountSelected = 0;
+
+    bool fStakeFromAddress = false;
+    CBitcoinAddress addressStake;
+    CScript scriptStakeFrom;
+    if (mapArgs.count("-stakeaddress")) {
+        addressStake = CBitcoinAddress(mapArgs.at("-stakeaddress"));
+        fStakeFromAddress = addressStake.IsValid();
+    }
 	
 	BOOST_FOREACH(const COutput& out, vCoins)
 	{
-		if(nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
+		if (fStakeFromAddress) {
+            CTxDestination dest;
+            if (!ExtractDestination(out.tx->vout[out.i].scriptPubKey, dest))
+                continue;
+            if (CBitcoinAddress(dest).ToString() != addressStake.ToString())
+                continue;
+        }
+
+        if (nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
 		{
 			if(GetTime() - out.tx->GetTxTime() > (fTestNet ? nStakeMinAge : nStakeMinAgeV2))
 			{
