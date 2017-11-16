@@ -4068,6 +4068,9 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
     if (!pblock.get())
         return NULL;
 
+    // Only use the first 4 bits for the version encoding
+    pblock->nVersion = pblock->nVersion << 28;
+
     // Create coinbase tx
     CTransaction txNew;
     txNew.vin.resize(1);
