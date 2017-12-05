@@ -913,7 +913,18 @@ bool CBlock::ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions)
         return false;
     if (GetHash() != pindex->GetBlockHash())
         return error("CBlock::ReadFromDisk() : GetHash() doesn't match index");
+
+    this->hashBlock = pindex->GetBlockHash();
+
     return true;
+}
+
+uint256 CBlock::GetHash() const
+{
+    if (hashBlock != 0)
+        return hashBlock;
+
+    return Hash9(BEGIN(nVersion), END(nNonce));
 }
 
 
@@ -2237,6 +2248,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
 {
     // Check for duplicate
     uint256 hash = pblock->GetHash();
+    pblock->SetHash(hash);
     if (mapBlockIndex.count(hash))
         return error("ProcessBlock() : already have block %d %s", mapBlockIndex[hash]->nHeight, hash.ToString().substr(0,20).c_str());
     if (mapOrphanBlocks.count(hash))
