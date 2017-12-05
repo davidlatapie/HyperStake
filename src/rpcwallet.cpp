@@ -95,12 +95,7 @@ Value getinfo(const Array& params, bool fHelp)
     obj.push_back(Pair("keypoololdest", (boost::int64_t)pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   pwalletMain->GetKeyPoolSize()));
     obj.push_back(Pair("paytxfee",      ValueFromAmount(nTransactionFee)));
-	bool nStaking = false;
-	if(mapHashedBlocks.count(nBestHeight))
-		nStaking = true;
-	else if(mapHashedBlocks.count(nBestHeight - 1) && nLastCoinStakeSearchInterval)
-		nStaking = true;	
-	obj.push_back(Pair("staking status", (nStaking ? "Staking Active" : "Staking Not Active")));
+	obj.push_back(Pair("staking status", (fWalletStaking ? "Staking Active" : "Staking Not Active")));
 	
 	std::string strLockState = "";
 	if(pwalletMain->IsLocked())

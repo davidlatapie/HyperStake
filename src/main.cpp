@@ -73,6 +73,7 @@ map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 std::map <std::string, int> mapPeerRejectedBlocks;
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
+bool fWalletStaking = false;
 
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
@@ -4481,7 +4482,9 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
     {
         if (fShutdown)
             return;
-        
+
+        fWalletStaking = false;
+
         while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked()  ||  !fMintableCoins)
         {
             nLastCoinStakeSearchInterval = 0;
@@ -4494,6 +4497,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 
         if(mapHashedBlocks.count(nBestHeight)) //search our map of hashed blocks, see if bestblock has been hashed yet
         {
+            fWalletStaking = true;
             if(GetTime() - mapHashedBlocks[nBestHeight] < max(pwallet->nHashInterval, (unsigned int)1)) // wait a 'hash interval' until trying to hash again
             {
 				Sleep(1000); // 2.5 second sleep for this thread
