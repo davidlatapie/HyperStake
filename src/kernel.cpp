@@ -360,6 +360,8 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock& blockFrom, unsigned 
 	unsigned int i;
 	for(i = 0; i < (nHashDrift); i++) //iterate the hashing
 	{
+        fWalletStaking = true;
+
         //hash this iteration
 		nTryTime = nTimeTx + nHashDrift - i;
 		hashProofOfStake = stakeHash(nTryTime, nTxPrevTime, ss, prevout.n, nTxPrevOffset, nTimeBlockFrom); 

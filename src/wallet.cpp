@@ -1303,10 +1303,26 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
 	vector<COutput> vCoins;
     AvailableCoins(vCoins, true);
 	int64 nAmountSelected = 0;
+
+    bool fStakeFromAddress = false;
+    CBitcoinAddress addressStake;
+    CScript scriptStakeFrom;
+    if (mapArgs.count("-stakeaddress")) {
+        addressStake = CBitcoinAddress(mapArgs.at("-stakeaddress"));
+        fStakeFromAddress = addressStake.IsValid();
+    }
 	
 	BOOST_FOREACH(const COutput& out, vCoins)
 	{
-		if(nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
+		if (fStakeFromAddress) {
+            CTxDestination dest;
+            if (!ExtractDestination(out.tx->vout[out.i].scriptPubKey, dest))
+                continue;
+            if (CBitcoinAddress(dest).ToString() != addressStake.ToString())
+                continue;
+        }
+
+        if (nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
 		{
 			if(GetTime() - out.tx->GetTxTime() > (fTestNet ? nStakeMinAge : nStakeMinAgeV2))
 			{
@@ -1574,13 +1590,14 @@ uint64 CWallet::GetTimeToNextMaturity()
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
         uint64 nCurrentAge = GetTime() - pcoin.first->nTime;
-        if(nCurrentAge > nStakeAge)
+        if (nCurrentAge > nStakeAge)
             return 0;
 
-        int64 nTimeToMaturity = nStakeAge - nCurrentAge;
+        uint64 nTimeToMaturity = nStakeAge - nCurrentAge;
 
-        if(nCurrentAge < nTimeToNextMaturity)
-            nTimeToNextMaturity = nCurrentAge;
+        // see if this coin matures in less time than the 'current' oldest coin
+        if(nTimeToMaturity < nTimeToNextMaturity)
+            nTimeToNextMaturity = nTimeToMaturity;
     }
 
     return nTimeToNextMaturity;
@@ -1607,8 +1624,7 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint
 
     if (setCoins.empty())
         return false;
-	
-	uint64 nPrevAge = 0; // for nHoursToMaturity calculation
+
 	uint64 nStakeAge = nStakeMinAgeV2;
 
     if(fTestNet)

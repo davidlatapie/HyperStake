@@ -73,6 +73,7 @@ map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 std::map <std::string, int> mapPeerRejectedBlocks;
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
+bool fWalletStaking = false;
 
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
@@ -912,7 +913,18 @@ bool CBlock::ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions)
         return false;
     if (GetHash() != pindex->GetBlockHash())
         return error("CBlock::ReadFromDisk() : GetHash() doesn't match index");
+
+    this->hashBlock = pindex->GetBlockHash();
+
     return true;
+}
+
+uint256 CBlock::GetHash() const
+{
+    if (hashBlock != 0)
+        return hashBlock;
+
+    return Hash9(BEGIN(nVersion), END(nNonce));
 }
 
 
@@ -2236,6 +2248,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
 {
     // Check for duplicate
     uint256 hash = pblock->GetHash();
+    pblock->SetHash(hash);
     if (mapBlockIndex.count(hash))
         return error("ProcessBlock() : already have block %d %s", mapBlockIndex[hash]->nHeight, hash.ToString().substr(0,20).c_str());
     if (mapOrphanBlocks.count(hash))
@@ -4068,6 +4081,9 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
     if (!pblock.get())
         return NULL;
 
+    // Only use the first 4 bits for the version encoding
+    pblock->nVersion = pblock->nVersion << 28;
+
     // Create coinbase tx
     CTransaction txNew;
     txNew.vin.resize(1);
@@ -4478,7 +4494,9 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
     {
         if (fShutdown)
             return;
-        
+
+        fWalletStaking = false;
+
         while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked()  ||  !fMintableCoins)
         {
             nLastCoinStakeSearchInterval = 0;
@@ -4491,6 +4509,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 
         if(mapHashedBlocks.count(nBestHeight)) //search our map of hashed blocks, see if bestblock has been hashed yet
         {
+            fWalletStaking = true;
             if(GetTime() - mapHashedBlocks[nBestHeight] < max(pwallet->nHashInterval, (unsigned int)1)) // wait a 'hash interval' until trying to hash again
             {
 				Sleep(1000); // 2.5 second sleep for this thread

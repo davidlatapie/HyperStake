@@ -98,6 +98,7 @@ extern std::map <std::string, int> mapPeerRejectedBlocks;
 extern bool fStrictProtocol;
 extern bool fStrictIncoming;
 extern bool fGenerateBitcoins;
+extern bool fWalletStaking;
 
 // Settings
 extern int64 nTransactionFee;
@@ -847,6 +848,7 @@ public:
 
     // memory only
     mutable std::vector<uint256> vMerkleTree;
+    uint256 hashBlock;
 
     // Denial-of-service detection:
     mutable int nDoS;
@@ -899,10 +901,9 @@ public:
         return (nBits == 0);
     }
 
-    uint256 GetHash() const
-    {
-        return Hash9(BEGIN(nVersion), END(nNonce));
-    }
+    uint256 GetHash() const;
+
+    void SetHash(uint256 hash){ this->hashBlock = hash; }
 
     int64 GetBlockTime() const
     {
