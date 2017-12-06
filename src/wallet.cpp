@@ -1590,13 +1590,14 @@ uint64 CWallet::GetTimeToNextMaturity()
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
         uint64 nCurrentAge = GetTime() - pcoin.first->nTime;
-        if(nCurrentAge > nStakeAge)
+        if (nCurrentAge > nStakeAge)
             return 0;
 
-        int64 nTimeToMaturity = nStakeAge - nCurrentAge;
+        uint64 nTimeToMaturity = nStakeAge - nCurrentAge;
 
-        if(nCurrentAge < nTimeToNextMaturity)
-            nTimeToNextMaturity = nCurrentAge;
+        // see if this coin matures in less time than the 'current' oldest coin
+        if(nTimeToMaturity < nTimeToNextMaturity)
+            nTimeToNextMaturity = nTimeToMaturity;
     }
 
     return nTimeToNextMaturity;
@@ -1623,8 +1624,7 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint
 
     if (setCoins.empty())
         return false;
-	
-	uint64 nPrevAge = 0; // for nHoursToMaturity calculation
+
 	uint64 nStakeAge = nStakeMinAgeV2;
 
     if(fTestNet)
