@@ -20,25 +20,25 @@ unix:!macx {
 }
 
 
-win32{
+#win32{
     #uncomment the following section to enable building on windows:
-    windows:LIBS += -lshlwapi
-    LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
-    LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
-    windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
-    LIBS += -lboost_system-mgw48-mt-s-1_55 -lboost_filesystem-mgw48-mt-s-1_55 -lboost_program_options-mgw48-mt-s-1_55 -lboost_thread-mgw48-mt-s-1_55
-    BOOST_LIB_SUFFIX=-mgw48-mt-s-1_55
-    BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
-    BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
-    BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
-    BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1g/include
-    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1g
-    MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
-    MINIUPNPC_INCLUDE_PATH=c:/deps
-    QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
-    QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
-}
+ #   windows:LIBS += -lshlwapi
+  #  LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
+   # LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
+   # windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
+   # LIBS += -lboost_system-mgw48-mt-s-1_55 -lboost_filesystem-mgw48-mt-s-1_55 -lboost_program_options-mgw48-mt-s-1_55 -lboost_thread-mgw48-mt-s-1_55
+   # BOOST_LIB_SUFFIX=-mgw48-mt-s-1_55
+   # BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
+   # BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
+   # BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+   # BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+   # OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1g/include
+   # OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1g
+   # MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
+   # MINIUPNPC_INCLUDE_PATH=c:/deps
+   # QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
+   # QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
+#}
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -149,12 +149,14 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/addressbookpage.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
+    src/qt/bip38tooldialog.h \
     src/qt/calcdialog.h \
     src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
     src/addrman.h \
     src/base58.h \
+    src/bip38.h \
     src/bignum.h \
     src/checkpoints.h \
     src/compat.h \
@@ -172,6 +174,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/db.h \
     src/walletdb.h \
     src/script.h \
+    src/scrypt.h \
     src/init.h \
     src/mruset.h \
     src/json/json_spirit_writer_template.h \
@@ -230,7 +233,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/sph_echo.h \
     src/sph_shavite.h \
     src/sph_simd.h \
-    src/sph_types.h \
+    src/sph_types.h \ 
     src/qt/networkstyle.h \
     src/qt/scicon.h
 
@@ -247,12 +250,15 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/calcdialog.cpp \
     src/qt/editaddressdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
+    src/qt/bip38tooldialog.cpp \
     src/alert.cpp \
+    src/bip38.cpp \
     src/version.cpp \
     src/sync.cpp \
     src/util.cpp \
     src/netbase.cpp \
     src/key.cpp \
+    src/scrypt.cpp \
     src/script.cpp \
     src/main.cpp \
     src/init.cpp \
@@ -332,7 +338,8 @@ FORMS += \
     src/qt/forms/sendcoinsentry.ui \
     src/qt/forms/askpassphrasedialog.ui \
     src/qt/forms/rpcconsole.ui \
-    src/qt/forms/optionsdialog.ui
+    src/qt/forms/optionsdialog.ui \
+    src/qt/forms/bip38tooldialog.ui	
 
 contains(USE_QRCODE, 1) {
     HEADERS += src/qt/qrcodedialog.h
@@ -435,7 +442,7 @@ macx:QMAKE_CXXFLAGS_THREAD += -pthread
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
-LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
+LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,) $$join()
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
 windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32

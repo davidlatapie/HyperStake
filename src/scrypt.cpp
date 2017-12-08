@@ -121,7 +121,7 @@ HMAC_SHA256_Final(unsigned char digest[32], HMAC_SHA256_CTX *ctx)
  * write the output to buf.  The value dkLen must be at most 32 * (2^32 - 1).
  */
 void
-PBKDF2_SHA256(const uint8_t *passwd, size_t passwdlen, const uint8_t *salt,
+PBKDF2_SHA256_s(const uint8_t *passwd, size_t passwdlen, const uint8_t *salt,
               size_t saltlen, uint64_t c, uint8_t *buf, size_t dkLen)
 {
     HMAC_SHA256_CTX PShctx, hctx;
@@ -369,14 +369,14 @@ void scrypt(const char* pass, unsigned int pLen, const char* salt, unsigned int 
     uint32_t* V = (uint32_t *)(((uintptr_t)(V0) + 63) & ~ (uintptr_t)(63));
     uint32_t* XY = (uint32_t *)(((uintptr_t)(XY0) + 63) & ~ (uintptr_t)(63));
 
-    PBKDF2_SHA256((const uint8_t *)pass, pLen, (const uint8_t *)salt, sLen, 1, B, p * 128 * r);
+    PBKDF2_SHA256_s((const uint8_t *)pass, pLen, (const uint8_t *)salt, sLen, 1, B, p * 128 * r);
 
     for(unsigned int i = 0; i < p; i++)
     {
         SMix(&B[i * 128 * r], r, N, V, XY);
     }
 
-    PBKDF2_SHA256((const uint8_t *)pass, pLen, B, p * 128 * r, 1, (uint8_t *)output, dkLen);
+    PBKDF2_SHA256_s((const uint8_t *)pass, pLen, B, p * 128 * r, 1, (uint8_t *)output, dkLen);
 
     free(V0);
     free(XY0);
