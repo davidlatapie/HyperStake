@@ -298,3 +298,66 @@ Value listblocks(const Array& params, bool fHelp)
 
     return arrRet;
 }
+
+// tuningmind
+Value CreateProposal(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() !=6)
+        throw runtime_error(
+                "CreateProposal <strName>\n<nShift>\n<nStartTime>\n<nCheckSpan>\n<nCardinals>\n<strDescription>\n"
+                "Return new VoteProposal object with specified parameters"
+        );
+    // name of issue
+    string strName = params[0].get_str();
+
+    // check version for existing proposals Shift
+    uint8_t nShift = params[1].get_int();
+
+    // start time - will be changed to int StartHeight
+    // unix time stamp
+    int64 nStartTime = params[2].get_int64();
+
+    // number of blocks with votes to count
+    int nCheckSpan = params[3].get_int();
+
+    // cardinal items to vote on - convert to uint8 CheckSpan
+    uint8_t nCardinals = params[4].get_int();
+
+    // description of issue - will go in different tx
+    std::string strDescription = params[5].get_str();
+
+    // tx fee for creating proposal
+    // int64 Fee;
+
+    // int nStartHeight = StartTimeToStartHeight(nStartTime)
+    // {
+        // takes time and info about current block creation rate
+        // returns nStartHeight
+    //    return 1;
+    // }
+
+    // uint8_t nBitCount = CardinalsToBitCount(nCardinals)
+    // {
+        // takes nCardinals
+        // returns nBitCount
+    //     return 2;
+    //}
+
+    CVoteProposal NewVoteProposal()
+    {
+        return new CVoteProposal(
+                strName,
+                nShift,
+                CardinalsTonBitCount(nCardinals),
+                StartTimeTonStartHeight(StartTime),
+                nCheckSpan,
+                strDescription
+        );
+    }
+
+    Object results;
+    results.push_back(Pair("new vote proposal", NewVoteProposal));
+
+    return results;
+}
+
