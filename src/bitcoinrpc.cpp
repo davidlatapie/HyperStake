@@ -307,6 +307,33 @@ CRPCTable::CRPCTable()
     }
 }
 
+// initial mockup of a proposal created by a user
+// takes user input and returns a Vote
+Value CreateProposal(const block_header, bool fHelp)
+{
+    // name of issue
+    string Name;
+    // description of issue - will go in different tx
+    CTransaction Description;
+    // start time - will be changed to int StartHeight
+    strTimestampFormat StartTime;
+    // number of blocks with votes to count
+    uint_8 CheckSpan;
+    // cardinal items to vote on - convert to uint8 Shift
+    uint_8 cardinals;
+    // tx fee for creating proposal
+    int64 Fee;
+
+    int StartHeight = int StartTimeToHeight()
+    {
+
+    }
+    uint_8 BitCount = uint8 CardinalToBitCount()
+    {
+
+    }
+}
+
 const CRPCCommand *CRPCTable::operator[](string name) const
 {
     map<string, const CRPCCommand*>::const_iterator it = mapCommands.find(name);
