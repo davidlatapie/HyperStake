@@ -372,7 +372,7 @@ string FormatMoney(int64 n, bool fPlus)
     int64 n_abs = (n > 0 ? n : -n);
     int64 quotient = n_abs/COIN;
     int64 remainder = n_abs%COIN;
-    string str = strprintf("%"PRI64d".%06"PRI64d, quotient, remainder);
+    string str = strprintf("%lld.%06lld", quotient, remainder);
 
     // Right-trim excess zeros before the decimal point:
     int nTrim = 0;
@@ -491,7 +491,8 @@ long hex2long(const char* hexString)
 
 	while (*hexString && ret >= 0) 
 	{
-		ret = (ret << 4) | hextable[*hexString++];
+      int index = *hexString++;
+      ret = (ret << 4) | hextable[index];
 	}
 
 	return ret; 
@@ -1264,7 +1265,7 @@ void AddTimeData(const CNetAddr& ip, int64 nTime)
 
     // Add data
     vTimeOffsets.input(nOffsetSample);
-    printf("Added time data, samples %d, offset %+"PRI64d" (%+"PRI64d" minutes)\n", vTimeOffsets.size(), nOffsetSample, nOffsetSample/60);
+    printf("Added time data, samples %d, offset %+lld (%+lld minutes)\n", vTimeOffsets.size(), nOffsetSample, nOffsetSample/60);
     if (vTimeOffsets.size() >= 5 && vTimeOffsets.size() % 2 == 1)
     {
         int64 nMedian = vTimeOffsets.median();
@@ -1299,10 +1300,10 @@ void AddTimeData(const CNetAddr& ip, int64 nTime)
         }
         if (fDebug) {
             BOOST_FOREACH(int64 n, vSorted)
-                printf("%+"PRI64d"  ", n);
+                printf("%+lld  ", n);
             printf("|  ");
         }
-        printf("nTimeOffset = %+"PRI64d"  (%+"PRI64d" minutes)\n", nTimeOffset, nTimeOffset/60);
+        printf("nTimeOffset = %+lld  (%+lld minutes)\n", nTimeOffset, nTimeOffset/60);
     }
 }
 
