@@ -121,7 +121,7 @@ public:
     template <typename T>
     void Set(const T pbegin, const T pend)
     {
-        int len = pend == pbegin ? 0 : GetLen(pbegin[0]);
+        unsigned int len = pend == pbegin ? 0 : GetLen(pbegin[0]);
         if (len && len == (pend - pbegin)) {
          //memcpy(vchPubKey, (unsigned char*)&pbegin[0], len);
             vchPubKey.clear();
