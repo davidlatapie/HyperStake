@@ -537,6 +537,11 @@ public:
         return true;
     }
 
+    bool IsDataCarrier() const
+    {
+        return (this->size() > 0 && this->at(0) == OP_RETURN);
+    }
+
 
     void SetDestination(const CTxDestination& address);
     void SetMultisig(int nRequired, const std::vector<CKey>& keys);

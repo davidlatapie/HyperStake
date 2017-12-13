@@ -322,6 +322,25 @@ bool CTransaction::IsStandard() const
     return true;
 }
 
+bool CTransaction::IsProposal() const
+{
+    for (CTxOut out : vout) {
+        CScript scriptPubKey = out.scriptPubKey;
+        if (scriptPubKey.IsDataCarrier()) {
+            if (scriptPubKey.size() > 5) {
+                // "PROP" in ascii
+                if (scriptPubKey.at(1) == 0x70 &&
+                        scriptPubKey.at(2) == 0x72 &&
+                        scriptPubKey.at(3) == 0x6f &&
+                        scriptPubKey.at(4) == 0x70)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 //
 // Check transaction inputs, and make sure any
 // pay-to-script-hash transactions are evaluating IsStandard scripts

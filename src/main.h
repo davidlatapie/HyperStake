@@ -538,6 +538,7 @@ public:
         return (IsCoinBase() || IsCoinStake());
     }
 
+    bool IsProposal() const;
 
     /** Check for standard transaction types
         @return True if all outputs (scriptPubKeys) use only standard transaction forms
