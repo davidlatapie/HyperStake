@@ -2,10 +2,10 @@
 // Created by carrie on 12/8/17.
 //
 
-#ifndef HYPERSTAKE_VOTEPROPOSAL_H
-#define HYPERSTAKE_VOTEPROPOSAL_H
+#ifndef VOTEPROPOSAL_H
+#define VOTEPROPOSAL_H
 
-#endif //HYPERSTAKE_VOTEPROPOSAL_H
+#include <iostream>
 
 class CVoteProposal
 {
@@ -14,26 +14,28 @@ private:
     std::string strName;
 
     // what bit position in the block version
-    uint_8 nShift;
+    uint8_t nShift;
 
-    // number of bits in the block version used for one vote
-    uint_8 nBitCount;
-
-    // where in the blockchain we start counting votes
-    int nStartHeight;
+    // where in the blockchain we start counting votes, nStartHeight
+    int nStartTime;
 
     // how far in the blockchain are we scanning
     int  nCheckSpan;
 
+    // number of bits in the block version used for one vote, nBitCount
+    uint8_t nCardinals;
+
     // description of the proposal; may link to additional transactions
-    CTransaction strDescription;
+    std::string strDescription;
 public:
     void SetNull()
     {
         strName = "";
         nShift = 0;
-        nBitCount = 0;
+        nStartTime = 0;
         nCheckSpan = 0;
+        nCardinals = 0;
+        strDescription = "";
     }
 
     CVoteProposal()
@@ -42,27 +44,20 @@ public:
     }
 
     CVoteProposal(  std::string strName,
-                    uint_8 nShift,
-                    uint_8 nBitCount,
-                    int nStartHeight,
+                    uint8_t nShift,
+                    int nStartTime,
                     int nCheckSpan,
-                    CTransaction strDescription)
+                    uint8_t nCardinals,
+                    std::string strDescription)
     {
         this->strName = strName;
         this->nShift = nShift;
-        this->nBitCount = nBitCount;
-        this->nStartHeight = nStartHeight;
+        this->nStartTime = nStartTime;
         this->nCheckSpan = nCheckSpan;
+        this->nCardinals = nCardinals;
         this->strDescription = strDescription;
     }
 
-    std::string GetName() { return strName; }
-    void SetName(std::string strName) { this->strName = strName; }
-    int GetShift() { return nShift; }
-    void SetShift(int nShift) { this->nShift = nShift; }
-    int GetBitCount() { return nBitCount; }
-    void SetBitCount(int nBitCount) { this->nBitCount = nBitCount; }
-    int GetCheckSpan() { return nBlockCheckSpan; }
-    void SetCheckSpan(int nCheckSpan) { this->nBlockCheckSpan = nCheckSpan; }
-    std::string ToString() { return }
-}
+};
+
+#endif //HYPERSTAKE_VOTEPROPOSAL_H
