@@ -231,6 +231,7 @@ extern json_spirit::Value getblock(const json_spirit::Array& params, bool fHelp)
 extern json_spirit::Value getblockbynumber(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value exportdifficulty(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listblocks(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value createproposal(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value moneysupply(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getmoneysupply(const json_spirit::Array& params, bool fHelp);
