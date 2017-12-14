@@ -11,6 +11,7 @@
 #include "base58.h"
 #include "kernel.h"
 #include "coincontrol.h"
+#include "voteproposal.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -1919,6 +1920,33 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     return true;
 }
 
+
+// hyperstake: complete construction of a proposal transaction
+bool CWallet::FinalizeProposal(CTransaction& txProposal)
+{
+    //! Choose coins to use
+    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    int64 nValueIn = 0;
+    if (!SelectCoins(5 * COIN, GetTime(), setCoins, nValueIn, NULL) || nValueIn < CVoteProposal::FEE)
+        return error("Failed to select coins to spend");
+
+    //! Select one of the addresses to send the change to, and add inputs to the proposal tx
+    CScript scriptChange;
+    nValueIn = 0;
+    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins) {
+        scriptChange = pcoin.first->vout[pcoin.second].scriptPubKey;
+        txProposal.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
+        nValueIn += pcoin.first->vout[pcoin.second].nValue;
+    }
+
+    //! Add change output
+    if (nValueIn > CVoteProposal::FEE + CENT) {
+        CTxOut out(nValueIn - CVoteProposal::FEE, scriptChange);
+        txProposal.vout.push_back(out);
+    }
+
+    return true;
+}
 
 // Call after CreateTransaction unless you want to abort
 bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)

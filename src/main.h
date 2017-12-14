@@ -95,6 +95,7 @@ extern bool fHaveGUI;
 extern std::map<unsigned int, unsigned int> mapHashedBlocks;
 extern std::map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 extern std::map <std::string, int> mapPeerRejectedBlocks;
+extern std::map<uint256, CTransaction> mapPendingProposals;
 extern bool fStrictProtocol;
 extern bool fStrictIncoming;
 extern bool fGenerateBitcoins;

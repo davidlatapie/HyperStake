@@ -329,12 +329,16 @@ Value createproposal(const Array& params, bool fHelp)
         strDescription
     );
 
+    //! Add the constructed proposal to a partial transaction
     CTransaction tx;
-    tx.vin.push_back(CTxIn());
     NewVoteProposal->ConstructTransaction(tx);
 
+    //! Add the partial transaction to our globally accessible proposals map so that it can be called from elsewhere
+    uint256 hashProposal = tx.GetHash();
+    mapPendingProposals.insert(make_pair(hashProposal, tx));
+
     Object results;
-    results.push_back(Pair("new vote proposal", NewVoteProposal));
+    results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
     results.push_back(Pair("name", strName));
     results.push_back(Pair("shift", nShift));
     results.push_back(Pair("start time", (boost::int64_t)nStartTime));
