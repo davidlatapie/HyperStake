@@ -30,6 +30,9 @@ private:
     // description of the proposal; may link to additional transactions
     std::string strDescription;
 public:
+    // the amount of HYP burnt when a proposal is made
+    static const int64 FEE = 5 * COIN;
+
     void SetNull()
     {
         strName = "";

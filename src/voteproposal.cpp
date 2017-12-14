@@ -13,10 +13,10 @@ using namespace std;
 */
 bool CVoteProposal::ConstructTransaction(CTransaction& tx)
 {
-    if (tx.vin.empty()) {
-        printf("%s : transaction does not have any inputs!\n", __func__);
-        return false;
-    }
+//    if (tx.vin.empty()) {
+//        printf("%s : transaction does not have any inputs!\n", __func__);
+//        return false;
+//    }
 
     if (this->IsNull()) {
         printf("%s : vote proposal is null!\n", __func__);

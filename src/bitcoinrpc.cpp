@@ -288,6 +288,7 @@ static const CRPCCommand vRPCCommands[] =
     { "gethashespersec",        &gethashespersec,        true,   false },
 	{ "listblocks",             &listblocks,             false,  false },
     { "createproposal",         &createproposal,         false,  false },
+    { "sendproposal",           &sendproposal,           false,  false },
 	{ "hashsettings",           &hashsettings,           false,  false },
 	{ "gettxfee",               &gettxfee,               false,  false },
     { "getstakingstatus",       &getstakingstatus,       false,  false },
