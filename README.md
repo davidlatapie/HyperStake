@@ -1,4 +1,4 @@
-#HyperStake
+# HyperStake
 
 Copyright (c) 2013-2017 HyperStake Developers
 Copyright (c) 2013 NovaCoin Developers

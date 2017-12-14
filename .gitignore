@@ -35,6 +35,8 @@ release/*
 makefile.release
 makefile.debug
 makefile
+Makefile
+src/Makefile
 HyperStake-qt.pro.user
 autom4te.cache
 aclocal.m4
@@ -49,6 +51,7 @@ src/qt/moc_aboutdialog.cpp
 src/qt/moc_addressbookpage.cpp
 src/qt/moc_addresstablemodel.cpp
 src/qt/moc_askpassphrasedialog.cpp
+src/qt/moc_bip38tooldialog.cpp
 src/qt/moc_bitcoinaddressvalidator.cpp
 src/qt/moc_bitcoinamountfield.cpp
 src/qt/moc_bitcoingui.cpp

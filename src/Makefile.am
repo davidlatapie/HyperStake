@@ -1,21 +1,15 @@
-DIST_SUBDIRS = secp256k1
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS)
 
 
 
 BITCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BOOST_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
-BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
 LIBBITCOIN_WALLET=libbitcoin_wallet.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
-LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBBITCOINQT=qt/libbitcoinqt.a
-
-$(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -183,8 +177,7 @@ hyperstaked_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBLEVELDB) \
-  $(LIBMEMENV) \
-  $(LIBSECP256K1)
+  $(LIBMEMENV)
 
 if ENABLE_WALLET
 hyperstaked_LDADD += libbitcoin_wallet.a
@@ -198,7 +191,7 @@ if TARGET_WINDOWS
 hyperstaked_SOURCES += bitcoind-res.rc
 endif
 
-hyperstaked_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1)
+hyperstaked_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS)
 hyperstaked_CPPFLAGS = $(BITCOIN_INCLUDES)
 hyperstaked_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
@@ -210,8 +203,6 @@ DISTCLEANFILES = obj/build.h
 EXTRA_DIST =
 
 clean-local:
-	-$(MAKE) -C leveldb clean
-	-$(MAKE) -C secp256k1 clean
 	-rm -f config.h
 
 .rc.o:
