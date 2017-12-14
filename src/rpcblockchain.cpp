@@ -320,6 +320,7 @@ Value createproposal(const Array& params, bool fHelp)
     // description of issue - will go in different tx
     std::string strDescription = params[5].get_str();
 
+    CTransaction tx;
     CVoteProposal* NewVoteProposal = new CVoteProposal(
         strName,
         nShift,
@@ -328,6 +329,8 @@ Value createproposal(const Array& params, bool fHelp)
         nCardinals,
         strDescription
     );
+
+    NewVoteProposal->ConstructTransaction(tx);
 
     Object results;
     results.push_back(Pair("new vote proposal", NewVoteProposal));

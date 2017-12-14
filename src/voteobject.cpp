@@ -16,6 +16,6 @@ bool CVoteObject::AddVoteToHeader(uint32_t& nVersion)
 bool CVoteObject::FormatVote()
 {
 // change int nCardinals to uint32_t
-    *nFormattedVote = static_cast<uint32_t>(nCardinals);
+    nFormattedVote* = static_cast<uint32_t>(nCardinals);
     return true;
 }

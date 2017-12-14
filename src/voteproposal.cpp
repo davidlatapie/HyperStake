@@ -45,6 +45,8 @@ bool CVoteProposal::ConstructTransaction(CTransaction& tx)
         return false;
     }
 
+    cout << "Transaction created" << endl;
+
     return true;
 }
 
