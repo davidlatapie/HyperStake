@@ -28,7 +28,7 @@ bool CVoteProposal::ConstructTransaction(CTransaction& tx)
 
     //serialize the vote proposal
     CDataStream serializedProposal(SER_NETWORK, PROTOCOL_VERSION);
-    serializedProposal << this;
+    serializedProposal << *this;
     vector<unsigned char> vchData(serializedProposal.begin(), serializedProposal.end());
 
     //Add serialized proposal to the script
@@ -38,16 +38,12 @@ bool CVoteProposal::ConstructTransaction(CTransaction& tx)
     CTxOut out;
     out.scriptPubKey = scriptProposal;
     out.nValue = 0;
-    tx.vout.emplace_back(out);
+    tx.vout.push_back(out);
 
     if (tx.GetSerializeSize(SER_NETWORK, PROTOCOL_VERSION)) {
         printf("%s : transaction size is too large!\n", __func__);
         return false;
     }
 
-    cout << "Transaction created" << endl;
-
     return true;
 }
-
-
