@@ -329,6 +329,10 @@ Value createproposal(const Array& params, bool fHelp)
         strDescription
     );
 
+    CTransaction tx;
+    tx.vin.push_back(CTxIn());
+    NewVoteProposal->ConstructTransaction(tx);
+
     Object results;
     results.push_back(Pair("new vote proposal", NewVoteProposal));
     results.push_back(Pair("name", strName));
