@@ -6,6 +6,7 @@
 #include "main.h"
 #include "bitcoinrpc.h"
 #include "voteproposal.h"
+#include "voteobject.h"
 
 #include <iostream>
 #include <fstream>
@@ -320,7 +321,9 @@ Value createproposal(const Array& params, bool fHelp)
     // description of issue - will go in different tx
     std::string strDescription = params[5].get_str();
 
-    CVoteProposal* NewVoteProposal = new CVoteProposal(
+    Object results;
+
+    CVoteProposal proposal(
         strName,
         nShift,
         nStartTime,
@@ -328,16 +331,18 @@ Value createproposal(const Array& params, bool fHelp)
         nCardinals,
         strDescription
     );
+    CVoteObject testVote(proposal, 4);
+    uint32_t nVersion = CBlock::CURRENT_VERSION;
+    results.push_back(Pair("added to header", testVote.AddVoteToHeader(nVersion)));
 
     //! Add the constructed proposal to a partial transaction
     CTransaction tx;
-    NewVoteProposal->ConstructTransaction(tx);
+    proposal.ConstructTransaction(tx);
 
     //! Add the partial transaction to our globally accessible proposals map so that it can be called from elsewhere
     uint256 hashProposal = tx.GetHash();
     mapPendingProposals.insert(make_pair(hashProposal, tx));
 
-    Object results;
     results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
     results.push_back(Pair("name", strName));
     results.push_back(Pair("shift", nShift));

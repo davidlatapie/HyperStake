@@ -72,6 +72,7 @@ public:
     )
 
     bool ConstructTransaction(CTransaction& tx);
+    int GetShift() {return nShift;};
 
 };
 

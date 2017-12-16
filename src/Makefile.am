@@ -80,7 +80,8 @@ BITCOIN_CORE_H = \
   version.h \
   wallet.h \
   walletdb.h \
-  voteproposal.h
+  voteproposal.h \
+  voteobject.h
 
 JSON_H = \
   json/json_spirit.h \
@@ -128,6 +129,7 @@ libbitcoin_server_a_SOURCES = \
   script.cpp \
   scrypt.cpp \
   voteproposal.cpp \
+  voteobject.cpp \
   shavite.c \
   simd.c \
   skein.c \

@@ -6,24 +6,22 @@
 #define HYPERSTAKE_VOTEOBJECT_H
 #define HEADERMASK 0x0fffffff
 
-#inclue "voteproposal.h"
+#include "voteproposal.h"
 
 class CVoteObject
 {
 private:
-    int nCardinals;
+    int nChoice;
     uint32_t nFormattedVote;
     bool fVoted;
     CVoteProposal voteProposal;
 public:
-    CVoteObject(CVoteProposal voteProposal, int nCardinals)
+    CVoteObject(CVoteProposal voteProposal, int nChoice)
     {
         this->voteProposal = voteProposal;
-        this->nCardinals = nCardinals;
+        this->nChoice = nChoice;
     }
-    bool FormatVote();
     bool AddVoteToHeader(uint32_t& nVersion);
-
 };
 
 #endif //HYPERSTAKE_VOTEOBJECT_H
