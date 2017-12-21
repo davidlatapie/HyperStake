@@ -14,14 +14,15 @@ private:
     int nChoice;
     uint32_t nFormattedVote;
     bool fVoted;
-    CVoteProposal voteProposal;
+    CVoteProposal proposal;
 public:
-    CVoteObject(CVoteProposal voteProposal, int nChoice)
+    CVoteObject(CVoteProposal proposal, int nChoice)
     {
-        this->voteProposal = voteProposal;
+        this->proposal= proposal;
         this->nChoice = nChoice;
     }
-    bool AddVoteToHeader(uint32_t& nVersion);
+    bool AddVoteToVersion(uint32_t& nVersion);
+    uint32_t GetVoteFromVersion(uint32_t nVersion);
 };
 
 #endif //HYPERSTAKE_VOTEOBJECT_H

@@ -20,18 +20,34 @@ string PrintBinary(uint32_t n)
     return result;
 }
 
-bool CVoteObject::AddVoteToHeader(uint32_t& nVersion)
+bool CVoteObject::AddVoteToVersion(uint32_t& nVersion)
 {
-
-    int temp = CBlock::CURRENT_VERSION << 28;
+    int versionInFirstFour = CBlock::CURRENT_VERSION << 28;
     cout << "CURRENT VERSION:            " << PrintBinary(temp) << endl;
+    // transform Choice to uint32_t
     nChoice = static_cast<uint32_t>(nChoice);
-    nChoice <<= voteProposal.GetShift();
+    // move Choice to its place in Version 
+    nChoice <<= proposal.GetShift();
     cout << "nChoice after getting shift " << PrintBinary(nChoice) << endl;
-    nFormattedVote = (temp |= nChoice);
-
+    // combine Choice with Version
+    nFormattedVote = (versionInFirstFour |= nChoice);
+    // flag Voted
     fVoted = true;
     cout << "new nVersion:               " << PrintBinary(nFormattedVote) << endl;
     return true;
+}
+
+bool CVoteObject::GetVoteFromVersion(uint32_t& nVersion)
+{
+    // Create a mask that will 0 out all bits that are not in the bits for this proposal 
+    uint32_t nVoteMask = 1;
+    for ( int i = 0; i < proposal.nBitCount; i++) {
+        nVoteMask |= 1;
+        nVoteMask <<= 1;
+    }
+    nVoteMask <<= (proposal.nShift - proposal.nCardinals);
+    //cout << "X: " << PrintBinary(nVoteMask) << :endl;
+
+    return nVersion & nVoteMask;
 }
 
