@@ -213,7 +213,6 @@ extern json_spirit::Value strictprotocol(const json_spirit::Array& params, bool 
 extern json_spirit::Value strictincoming(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value hashsettings(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getstakingstatus(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value sendproposal(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value getrawtransaction(const json_spirit::Array& params, bool fHelp); // in rcprawtransaction.cpp
 extern json_spirit::Value listunspent(const json_spirit::Array& params, bool fHelp);
@@ -233,6 +232,7 @@ extern json_spirit::Value getblockbynumber(const json_spirit::Array& params, boo
 extern json_spirit::Value exportdifficulty(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listblocks(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value createproposal(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value sendproposal(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value moneysupply(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getmoneysupply(const json_spirit::Array& params, bool fHelp);

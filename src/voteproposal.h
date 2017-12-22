@@ -73,6 +73,7 @@ public:
 
     bool ConstructTransaction(CTransaction& tx);
     int GetShift() {return nShift;};
+    uint8_t GetCardinals() {return nCardinals;};
 
 };
 

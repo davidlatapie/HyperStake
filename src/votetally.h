@@ -1,25 +1,28 @@
-// Copyright (c) 2017 The HyperStake Developers
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#ifndef VOTING_VOTETALLY_H
+#define VOTING_VOTETALLY_H
 
-#ifndef HYPERSTAKE_VOTETALLY_H
-#define HYPERSTAKE_VOTETALLY_H
-
-#include "voteproposal.h"
 #include <map>
+#include "voteproposal.h"
 
 class CVoteTally {
 private:
-    int nBlocksCounted;
     std::map<int, int> mapVotes;
+    int nYesTally; // store the total yes's so far
+    int nNoTally;
+    int nBlocksCounted = 0; // store the total number of blocks checked so far
     CVoteProposal proposal;
 public:
     CVoteTally(CVoteProposal proposal)
-
     {
         this->proposal = proposal;
-        this->nBlocksCounted = 0;
     }
 
+    void SetNoTally() { nNoTally = nBlocksCounted - nYesTally; }
+    int CountVote(uint32_t voteFromVersion);
+    int ProcessVersion(const uint32_t& nVersion);
+    int GetYesVotes();
+    bool AddVoteToVersion(uint32_t& nVersion);
 };
-#endif //HYPERSTAKE_VOTETALLY_H
+
+#endif //VOTING_VOTETALLY_H
+

@@ -7,11 +7,11 @@ using namespace std;
 // if the vote is yes, adds to YesTally
 // returns YesTally after update, if any
 int CVoteTally::CountVote(uint32_t voteFromVersion) {
-    cout << "voteFromHeader : " << PrintBinary(voteFromVersion) << endl;
+    cout << "voteFromVersion: " << PrintBinary(voteFromVersion) << endl;
 
     if (GetBlocksCounted() < proposal.GetCheckSpan()) {
         cout << "getblockscounted(): " << GetBlocksCounted() << endl;
-        if (voteFromHeader)
+        if (voteFromVersion == 1)
             nYesTally++;
 
         nBlocksCounted++;
@@ -25,11 +25,11 @@ int CVoteTally::CountVote(uint32_t voteFromVersion) {
 
 int CVoteTally::ProcessVersion(const uint32_t& nVersion)
 {
-    uint32_t nVoteFromHeader = voteObject.GetVoteFromHeader(nVersion);
-    return CountVote(nVoteFromHeader);
+    uint32_t nVoteFromVersion = voteObject.GetVoteFromVersion(nVersion);
+    return CountVote(nVoteFromVersion);
 }
 
-int CVoteTally::GetVotes()
+int CVoteTally::GetYesVotes()
 {
     return nYesTally;
 }

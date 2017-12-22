@@ -7,6 +7,7 @@
 #include "bitcoinrpc.h"
 #include "voteproposal.h"
 #include "voteobject.h"
+#include "votetally.h"
 
 #include <iostream>
 #include <fstream>
@@ -333,7 +334,7 @@ Value createproposal(const Array& params, bool fHelp)
     );
     CVoteObject testVote(proposal, 4);
     uint32_t nVersion = CBlock::CURRENT_VERSION;
-    results.push_back(Pair("added to header", testVote.AddVoteToHeader(nVersion)));
+    results.push_back(Pair("added to header", testVote.AddVoteToVersion(nVersion)));
 
     //! Add the constructed proposal to a partial transaction
     CTransaction tx;
@@ -342,6 +343,10 @@ Value createproposal(const Array& params, bool fHelp)
     //! Add the partial transaction to our globally accessible proposals map so that it can be called from elsewhere
     uint256 hashProposal = tx.GetHash();
     mapPendingProposals.insert(make_pair(hashProposal, tx));
+
+    //! Create a tally object
+    CVoteTally votetally(proposal);
+    testVote.GetVoteFromVersion(nVersion);
 
     results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
     results.push_back(Pair("name", strName));
