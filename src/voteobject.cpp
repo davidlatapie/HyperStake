@@ -23,6 +23,7 @@ string PrintBinary(uint32_t n)
 bool CVoteObject::AddVoteToVersion(uint32_t& nVersion)
 {
     int versionInFirstFour = CBlock::CURRENT_VERSION << 28;
+    cout << "-------------------------------------------------------------" << endl;
     cout << "CURRENT VERSION:            " << PrintBinary(versionInFirstFour) << endl;
     // transform Choice to uint32_t
     nChoice = static_cast<uint32_t>(nChoice);
@@ -34,6 +35,7 @@ bool CVoteObject::AddVoteToVersion(uint32_t& nVersion)
     // flag Voted
     fVoted = true;
     cout << "new nVersion:               " << PrintBinary(nFormattedVote) << endl;
+    cout << "-------------------------------------------------------------" << endl;
     return true;
 }
 

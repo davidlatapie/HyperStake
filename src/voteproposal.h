@@ -22,7 +22,7 @@ private:
     int nStartTime;
 
     // how far in the blockchain are we scanning
-    int  nCheckSpan;
+    int nCheckSpan;
 
     // number of bits in the block version used for one vote, nBitCount
     uint8_t nCardinals;
@@ -74,6 +74,7 @@ public:
     bool ConstructTransaction(CTransaction& tx);
     int GetShift() {return nShift;};
     uint8_t GetCardinals() {return nCardinals;};
+    int GetCheckSpan() {return nCheckSpan;};
 
 };
 

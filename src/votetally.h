@@ -20,7 +20,7 @@ public:
     void SetNoTally() { nNoTally = nBlocksCounted - nYesTally; }
     int CountVote(uint32_t voteFromVersion);
     int ProcessVersion(const uint32_t& nVersion);
-    int GetYesVotes();
+    int GetYesVotes() {return nYesTally;};
     bool AddVoteToVersion(uint32_t& nVersion);
 };
 

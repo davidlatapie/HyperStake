@@ -9,8 +9,8 @@ using namespace std;
 int CVoteTally::CountVote(uint32_t voteFromVersion) {
     cout << "voteFromVersion: " << PrintBinary(voteFromVersion) << endl;
 
-    if (GetBlocksCounted() < proposal.GetCheckSpan()) {
-        cout << "getblockscounted(): " << GetBlocksCounted() << endl;
+    if (nBlocksCounted < proposal.GetCheckSpan()) {
+        cout << "blocks counted: " << nBlocksCounted << endl;
         if (voteFromVersion == 1)
             nYesTally++;
 
@@ -31,6 +31,7 @@ int CVoteTally::ProcessVersion(const uint32_t& nVersion)
 
 int CVoteTally::GetYesVotes()
 {
+    cout << "yes tally with print binary: " << PrintBinary(nYesTally) << endl;
     return nYesTally;
 }
 

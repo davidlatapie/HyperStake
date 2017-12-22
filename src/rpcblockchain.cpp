@@ -347,6 +347,14 @@ Value createproposal(const Array& params, bool fHelp)
     //! Create a tally object
     CVoteTally votetally(proposal);
     testVote.GetVoteFromVersion(nVersion);
+    srand (time(NULL));
+    for (int i = 0; i < 100; i++) {
+        // uint32_t tempVersion = nVersion;
+        int nChoice = (rand() % 2 + 1);
+        CVoteObject vote(proposal, nChoice);
+    }
+    cout << "yes tally: " << votetally.GetYesVotes() << endl;
+    cout << "-------------------------------------------------------------" << endl;
 
     results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
     results.push_back(Pair("name", strName));
