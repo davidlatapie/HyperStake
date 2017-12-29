@@ -23,16 +23,19 @@ bool CVoteProposal::ConstructTransaction(CTransaction& tx)
         return false;
     }
 
-    CScript scriptProposal;
-    scriptProposal << OP_RETURN << 0x70726f70; //"PROP" in ASCII
-
     //serialize the vote proposal
-    CDataStream serializedProposal(SER_NETWORK, PROTOCOL_VERSION);
+    CDataStream serializedProposal(SER_NETWORK, 0);
     serializedProposal << *this;
-    vector<unsigned char> vchData(serializedProposal.begin(), serializedProposal.end());
 
-    //Add serialized proposal to the script
-    scriptProposal << vchData.size() << vchData;
+    //Construct the script that will include the serialized proposal
+    CScript scriptProposal;
+    vector<unsigned char> vchMessage;
+    vchMessage.push_back(0x70); // P
+    vchMessage.push_back(0x72); // R
+    vchMessage.push_back(0x6f); // O
+    vchMessage.push_back(0x70); // P
+    vchMessage.insert(vchMessage.end(), serializedProposal.begin(), serializedProposal.end());
+    scriptProposal << OP_RETURN << vchMessage;
 
     //Create txout and add it to the transaction
     CTxOut out;
@@ -40,8 +43,29 @@ bool CVoteProposal::ConstructTransaction(CTransaction& tx)
     out.nValue = 0;
     tx.vout.push_back(out);
 
-    if (tx.GetSerializeSize(SER_NETWORK, PROTOCOL_VERSION)) {
+    if (tx.GetSerializeSize(SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE) {
         printf("%s : transaction size is too large!\n", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool ProposalFromTransaction(const CTransaction& tx, CVoteProposal& proposal)
+{
+    if (!tx.IsProposal())
+        return error("%s : tx is not a proposal", __func__);
+
+    vector<unsigned char> vchProposal;
+
+    CScript scriptProposal = tx.vout[0].scriptPubKey;
+    vchProposal.insert(vchProposal.end(), scriptProposal.begin() + 6, scriptProposal.end());
+    CDataStream ss(vchProposal, SER_NETWORK, 0);
+
+    try {
+        ss >> proposal;
+    } catch(std::exception& e) {
+        std::cout << "failed to deserialize: " << e.what() << "\n";
         return false;
     }
 

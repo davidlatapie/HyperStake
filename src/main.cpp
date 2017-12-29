@@ -325,15 +325,13 @@ bool CTransaction::IsStandard() const
 
 bool CTransaction::IsProposal() const
 {
-    for (CTxOut out : vout) {
-        CScript scriptPubKey = out.scriptPubKey;
+    for (int i = 0; i < vout.size(); i++) {
+        CScript scriptPubKey = vout[i].scriptPubKey;
         if (scriptPubKey.IsDataCarrier()) {
-            if (scriptPubKey.size() > 5) {
+            if (scriptPubKey.size() >= 5) {
                 // "PROP" in ascii
-                if (scriptPubKey.at(1) == 0x70 &&
-                        scriptPubKey.at(2) == 0x72 &&
-                        scriptPubKey.at(3) == 0x6f &&
-                        scriptPubKey.at(4) == 0x70)
+                if (scriptPubKey.at(2) == 0x70 && scriptPubKey.at(3) == 0x72 && scriptPubKey.at(4) == 0x6f &&
+                        scriptPubKey.at(5) == 0x70)
                     return true;
             }
         }

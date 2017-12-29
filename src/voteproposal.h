@@ -76,4 +76,6 @@ public:
 
 };
 
+bool ProposalFromTransaction(const CTransaction& tx, CVoteProposal& proposal);
+
 #endif //HYPERSTAKE_VOTEPROPOSAL_H
