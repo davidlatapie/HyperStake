@@ -858,7 +858,15 @@ bool CTxDB::LoadBlockIndexGuts()
 }
 
 
+bool CVoteDB::WriteProposal(const uint256 &hash, const CVoteProposal &proposal)
+{
+    return Write(make_pair(string("prop"), hash), proposal);
+}
 
+bool CVoteDB::ReadProposal(const uint256 &hash, CVoteProposal &proposal)
+{
+    return Read(make_pair(string("prop"), hash), proposal);
+}
 
 
 //

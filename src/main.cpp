@@ -1663,8 +1663,18 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         return true;
 
     // Keep track of any vote proposals that were added to the blockchain
-    for (uint256 txid : vQueuedProposals)
-        mapProposals[txid] = GetHash();
+    CVoteDB voteDB;
+    BOOST_FOREACH (const CTransaction& tx, vtx) {
+        uint256 txid = tx.GetHash();
+        if (count(vQueuedProposals.begin(), vQueuedProposals.end(), txid)) {
+            CVoteProposal proposal;
+            if (ProposalFromTransaction(tx, proposal)) {
+                mapProposals[txid] = GetHash();
+                if (!voteDB.WriteProposal(txid, proposal))
+                    printf("%s : failed to record proposal to db\n", __func__);
+            }
+        }
+    }
 
     // Write queued txindex changes
     for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)
@@ -2651,6 +2661,9 @@ bool LoadBlockIndex(bool fAllowNew)
     if (!txdb.LoadBlockIndex())
         return false;
     txdb.Close();
+
+    CVoteDB votedb("cr");
+    votedb.Close();
 
     //
     // Init with genesis block
