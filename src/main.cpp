@@ -11,6 +11,7 @@
 #include "ui_interface.h"
 #include "kernel.h"
 #include "scrypt_mine.h"
+#include "voteproposal.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -72,6 +73,7 @@ map<unsigned int, unsigned int> mapHashedBlocks;
 map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 std::map <std::string, int> mapPeerRejectedBlocks;
 std::map<uint256, CTransaction> mapPendingProposals;
+std::map<uint256, uint256> mapProposals; // txid, blockhash
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
 bool fWalletStaking = false;
@@ -1580,6 +1582,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     else
         nTxPos = pindex->nBlockPos + ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - (2 * GetSizeOfCompactSize(0)) + GetSizeOfCompactSize(vtx.size());
 
+    vector<uint256> vQueuedProposals;
     map<uint256, CTxIndex> mapQueuedChanges;
     int64 nFees = 0;
     int64 nValueIn = 0;
@@ -1634,6 +1637,12 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
             if (!tx.ConnectInputs(txdb, mapInputs, mapQueuedChanges, posThisTx, pindex, true, false, fStrictPayToScriptHash))
                 return false;
+
+            //Track vote proposals
+            if (tx.IsProposal()) {
+                if (nTxValueIn - nTxValueOut >= CVoteProposal::FEE)
+                    vQueuedProposals.push_back(tx.GetHash());
+            }
         }
 
         mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
@@ -1652,6 +1661,10 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     if (fJustCheck)
         return true;
+
+    // Keep track of any vote proposals that were added to the blockchain
+    for (uint256 txid : vQueuedProposals)
+        mapProposals[txid] = GetHash();
 
     // Write queued txindex changes
     for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)
