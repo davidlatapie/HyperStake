@@ -253,5 +253,9 @@ Session.vim
 # auto-generated tag files
 tags
 
-# End of https://www.gitignore.io/api/osx,vim,clion
+# End of https://www.gitignore.io/api/osx,vim,clio
 
+# Eclipse Core
+.project
+
+protobuf/
