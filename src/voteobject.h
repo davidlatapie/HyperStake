@@ -16,12 +16,11 @@ private:
     bool fVoted;
     CVoteProposal proposal;
 public:
-    CVoteObject(CVoteProposal proposal, int nChoice)
+    CVoteObject(CVoteProposal proposal)
     {
         this->proposal= proposal;
-        this->nChoice = nChoice;
     }
-    bool AddVoteToVersion(uint32_t& nVersion);
+    bool Vote(int nChoice);
     uint32_t GetVoteFromVersion(uint32_t nVersion);
 };
 

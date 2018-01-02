@@ -332,9 +332,6 @@ Value createproposal(const Array& params, bool fHelp)
         nCardinals,
         strDescription
     );
-    CVoteObject testVote(proposal, 4);
-    uint32_t nVersion = CBlock::CURRENT_VERSION;
-    results.push_back(Pair("added to header", testVote.AddVoteToVersion(nVersion)));
 
     //! Add the constructed proposal to a partial transaction
     CTransaction tx;
@@ -346,12 +343,12 @@ Value createproposal(const Array& params, bool fHelp)
 
     //! Create a tally object
     CVoteTally votetally(proposal);
-    testVote.GetVoteFromVersion(nVersion);
+
     srand (time(NULL));
     for (int i = 0; i < 100; i++) {
-        // uint32_t tempVersion = nVersion;
         int nChoice = (rand() % 2 + 1);
-        CVoteObject vote(proposal, nChoice);
+        CVoteObject voteobject(proposal);
+        voteobject.Vote(nChoice);
     }
     cout << "yes tally: " << votetally.GetYesVotes() << endl;
     cout << "-------------------------------------------------------------" << endl;

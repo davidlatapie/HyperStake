@@ -20,7 +20,7 @@ string PrintBinary(uint32_t n)
     return result;
 }
 
-bool CVoteObject::AddVoteToVersion(uint32_t& nVersion)
+bool CVoteObject::Vote(int nChoice)
 {
     int versionInFirstFour = CBlock::CURRENT_VERSION << 28;
     cout << "-------------------------------------------------------------" << endl;
