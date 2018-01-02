@@ -350,7 +350,8 @@ Value createproposal(const Array& params, bool fHelp)
         CVoteObject voteobject(proposal);
         voteobject.Vote(nChoice);
     }
-    cout << "yes tally: " << votetally.GetYesVotes() << endl;
+    // cout << votetally.GetYesVotes() << endl;
+    cout << votetally.toString() << endl;
     cout << "-------------------------------------------------------------" << endl;
 
     results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));

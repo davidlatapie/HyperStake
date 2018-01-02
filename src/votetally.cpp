@@ -1,4 +1,5 @@
 #include "votetally.h"
+#include "voteobject.h"
 
 using namespace std;
 
@@ -31,8 +32,13 @@ int CVoteTally::ProcessVersion(const uint32_t& nVersion)
 
 int CVoteTally::GetYesVotes()
 {
-    cout << "yes tally with print binary: " << PrintBinary(nYesTally) << endl;
     return nYesTally;
+}
+
+string CVoteTally::toString()
+{
+    //return  "\nYes: " +  static_cast<string>(nYesTally) + "\nNo: " + static_cast<string>(nNoTally);
+    return  "\nYes: " +  (string) nYesTally + "\nNo: " + (string) nNoTally;
 }
 
 

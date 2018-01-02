@@ -17,11 +17,12 @@ public:
         this->proposal = proposal;
     }
 
-    void SetNoTally() { nNoTally = nBlocksCounted - nYesTally; }
+    void SetNoTally() {nNoTally = nBlocksCounted - nYesTally;}
     int CountVote(uint32_t voteFromVersion);
     int ProcessVersion(const uint32_t& nVersion);
     int GetYesVotes() {return nYesTally;};
     bool AddVoteToVersion(uint32_t& nVersion);
+    std::string toString();
 };
 
 #endif //VOTING_VOTETALLY_H
