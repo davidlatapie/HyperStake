@@ -3,6 +3,7 @@
 
 #include <map>
 #include "voteproposal.h"
+#include "voteobject.h"
 
 class CVoteTally {
 private:
@@ -18,8 +19,8 @@ public:
     }
 
     void SetNoTally() {nNoTally = nBlocksCounted - nYesTally;}
-    int CountVote(uint32_t voteFromVersion);
-    int ProcessVersion(const uint32_t& nVersion);
+    int CountVote(uint32_t voteFromVersion, CVoteObject voteobject);
+    int ProcessVersion(const uint32_t nVersion, CVoteObject voteobject);
     int GetYesVotes() {return nYesTally;};
     bool AddVoteToVersion(uint32_t& nVersion);
     std::string toString();

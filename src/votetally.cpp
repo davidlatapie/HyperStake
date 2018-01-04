@@ -1,5 +1,5 @@
 #include "votetally.h"
-#include "voteobject.h"
+
 
 using namespace std;
 
@@ -7,10 +7,11 @@ using namespace std;
 // takes uint32_t of the vote
 // if the vote is yes, adds to YesTally
 // returns YesTally after update, if any
-int CVoteTally::CountVote(uint32_t voteFromVersion) {
-    cout << "voteFromVersion: " << PrintBinary(voteFromVersion) << endl;
+int CVoteTally::CountVote(uint32_t voteFromVersion, CVoteObject voteobject) {
+    voteFromVersion >>= proposal.GetShift();
+    cout << "voteFromVersion:            " << voteobject.PrintBinary(voteFromVersion) << endl;
 
-    if (nBlocksCounted < proposal.GetCheckSpan()) {
+    if (nBlocksCounted <= proposal.GetCheckSpan()) {
         cout << "blocks counted: " << nBlocksCounted << endl;
         if (voteFromVersion == 1)
             nYesTally++;
@@ -24,21 +25,10 @@ int CVoteTally::CountVote(uint32_t voteFromVersion) {
 }
 //Look for vote in a block version, add the vote to the tally
 
-int CVoteTally::ProcessVersion(const uint32_t& nVersion)
+int CVoteTally::ProcessVersion(const uint32_t nVersion, CVoteObject voteobject)
 {
-    uint32_t nVoteFromVersion = voteObject.GetVoteFromVersion(nVersion);
-    return CountVote(nVoteFromVersion);
-}
-
-int CVoteTally::GetYesVotes()
-{
-    return nYesTally;
-}
-
-string CVoteTally::toString()
-{
-    //return  "\nYes: " +  static_cast<string>(nYesTally) + "\nNo: " + static_cast<string>(nNoTally);
-    return  "\nYes: " +  (string) nYesTally + "\nNo: " + (string) nNoTally;
+    uint32_t nVoteFromVersion = voteobject.GetVoteFromVersion(nVersion);
+    return CountVote(nVoteFromVersion, voteobject);
 }
 
 

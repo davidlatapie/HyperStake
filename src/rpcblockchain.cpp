@@ -349,9 +349,10 @@ Value createproposal(const Array& params, bool fHelp)
         int nChoice = (rand() % 2 + 1);
         CVoteObject voteobject(proposal);
         voteobject.Vote(nChoice);
+        uint32_t nformattedVote = voteobject.GetFormattedVote();
+        votetally.ProcessVersion(nformattedVote, voteobject);
+        cout << "Yes votes:                  " << voteobject.PrintBinary(votetally.GetYesVotes()) << endl;
     }
-    // cout << votetally.GetYesVotes() << endl;
-    cout << votetally.toString() << endl;
     cout << "-------------------------------------------------------------" << endl;
 
     results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));

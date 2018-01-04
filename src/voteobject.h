@@ -22,6 +22,8 @@ public:
     }
     bool Vote(int nChoice);
     uint32_t GetVoteFromVersion(uint32_t nVersion);
+    uint32_t GetFormattedVote() { return nFormattedVote; };
+    std::string PrintBinary(uint32_t n);
 };
 
 #endif //HYPERSTAKE_VOTEOBJECT_H
