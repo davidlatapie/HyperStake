@@ -56,7 +56,7 @@ Wallet themes
 Build Instructions (Linux)
 -------
 ### Dependencies required for HyperStake with or without GUI:
-`sudo apt-get install build-essential libtool autotools-dev autoconf pkg-config libssl-dev libboost-all-dev libdb5.1-dev libdb5.1++-dev libminiupnpc-dev automake`
+`sudo apt-get install build-essential libtool autotools-dev autoconf pkg-config libssl-dev libboost-all-dev libdb5.3-dev libdb5.3++-dev libminiupnpc-dev automake`
 
 `./autogen.sh`
 
