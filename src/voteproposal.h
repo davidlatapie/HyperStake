@@ -75,6 +75,7 @@ public:
     int GetShift() {return nShift;};
     uint8_t GetCardinals() {return nCardinals;};
     int GetCheckSpan() {return nCheckSpan;};
+    std::string GetName() {return strName; };
 
 };
 

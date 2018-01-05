@@ -6,6 +6,7 @@
 #include "main.h"
 #include "bitcoinrpc.h"
 #include "voteproposal.h"
+#include "voteproposalmanager.h"
 #include "voteobject.h"
 #include "votetally.h"
 
@@ -333,13 +334,14 @@ Value createproposal(const Array& params, bool fHelp)
         strDescription
     );
 
+    cout << "strName: " << proposal.GetName() << endl;
     //! Add the constructed proposal to a partial transaction
     CTransaction tx;
     proposal.ConstructTransaction(tx);
 
     //! Add the partial transaction to our globally accessible proposals map so that it can be called from elsewhere
     uint256 hashProposal = tx.GetHash();
-    mapPendingProposals.insert(make_pair(hashProposal, tx));
+    mapProposals.insert(make_pair(hashProposal, tx));
 
     //! Create a tally object
     CVoteTally votetally(proposal);
@@ -353,7 +355,9 @@ Value createproposal(const Array& params, bool fHelp)
         votetally.ProcessVersion(nformattedVote, voteobject);
         cout << "Yes votes:                  " << voteobject.PrintBinary(votetally.GetYesVotes()) << endl;
     }
-    cout << "-------------------------------------------------------------" << endl;
+
+    CVoteProposalManager proposalManager;
+    cout << "proposals: " << proposalManager.GetProposals() << endl;
 
     results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
     results.push_back(Pair("name", strName));

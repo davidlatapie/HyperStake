@@ -80,6 +80,7 @@ BITCOIN_CORE_H = \
   version.h \
   wallet.h \
   walletdb.h \
+  voteproposalmamager.h \
   voteproposal.h \
   voteobject.h \
   votetally.h
@@ -129,6 +130,7 @@ libbitcoin_server_a_SOURCES = \
   rpcrawtransaction.cpp \
   script.cpp \
   scrypt.cpp \
+  voteproposalmanager.cpp \
   voteproposal.cpp \
   voteobject.cpp \
   votetally.cpp \

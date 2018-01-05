@@ -2813,10 +2813,10 @@ Value sendproposal(const Array& params, bool fHelp)
     uint256 hashProposal(params[0].get_str());
 
     //! See if this proposal exists in our map of pending proposals
-    if (!mapPendingProposals.count(hashProposal))
+    if (!mapProposals.count(hashProposal))
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot find proposal");
 
-    CTransaction tx = mapPendingProposals.at(hashProposal);
+    CTransaction tx = mapProposals.at(hashProposal);
     CWalletTx wtx(pwalletMain, tx);
 
     //! Broadcast the transaction to the network

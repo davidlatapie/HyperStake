@@ -72,8 +72,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 map<unsigned int, unsigned int> mapHashedBlocks;
 map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 std::map <std::string, int> mapPeerRejectedBlocks;
-std::map<uint256, CTransaction> mapPendingProposals;
-std::map<uint256, uint256> mapProposals; // txid, blockhash
+std::map<uint256, CTransaction> mapProposals;
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
 bool fWalletStaking = false;
