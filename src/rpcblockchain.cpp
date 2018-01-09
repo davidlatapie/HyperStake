@@ -341,7 +341,7 @@ Value createproposal(const Array& params, bool fHelp)
 
     //! Add the partial transaction to our globally accessible proposals map so that it can be called from elsewhere
     uint256 hashProposal = tx.GetHash();
-    mapProposals.insert(make_pair(hashProposal, tx));
+    mapPendingProposals.insert(make_pair(hashProposal, tx));
 
     //! Create a tally object
     CVoteTally votetally(proposal);

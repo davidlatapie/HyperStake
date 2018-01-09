@@ -10,7 +10,7 @@ private:
     std::map<int, int> mapVotes;
     int nYesTally; // store the total yes's so far
     int nNoTally;
-    int nBlocksCounted = 0; // store the total number of blocks checked so far
+    int nBlocksCounted; // store the total number of blocks checked so far
     CVoteProposal proposal;
 public:
     CVoteTally(CVoteProposal proposal)

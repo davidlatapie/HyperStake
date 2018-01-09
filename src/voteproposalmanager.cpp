@@ -9,7 +9,7 @@
 std::string CVoteProposalManager::GetProposals()
 {
     std::string strReturn;
-    for (std::map<uint256, CTransaction>::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+    for (std::map<uint256, CTransaction>::iterator it = mapPendingProposals.begin(); it != mapPendingProposals.end(); it++)
     {
         strReturn += (*it).first.GetHex() + "\n";
     }

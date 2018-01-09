@@ -96,6 +96,7 @@ extern std::map<unsigned int, unsigned int> mapHashedBlocks;
 extern std::map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 extern std::map <std::string, int> mapPeerRejectedBlocks;
 extern std::map<uint256, uint256> mapProposals; // txid, blockhash
+extern std::map<uint256, CTransaction> mapPendingProposals; // txid, blockhash
 extern bool fStrictProtocol;
 extern bool fStrictIncoming;
 extern bool fGenerateBitcoins;

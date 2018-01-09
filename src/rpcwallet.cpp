@@ -2816,7 +2816,7 @@ Value sendproposal(const Array& params, bool fHelp)
     if (!mapProposals.count(hashProposal))
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot find proposal");
 
-    CTransaction tx = mapProposals.at(hashProposal);
+    CTransaction tx = mapPendingProposals.at(hashProposal);
     CWalletTx wtx(pwalletMain, tx);
 
     //! Broadcast the transaction to the network
