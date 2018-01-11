@@ -72,10 +72,14 @@ public:
     )
 
     bool ConstructTransaction(CTransaction& tx);
-    int GetShift() {return nShift;};
-    uint8_t GetCardinals() {return nCardinals;};
-    int GetCheckSpan() {return nCheckSpan;};
-    std::string GetName() {return strName; };
+    int GetShift() { return nShift; };
+    uint8_t GetCardinals() { return nCardinals; };
+    int GetCheckSpan() { return nCheckSpan; };
+    std::string GetName() { return strName; };
+    std::string GetDescription() { return strDescription; };
+
+
+    uint256 GetHash();
 
 };
 

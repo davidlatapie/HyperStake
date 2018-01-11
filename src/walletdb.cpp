@@ -52,6 +52,17 @@ bool CWalletDB::WriteAccountingEntry(const CAccountingEntry& acentry)
     return WriteAccountingEntry(++nAccountingEntryNumber, acentry);
 }
 
+bool CWalletDB::ReadVoteObject(const string& strVoteObject, CVoteObject& voteObject)
+{
+    voteObject.SetNull();
+    return Read(make_pair(string("vote"), strVoteObject), voteObject);
+}
+
+bool CWalletDB::WriteVoteObject(const string& strVoteObject, const CVoteObject& voteObject)
+{
+    return Write(make_pair(string("vote"), strVoteObject), voteObject);
+}
+
 int64 CWalletDB::GetAccountCreditDebit(const string& strAccount)
 {
     list<CAccountingEntry> entries;
@@ -424,6 +435,15 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 		   ssValue >> fCombineDust;
 		   pwallet->fCombineDust = fCombineDust;
 		}
+        else if (strType == "vote")
+        {
+            std::string strHash;
+            ssKey >> strHash;
+            uint256 hash(strHash);
+            CVoteObject vote;
+            ssValue >> vote;
+            pwallet->mapVoteObjects[hash] = vote;
+        }
     } catch (...)
     {
         return false;

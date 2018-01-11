@@ -7,6 +7,7 @@
 
 #include "db.h"
 #include "base58.h"
+#include "voteobject.h"
 
 class CKeyPool;
 class CAccount;
@@ -235,6 +236,9 @@ public:
 
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
+
+	bool ReadVoteObject(const std::string& strVoteObject, CVoteObject& voteObject);
+	bool WriteVoteObject(const std::string& strVoteObject, const CVoteObject& voteObject);
 private:
     bool WriteAccountingEntry(const uint64 nAccEntryNum, const CAccountingEntry& acentry);
 public:

@@ -289,6 +289,9 @@ static const CRPCCommand vRPCCommands[] =
 	{ "listblocks",             &listblocks,             false,  false },
     { "createproposal",         &createproposal,         false,  false },
     { "sendproposal",           &sendproposal,           false,  false },
+    { "setvote",                &setvote,                false,  false },
+    { "getvote",                &getvote,                false,  false },
+    { "getvotes",               &getvotes,               false,  false },
 	{ "hashsettings",           &hashsettings,           false,  false },
 	{ "gettxfee",               &gettxfee,               false,  false },
     { "getstakingstatus",       &getstakingstatus,       false,  false },
@@ -1187,8 +1190,8 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "getblockbynumber"       && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getblockbynumber"       && n > 1) ConvertTo<bool>(params[1]);
 	if (strMethod == "exportdifficulty"       && n > 0) ConvertTo<boost::int64_t>(params[0]);
-	if (strMethod == "getmoneysupply"       && n > 0) ConvertTo<boost::int64_t>(params[0]);
-    if (strMethod == "getmoneysupply"       && n > 1) ConvertTo<bool>(params[1]);
+	if (strMethod == "getmoneysupply"         && n > 0) ConvertTo<boost::int64_t>(params[0]);
+    if (strMethod == "getmoneysupply"         && n > 1) ConvertTo<bool>(params[1]);
     if (strMethod == "getblockhash"           && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "move"                   && n > 2) ConvertTo<double>(params[2]);
     if (strMethod == "move"                   && n > 3) ConvertTo<boost::int64_t>(params[3]);
@@ -1203,8 +1206,8 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listsinceblock"         && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "sendmany"               && n > 1) ConvertTo<Object>(params[1]);
     if (strMethod == "sendmany"               && n > 2) ConvertTo<boost::int64_t>(params[2]);
-    if (strMethod == "reservebalance"          && n > 0) ConvertTo<bool>(params[0]);
-    if (strMethod == "reservebalance"          && n > 1) ConvertTo<double>(params[1]);
+    if (strMethod == "reservebalance"         && n > 0) ConvertTo<bool>(params[0]);
+    if (strMethod == "reservebalance"         && n > 1) ConvertTo<double>(params[1]);
     if (strMethod == "addmultisigaddress"     && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "addmultisigaddress"     && n > 1) ConvertTo<Array>(params[1]);
     if (strMethod == "listunspent"            && n > 0) ConvertTo<boost::int64_t>(params[0]);
@@ -1218,24 +1221,25 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "setstakesplitthreshold" && n > 0) ConvertTo<int>(params[0]);
 	if (strMethod == "disablestake" 		  && n > 0) ConvertTo<bool>(params[0]);
 	if (strMethod == "disablestake" 		  && n > 2) ConvertTo<double>(params[3]);
-	if (strMethod == "rescanfromblock" && n > 0)        ConvertTo<int>(params[0]);
-	if (strMethod == "ccselect" && n > 1)        		ConvertTo<int>(params[1]);
-	if (strMethod == "ccreturnchange" && n > 0)			ConvertTo<bool>(params[0]);
-	if (strMethod == "ccsend" && n > 1)        		ConvertTo<int>(params[1]);
-	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[2]);
-	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[3]);
-	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[4]);
-	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[5]);
-	if (strMethod == "sendalert" && n > 1)        		ConvertTo<int>(params[6]);
-	if (strMethod == "sendalert" && n > 7)        		ConvertTo<int>(params[7]);
-	if (strMethod == "strictprotocol" && n > 0)      ConvertTo<bool>(params[0]);
-	if (strMethod == "strictincoming" && n > 0)      ConvertTo<bool>(params[0]);
-	if (strMethod == "listblocks" && n > 0)      ConvertTo<int>(params[0]);
-    if (strMethod == "listblocks" && n > 1)      ConvertTo<int>(params[1]);
-    if (strMethod == "createproposal" && n > 1)      ConvertTo<int>(params[1]);
-    if (strMethod == "createproposal" && n > 2)      ConvertTo<int>(params[2]);
-    if (strMethod == "createproposal" && n > 3)      ConvertTo<int>(params[3]);
-    if (strMethod == "createproposal" && n > 4)      ConvertTo<int>(params[4]);
+    if (strMethod == "rescanfromblock"        && n > 0) ConvertTo<int>(params[0]);
+	if (strMethod == "ccselect"               && n > 1) ConvertTo<int>(params[1]);
+	if (strMethod == "ccreturnchange"         && n > 0)	ConvertTo<bool>(params[0]);
+	if (strMethod == "ccsend"                 && n > 1) ConvertTo<int>(params[1]);
+	if (strMethod == "sendalert"              && n > 1) ConvertTo<int>(params[2]);
+	if (strMethod == "sendalert"              && n > 1) ConvertTo<int>(params[3]);
+	if (strMethod == "sendalert"              && n > 1) ConvertTo<int>(params[4]);
+	if (strMethod == "sendalert"              && n > 1) ConvertTo<int>(params[5]);
+	if (strMethod == "sendalert"              && n > 1) ConvertTo<int>(params[6]);
+	if (strMethod == "sendalert"              && n > 7) ConvertTo<int>(params[7]);
+	if (strMethod == "strictprotocol"         && n > 0) ConvertTo<bool>(params[0]);
+	if (strMethod == "strictincoming"         && n > 0) ConvertTo<bool>(params[0]);
+	if (strMethod == "listblocks"             && n > 0) ConvertTo<int>(params[0]);
+    if (strMethod == "listblocks"             && n > 1) ConvertTo<int>(params[1]);
+    if (strMethod == "createproposal"         && n > 1) ConvertTo<int>(params[1]);
+    if (strMethod == "createproposal"         && n > 2) ConvertTo<int>(params[2]);
+    if (strMethod == "createproposal"         && n > 3) ConvertTo<int>(params[3]);
+    if (strMethod == "createproposal"         && n > 4) ConvertTo<int>(params[4]);
+    if (strMethod == "setvote"                && n > 1) ConvertTo<int>(params[1]);
     return params;
 }
 

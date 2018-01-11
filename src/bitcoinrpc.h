@@ -233,6 +233,9 @@ extern json_spirit::Value exportdifficulty(const json_spirit::Array& params, boo
 extern json_spirit::Value listblocks(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value createproposal(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value sendproposal(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value setvote(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value getvote(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value getvotes(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value moneysupply(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getmoneysupply(const json_spirit::Array& params, bool fHelp);

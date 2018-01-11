@@ -119,6 +119,9 @@ public:
 	std::string strDisableArg;
 	double dUserNumber;
 	bool fStakeRequirement;
+
+    // Voting
+    std::map<uint256, CVoteObject> mapVoteObjects;
 	
     CWallet()
     {
