@@ -22,34 +22,50 @@ string CVoteObject::PrintBinary(uint32_t n)
 
 bool CVoteObject::Vote(int nVotersChoice)
 {
-    int versionInFirstFour = CBlock::CURRENT_VERSION << 28;
-    cout << "-------------------------------------------------------------" << endl;
-    // cout << "CURRENT VERSION:            " << PrintBinary(versionInFirstFour) << endl;
-    cout << "voter's choice: " << nVotersChoice << endl;
-    // transform Choice to uint32_t
-    nChoice = static_cast<uint32_t>(nVotersChoice);
-    // move Choice to its place in Version 
+//    int versionInFirstFour = CBlock::CURRENT_VERSION << 28;
+//    cout << "-------------------------------------------------------------" << endl;
+//    // cout << "CURRENT VERSION:            " << PrintBinary(versionInFirstFour) << endl;
+//    cout << "voter's choice: " << nVotersChoice << endl;
+//    // transform Choice to uint32_t
+//    nChoice = static_cast<uint32_t>(nVotersChoice);
+//    // move Choice to its place in Version
+//    nChoice <<= proposal.GetShift();
+//    cout << "choice after getting shift  " << PrintBinary(nChoice) << endl;
+//    // combine Choice with Version
+//    nFormattedVote = (versionInFirstFour |= nChoice);
+//    // flag Voted
+//    fVoted = true;
+//    cout << "new nVersion:               " << PrintBinary(nFormattedVote) << endl;
+//    return true;
+
+
+    uint32_t versionInFirstFour = CBlock::CURRENT_VERSION << 28;
+    int32_t binaryChoice = 0;
+
+    if (nVotersChoice == 0) { // Abstain 00
+        binaryChoice =  0;
+    }
+    else if (nVotersChoice == 3) { // Revise the proposal 01
+        binaryChoice =  1;
+    }
+    else if (nVotersChoice == 2) { // No 10
+        binaryChoice =  2;
+    }
+    else if (nVotersChoice == 1) { // Yes 11
+        binaryChoice = 3;
+    }
+
+    nChoice = binaryChoice;
     nChoice <<= proposal.GetShift();
-    cout << "choice after getting shift  " << PrintBinary(nChoice) << endl;
-    // combine Choice with Version
     nFormattedVote = (versionInFirstFour |= nChoice);
-    // flag Voted
-    fVoted = true;
-    cout << "new nVersion:               " << PrintBinary(nFormattedVote) << endl;
     return true;
 }
 
 uint32_t CVoteObject::GetVoteFromVersion(uint32_t nVersion)
 {
-    // Create a mask that will 0 out all bits that are not in the bits for this proposal 
-    uint32_t nVoteMask = 1;
-    for ( int i = 0; i < proposal.GetCardinals(); i++) {
-        nVoteMask |= 1;
-        nVoteMask <<= 1;
-    }
-    nVoteMask <<= (proposal.GetShift() - proposal.GetCardinals());
-    // cout << "X: " << PrintBinary(nVoteMask) << endl;
-    return nVersion & nVoteMask;
-
+    int diff = proposal.GetShift() - proposal.GetCardinals();
+    uint32_t mask;
+    mask = ((1 << (diff + 1)) - 1) << diff;
+    return (nVersion & mask) >> diff;
 }
 

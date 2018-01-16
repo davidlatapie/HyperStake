@@ -4,25 +4,50 @@
 
 #ifndef HYPERSTAKE_VOTEOBJECT_H
 #define HYPERSTAKE_VOTEOBJECT_H
-#define HEADERMASK 0x0fffffff
 
 #include "voteproposal.h"
 
 class CVoteObject
 {
 private:
-    int nChoice;
+    uint32_t nChoice;
     uint32_t nFormattedVote;
     bool fVoted;
     CVoteProposal proposal;
 public:
+
+    void SetNull()
+    {
+        nChoice = 0;
+        nFormattedVote = 0;
+        fVoted = false;
+        proposal = CVoteProposal();
+    }
+
+    bool IsNull () { return proposal.IsNull(); }
+
+    CVoteObject()
+    {
+        SetNull();
+    }
+
     CVoteObject(CVoteProposal proposal)
     {
         this->proposal= proposal;
     }
-    bool Vote(int nChoice);
+
+    IMPLEMENT_SERIALIZE
+    (
+            READWRITE(nChoice);
+            READWRITE(nFormattedVote);
+            READWRITE(fVoted);
+            READWRITE(proposal);
+    )
+
+    bool Vote(int nVotersChoice);
     uint32_t GetVoteFromVersion(uint32_t nVersion);
     uint32_t GetFormattedVote() { return nFormattedVote; };
+    CVoteProposal GetProposal() { return proposal; };
     std::string PrintBinary(uint32_t n);
 };
 

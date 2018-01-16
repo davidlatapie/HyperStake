@@ -7,6 +7,11 @@
 using namespace std;
 
 
+
+uint256 CVoteProposal::GetHash() {
+    return SerializeHash(*this);
+}
+
 /**
 * The vote proposal is serialized and added to a CTransaction as a data object via OP_RETURN transaction output.
 * The transaction is marked as a proposal by marking the first 4 bytes as "PROP" in ASCII
