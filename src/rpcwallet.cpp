@@ -2820,6 +2820,37 @@ Value sendproposal(const Array& params, bool fHelp)
     CTransaction tx = mapPendingProposals.at(hashProposal);
     CWalletTx wtx(pwalletMain, tx);
 
+    //! Get available coins and add enough to cover the proposal fee
+    vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins, true);
+
+    int64 nFee = 5 * COIN;
+    int64 nValueIn = 0;
+
+    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    if (!pwalletMain->SelectCoinsMinConf(nFee, tx.nTime, 1, 6, vCoins, setCoins, nValueIn))
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    // Fill vin
+    BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
+        wtx.vin.push_back(CTxIn(coin.first->GetHash(),coin.second));
+
+    // Figure out change amount
+    int64 nChange = nValueIn - nFee;
+    if (nChange > 500) {
+        //Lookup the address of one of the inputs and return the change to that address
+        uint256 hashBlock;
+        CTransaction txPrev;
+        if(!GetTransaction(wtx.vin[0].prevout.hash, txPrev, hashBlock))
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Failed to select coins");
+
+        CScript scriptReturn = txPrev.vout[wtx.vin[0].prevout.n].scriptPubKey;
+        CTxOut out(nChange, scriptReturn);
+
+        //Add the change output to the new transaction
+        wtx.vout.push_back(out);
+    }
+
     //! Broadcast the transaction to the network
     CReserveKey reserveKey = CReserveKey(pwalletMain);
     if (!pwalletMain->CommitTransaction(wtx, reserveKey))
