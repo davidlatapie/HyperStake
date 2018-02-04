@@ -292,6 +292,7 @@ static const CRPCCommand vRPCCommands[] =
     { "setvote",                &setvote,                false,  false },
     { "getvote",                &getvote,                false,  false },
     { "getvotes",               &getvotes,               false,  false },
+    { "listproposals",           &listproposals,           false,  false },
 	{ "hashsettings",           &hashsettings,           false,  false },
 	{ "gettxfee",               &gettxfee,               false,  false },
     { "getstakingstatus",       &getstakingstatus,       false,  false },

@@ -1639,8 +1639,9 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
             //Track vote proposals
             if (tx.IsProposal()) {
-                if (nTxValueIn - nTxValueOut >= CVoteProposal::FEE)
-                    vQueuedProposals.push_back(tx.GetHash());
+                //Needs to have the proper fee or else it will not be counted
+                if (nTxValueIn - nTxValueOut >= CVoteProposal::FEE - MIN_TXOUT_AMOUNT)
+                    vQueuedProposals.push_back(hashTx);
             }
         }
 

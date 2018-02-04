@@ -9,6 +9,7 @@
 #include "voteproposalmanager.h"
 #include "voteobject.h"
 #include "votetally.h"
+#include "db.h"
 
 #include <iostream>
 #include <fstream>
@@ -308,7 +309,7 @@ Value createproposal(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 6)
         throw runtime_error(
-                "CreateProposal <strName>\n<nShift>\n<nStartTime>\n<nCheckSpan>\n<nCardinals>\n<strDescription>\n"
+                "createproposal <strName>\n<nShift>\n<nStartTime>\n<nCheckSpan>\n<nCardinals>\n<strDescription>\n"
                 "Returns new VoteProposal object with specified parameters\n");
     // name of issue
     string strName = params[0].get_str();
@@ -324,17 +325,8 @@ Value createproposal(const Array& params, bool fHelp)
     std::string strDescription = params[5].get_str();
 
     Object results;
+    CVoteProposal proposal(strName, nShift, nStartTime, nCheckSpan, nCardinals, strDescription);
 
-    CVoteProposal proposal(
-        strName,
-        nShift,
-        nStartTime,
-        nCheckSpan,
-        nCardinals,
-        strDescription
-    );
-
-    cout << "strName: " << proposal.GetName() << endl;
     //! Add the constructed proposal to a partial transaction
     CTransaction tx;
     proposal.ConstructTransaction(tx);
@@ -343,30 +335,41 @@ Value createproposal(const Array& params, bool fHelp)
     uint256 hashProposal = tx.GetHash();
     mapPendingProposals.insert(make_pair(hashProposal, tx));
 
-    //! Create a tally object
-    CVoteTally votetally(proposal);
-
-    srand (time(NULL));
-    for (int i = 0; i < 100; i++) {
-        int nChoice = (rand() % 2 + 1);
-        CVoteObject voteobject(proposal);
-        voteobject.Vote(nChoice);
-        uint32_t nformattedVote = voteobject.GetFormattedVote();
-        votetally.ProcessVersion(nformattedVote, voteobject);
-        cout << "Yes votes:                  " << voteobject.PrintBinary(votetally.GetYesVotes()) << endl;
-    }
-
-    CVoteProposalManager proposalManager;
-    cout << "proposals: " << proposalManager.GetProposals() << endl;
-
-    results.push_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
-    results.push_back(Pair("name", strName));
-    results.push_back(Pair("shift", nShift));
-    results.push_back(Pair("start time", (boost::int64_t)nStartTime));
-    results.push_back(Pair("check span", nCheckSpan));
-    results.push_back(Pair("cardinals", nCardinals));
-    results.push_back(Pair("description", strDescription));
+    results.emplace_back(Pair("proposal_hash", hashProposal.GetHex().c_str()));
+    results.emplace_back(Pair("name", strName));
+    results.emplace_back(Pair("shift", nShift));
+    results.emplace_back(Pair("start time", (boost::int64_t)nStartTime));
+    results.emplace_back(Pair("check span", nCheckSpan));
+    results.emplace_back(Pair("cardinals", nCardinals));
+    results.emplace_back(Pair("description", strDescription));
 
     return results;
+}
+
+Value listproposals(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getproposals\n"
+            "list proposals that have been found on the blockchain\n");
+
+    //! Grab each proposal by 1st getting the txid from mapProposals, 2nd using that txid to grab the proposal object from voteDB
+    Array arrRet;
+    CVoteDB voteDB("r");
+    for (auto it : mapProposals) {
+        CVoteProposal proposal;
+        if (voteDB.ReadProposal(it.first, proposal)) {
+            Object jsonProposal;
+            jsonProposal.emplace_back(Pair("hash", it.first.GetHex()));
+            jsonProposal.emplace_back(Pair("name", proposal.GetName()));
+            jsonProposal.emplace_back(Pair("description", proposal.GetDescription()));
+            jsonProposal.emplace_back(Pair("shift", proposal.GetShift()));
+            jsonProposal.emplace_back(Pair("start_time", (boost::int64_t)proposal.GetStartTime()));
+            jsonProposal.emplace_back(Pair("cardinals", proposal.GetCardinals()));
+            arrRet.emplace_back(jsonProposal);
+        }
+    }
+
+    return arrRet;
 }
 

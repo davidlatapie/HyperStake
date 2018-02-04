@@ -2811,9 +2811,8 @@ Value sendproposal(const Array& params, bool fHelp)
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
 
-    uint256 hashProposal(params[0].get_str());
-
     //! See if this proposal exists in our map of pending proposals
+    uint256 hashProposal(params[0].get_str());
     if (!mapProposals.count(hashProposal))
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot find proposal");
 
@@ -2831,14 +2830,18 @@ Value sendproposal(const Array& params, bool fHelp)
     if (!pwalletMain->SelectCoinsMinConf(nFee, tx.nTime, 1, 6, vCoins, setCoins, nValueIn))
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
-    // Fill vin
-    BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
+    //! Fill vin
+    for (pair<const CWalletTx*,unsigned int> coin : setCoins)
         wtx.vin.push_back(CTxIn(coin.first->GetHash(),coin.second));
 
-    // Figure out change amount
-    int64 nChange = nValueIn - nFee;
+    //! Add the min value required for an output to the proposal UTXO
+    wtx.vout[0].nValue = MIN_TXOUT_AMOUNT;
+
+    //! Figure out change amount
+    nFee -= wtx.vout[0].nValue;
+    int64 nChange = nValueIn - nFee - MIN_TXOUT_AMOUNT;
     if (nChange > 500) {
-        //Lookup the address of one of the inputs and return the change to that address
+        //!Lookup the address of one of the inputs and return the change to that address
         uint256 hashBlock;
         CTransaction txPrev;
         if(!GetTransaction(wtx.vin[0].prevout.hash, txPrev, hashBlock))
@@ -2847,7 +2850,7 @@ Value sendproposal(const Array& params, bool fHelp)
         CScript scriptReturn = txPrev.vout[wtx.vin[0].prevout.n].scriptPubKey;
         CTxOut out(nChange, scriptReturn);
 
-        //Add the change output to the new transaction
+        //!Add the change output to the new transaction
         wtx.vout.push_back(out);
     }
 

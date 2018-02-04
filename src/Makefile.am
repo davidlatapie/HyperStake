@@ -153,6 +153,7 @@ libbitcoin_wallet_a_SOURCES = \
   scrypt.cpp \
   wallet.cpp \
   walletdb.cpp \
+  voteobject.cpp \
   $(BITCOIN_CORE_H)
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools

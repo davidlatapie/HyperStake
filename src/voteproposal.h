@@ -19,7 +19,7 @@ private:
     uint8_t nShift;
 
     // where in the blockchain we start counting votes, nStartHeight
-    int nStartTime;
+    unsigned int nStartTime;
 
     // how far in the blockchain are we scanning
     int nCheckSpan;
@@ -43,14 +43,14 @@ public:
         strDescription = "";
     }
 
-    bool IsNull () { return strName == ""; }
+    bool IsNull () { return strName.empty(); }
 
     CVoteProposal()
     {
         SetNull();
     }
 
-    CVoteProposal(std::string strName, uint8_t nShift, int nStartTime, int nCheckSpan, uint8_t nCardinals,
+    CVoteProposal(std::string strName, uint8_t nShift, unsigned int nStartTime, int nCheckSpan, uint8_t nCardinals,
                   std::string strDescription)
     {
         this->strName = strName;
@@ -72,13 +72,12 @@ public:
     )
 
     bool ConstructTransaction(CTransaction& tx);
-    int GetShift() { return nShift; };
-    uint8_t GetCardinals() { return nCardinals; };
-    int GetCheckSpan() { return nCheckSpan; };
-    std::string GetName() { return strName; };
-    std::string GetDescription() { return strDescription; };
-
-
+    int GetShift() { return nShift; }
+    uint8_t GetCardinals() { return nCardinals; }
+    int GetCheckSpan() { return nCheckSpan; }
+    std::string GetName() { return strName; }
+    std::string GetDescription() { return strDescription; }
+    unsigned int GetStartTime() { return nStartTime; }
     uint256 GetHash();
 
 };
