@@ -341,6 +341,7 @@ bool error(const char *format, ...)
     std::string str = vstrprintf(format, arg_ptr);
     va_end(arg_ptr);
     printf("ERROR: %s\n", str.c_str());
+    cout << str << "\n";
     return false;
 }
 
