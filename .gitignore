@@ -90,6 +90,7 @@ src/config/stamp-h1
 src/qt/forms/ui_aboutdialog.h
 src/qt/forms/ui_addressbookpage.h
 src/qt/forms/ui_askpassphrasedialog.h
+src/qt/forms/ui_bip38tooldialog.h
 src/qt/forms/ui_coincontroldialog.h
 src/qt/forms/ui_editaddressdialog.h
 src/qt/forms/ui_optionsdialog.h
