@@ -2812,8 +2812,9 @@ Value sendproposal(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
 
     //! See if this proposal exists in our map of pending proposals
-    uint256 hashProposal(params[0].get_str());
-    if (!mapProposals.count(hashProposal))
+    uint256 hashProposal;
+    hashProposal.SetHex(params[0].get_str());
+    if (!mapPendingProposals.count(hashProposal))
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot find proposal");
 
     CTransaction tx = mapPendingProposals.at(hashProposal);
@@ -2852,6 +2853,13 @@ Value sendproposal(const Array& params, bool fHelp)
 
         //!Add the change output to the new transaction
         wtx.vout.push_back(out);
+    }
+
+    //! Sign the transaction
+    int nIn = 0;
+    for (const pair<const CWalletTx*,unsigned int>& coin : setCoins) {
+        if (!SignSignature(*pwalletMain, *coin.first, wtx, nIn++))
+            return false;
     }
 
     //! Broadcast the transaction to the network
