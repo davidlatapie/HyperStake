@@ -354,6 +354,7 @@ private:
     CVoteDB(const CVoteDB&);
     void operator=(const CVoteDB&);
 public:
+    bool Load();
     bool WriteProposal(const uint256& hash, const CVoteProposal& proposal);
     bool ReadProposal(const uint256& hash, CVoteProposal& proposal);
 };

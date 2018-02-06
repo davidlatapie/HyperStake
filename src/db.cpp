@@ -857,6 +857,52 @@ bool CTxDB::LoadBlockIndexGuts()
     return true;
 }
 
+bool CVoteDB::Load()
+{
+    // Get database cursor
+    Dbc* pcursor = GetCursor();
+    if (!pcursor)
+        return false;
+
+    // Load mapProposals
+    unsigned int fFlags = DB_SET_RANGE;
+    while (true)
+    {
+        // Read next record
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        if (fFlags == DB_SET_RANGE)
+            ssKey << make_pair(string("prop"), uint256(0));
+        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        int ret = ReadAtCursor(pcursor, ssKey, ssValue, fFlags);
+        fFlags = DB_NEXT;
+        if (ret == DB_NOTFOUND)
+            break;
+        else if (ret != 0)
+            return false;
+
+        // Unserialize
+        try {
+            string strType;
+            ssKey >> strType;
+            if (strType == "prop" && !fRequestShutdown)
+            {
+                uint256 txid;
+                ssKey >> txid;
+                mapProposals.insert(make_pair(txid, uint256(0)));
+            }
+            else
+            {
+                break; // if shutdown requested or finished loading block index
+            }
+        }    // try
+        catch (std::exception &e) {
+            return error("%s() : deserialize error", __PRETTY_FUNCTION__);
+        }
+    }
+    pcursor->close();
+
+    return true;
+}
 
 bool CVoteDB::WriteProposal(const uint256 &hash, const CVoteProposal &proposal)
 {

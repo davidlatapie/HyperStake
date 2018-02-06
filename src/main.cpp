@@ -2654,6 +2654,12 @@ bool LoadBlockIndex(bool fAllowNew)
         nStakeTargetSpacing = 90; // test block spacing is 90 seconds
     }
 
+    // Load vote proposals
+    CVoteDB votedb("cr");
+    if (!votedb.Load())
+        return error("Failed to load votedb");
+    votedb.Close();
+
     //
     // Load block index
     //
@@ -2662,8 +2668,7 @@ bool LoadBlockIndex(bool fAllowNew)
         return false;
     txdb.Close();
 
-    CVoteDB votedb("cr");
-    votedb.Close();
+
 
     //
     // Init with genesis block
