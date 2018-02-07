@@ -2909,7 +2909,7 @@ Value setvote(const Array& params, bool fHelp)
     if (!ProposalFromTransaction(tx, proposal))
         return "Proposal couldn't be found in the transaction";
 
-    CVoteObject voteObject(proposal);
+    CVoteObject voteObject(proposal.GetHash(), proposal.GetCardinals(), proposal.GetShift());
 
     voteObject.Vote(voteChoice);
 
@@ -2968,13 +2968,13 @@ Value getvote(const Array& params, bool fHelp)
         CVoteObject voteObject;
         voteObject = pwalletMain->mapVoteObjects[proposalHash];
 
-        int voteValue = voteObject.GetFormattedVote() >> voteObject.GetProposal().GetShift() & voteObject.GetProposal().GetCardinals();
+        int voteValue = voteObject.GetFormattedVote() >> proposal.GetShift() & proposal.GetCardinals();
 
         Object ret;
-        ret.push_back(Pair("Proposal Name", voteObject.GetProposal().GetName()));
-        ret.push_back(Pair("Proposal Description", voteObject.GetProposal().GetDescription()));
+        ret.push_back(Pair("Proposal Name", proposal.GetName()));
+        ret.push_back(Pair("Proposal Description", proposal.GetDescription()));
         ret.push_back(Pair("Your Vote", voteValue));
-        ret.push_back(Pair("Proposal Hash", voteObject.GetProposal().GetHash().GetHex()));
+        ret.push_back(Pair("Proposal Hash", proposal.GetHash().GetHex()));
         return ret;
     }
 
@@ -2985,13 +2985,13 @@ Value getvote(const Array& params, bool fHelp)
     if (!walletdb.ReadVoteObject(proposal.GetHash().GetHex(), voteObject))
         return "No vote has been stored for this proposal ";
 
-    int voteValue = voteObject.GetFormattedVote() >> voteObject.GetProposal().GetShift() & voteObject.GetProposal().GetCardinals();
+    int voteValue = voteObject.GetFormattedVote() >> proposal.GetShift() & proposal.GetCardinals();
 
     Object ret;
-    ret.push_back(Pair("Proposal Name", voteObject.GetProposal().GetName()));
-    ret.push_back(Pair("Proposal Description", voteObject.GetProposal().GetDescription()));
+    ret.push_back(Pair("Proposal Name", proposal.GetName()));
+    ret.push_back(Pair("Proposal Description", proposal.GetDescription()));
     ret.push_back(Pair("Your Vote", voteValue));
-    ret.push_back(Pair("Proposal Hash", voteObject.GetProposal().GetHash().GetHex()));
+    ret.push_back(Pair("Proposal Hash", proposal.GetHash().GetHex()));
     return ret;
 }
 
@@ -3013,17 +3013,19 @@ Value getvotes(const Array& params, bool fHelp)
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet vote on a proposal");
 
-
+    CVoteDB votedb("r");
     if (pwalletMain->mapVoteObjects.size() > 0) {
         Array ret;
-
         map<uint256, CVoteObject>::iterator it;
         for (it = pwalletMain->mapVoteObjects.begin(); it != pwalletMain->mapVoteObjects.end(); it++) {
-            int voteValue = it->second.GetFormattedVote() >> it->second.GetProposal().GetShift() & it->second.GetProposal().GetCardinals();
+            CVoteProposal proposal;
+            if (!votedb.ReadProposal(it->first, proposal))
+                return JSONRPCError(RPC_DATABASE_ERROR, "Failed to find proposal in database");
 
+            int voteValue = it->second.GetFormattedVote() >> proposal.GetShift() & proposal.GetCardinals();
             Object entry;
-            entry.push_back(Pair("Proposal Name", it->second.GetProposal().GetName()));
-            entry.push_back(Pair("Proposal Description", it->second.GetProposal().GetDescription()));
+            entry.push_back(Pair("Proposal Name", proposal.GetName()));
+            entry.push_back(Pair("Proposal Description", proposal.GetDescription()));
             entry.push_back(Pair("Your Vote", voteValue));
             ret.push_back(entry);
         }

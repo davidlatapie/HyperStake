@@ -11,6 +11,7 @@
 #include "ui_interface.h"
 #include "kernel.h"
 #include "scrypt_mine.h"
+#include "votetally.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -1675,6 +1676,12 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             }
         }
     }
+
+    //Record new votes to the tally
+    CVoteTally tally(pindex->pprev->tally);
+    //tally.SetNewPositions(mapNewLocations);
+    tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
+    pindex->tally = tally;
 
     // Write queued txindex changes
     for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)

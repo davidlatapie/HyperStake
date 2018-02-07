@@ -11,6 +11,7 @@
 #include "script.h"
 #include "scrypt_mine.h"
 #include "hashblock.h"
+#include "votetally.h"
 #include <iostream>
 #include <list>
 
@@ -836,6 +837,7 @@ class CBlock
 public:
     // header
     static const int CURRENT_VERSION=4;
+    static const int VOTING_VERSION = 0x50000000;
     int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -1131,6 +1133,9 @@ public:
     unsigned int nStakeTime;
     uint256 hashProofOfStake;
 
+    //Voting
+    CVoteTally tally;
+
     // block header
     int nVersion;
     uint256 hashMerkleRoot;
@@ -1155,6 +1160,7 @@ public:
         hashProofOfStake = 0;
         prevoutStake.SetNull();
         nStakeTime = 0;
+        tally.SetNull();
 
         nVersion       = 0;
         hashMerkleRoot = 0;
@@ -1178,6 +1184,7 @@ public:
         nStakeModifier = 0;
         nStakeModifierChecksum = 0;
         hashProofOfStake = 0;
+        tally.SetNull();
         if (block.IsProofOfStake())
         {
             SetProofOfStake();
@@ -1375,6 +1382,9 @@ public:
             const_cast<CDiskBlockIndex*>(this)->nStakeTime = 0;
             const_cast<CDiskBlockIndex*>(this)->hashProofOfStake = 0;
         }
+
+        if (this->nVersion >= CBlock::VOTING_VERSION)
+            READWRITE(tally);
 
         // block header
         READWRITE(this->nVersion);

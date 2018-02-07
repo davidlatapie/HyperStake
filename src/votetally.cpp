@@ -1,34 +1,97 @@
 #include "votetally.h"
+#include "util.h"
 
+#define VOTEMASK 0x0FFFFFFF
 
 using namespace std;
 
+CVoteTally::CVoteTally(CVoteTally* tallyPrev)
+{
+    this->nHeight = tallyPrev->nHeight + 1;
+    this->mapVotes = tallyPrev->GetVotes();
+    RemoveStaleSummaries();
+}
 
-// takes uint32_t of the vote
-// if the vote is yes, adds to YesTally
-// returns YesTally after update, if any
-int CVoteTally::CountVote(uint32_t voteFromVersion, CVoteObject voteobject) {
-    voteFromVersion >>= proposal.GetShift();
-    cout << "voteFromVersion:            " << voteobject.PrintBinary(voteFromVersion) << endl;
+void CVoteTally::RemoveStaleSummaries()
+{
+    for (auto it : mapVotes) {
+        //If the vote has ended, then remove it from the new Tally
+        if (it.second.nBlockStart + it.second.nCheckSpan <= this->nHeight) {
+            mapLocations.erase(it.first);
+            mapVotes.erase(it.first);
+        }
+    }
+}
 
-    if (nBlocksCounted <= proposal.GetCheckSpan()) {
-        cout << "blocks counted: " << nBlocksCounted << endl;
-        if (voteFromVersion == 1)
-            nYesTally++;
+//! See if the new location is in the range of the existing location
+bool CVoteTally::IsLocationOccupied(VoteLocation location)
+{
+    for (auto it : mapLocations) {
+        uint8_t nStart = it.second.first;
+        uint8_t nEnd = it.second.second;
 
-        nBlocksCounted++;
-        SetNoTally();
-        return nYesTally;
+        if (location.first >= nStart && location.first <= nEnd)
+            return true;
+
+        if (location.second >= nStart && location.second <= nEnd)
+            return true;
     }
 
-    return 0;
+    return false;
 }
-//Look for vote in a block version, add the vote to the tally
 
-int CVoteTally::ProcessVersion(const uint32_t nVersion, CVoteObject voteobject)
+//! Proposal Manager will give a set of new positions if any start this block
+bool CVoteTally::SetNewPositions(std::map<uint256, VoteLocation> &mapNewLocations)
 {
-    uint32_t nVoteFromVersion = voteobject.GetVoteFromVersion(nVersion);
-    return CountVote(nVoteFromVersion, voteobject);
+    for (auto it : mapNewLocations) {
+        VoteLocation locationNew = it.second;
+        if (IsLocationOccupied(locationNew))
+            return error("%s: location is already occupied!", __func__);
+
+        mapLocations.insert(make_pair(it.first, locationNew));
+        CVoteSummary summary;
+        mapVotes.insert(make_pair(it.first, summary));
+    }
+
+    return true;
 }
+
+//! Record votes that were in the block header
+void CVoteTally::ProcessNewVotes(const uint32_t& nVersion)
+{
+    for (auto it : mapVotes) {
+        VoteLocation location = mapLocations.at(it.first);
+        int32_t nVote = nVersion;
+        nVote &= VOTEMASK; // remove version bits
+        nVote >>= location.first + 1; //shift it over to the starting position
+        int32_t nBits = location.second - location.first;
+
+        // Remove any bits to the left of the vote bits
+        int32_t nMask = 1;
+        for (int i = 0; i < nBits - 1; i++) {
+            nMask <<= 1;
+            nMask |= 1;
+        }
+        nVote &= nMask;
+
+        //Count the vote if it is yes or no
+        if (nVote == 1) {
+            mapVotes.at(it.first).nYesTally++;
+        } else if (nVote > 1)
+            mapVotes.at(it.first).nNoTally++;
+    }
+}
+
+bool CVoteTally::GetSummary(const uint256& hashProposal, CVoteSummary& summary)
+{
+    auto it = mapVotes.find(hashProposal);
+    if (it == mapVotes.end())
+        return false;
+
+    summary = it->second;
+
+    return true;
+}
+
 
 
