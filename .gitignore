@@ -142,6 +142,8 @@ build-aux/m4/lt~obsolete.m4
 moc_paymentserver.cpp
 Hyperstake-Qt.dmg
 
+../log.0000000001
+log.0000000001
 
 # Created by https://www.gitignore.io/api/osx,vim,clion
 
