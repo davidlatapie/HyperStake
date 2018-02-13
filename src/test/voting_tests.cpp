@@ -8,6 +8,7 @@
 #include "../voteproposal.h"
 #include "../voteobject.h"
 #include "../votetally.h"
+#include "../votecharset.h"
 
 using namespace std;
 
@@ -124,6 +125,12 @@ BOOST_AUTO_TEST_CASE(vote_tally)
     BOOST_CHECK_MESSAGE(summary4.nYesTally == 2, "summary4 is not 2");
     BOOST_CHECK_MESSAGE(summary4.nNoTally == 1, "summary4 no votes is not 1");
 
+}
+
+BOOST_AUTO_TEST_CASE(vote_charset)
+{
+    std::string someString;
+    BOOST_CHECK_MESSAGE(transformStringChars("test", someString), "transform succeeded");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

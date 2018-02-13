@@ -83,7 +83,9 @@ BITCOIN_CORE_H = \
   voteproposalmamager.h \
   voteproposal.h \
   voteobject.h \
+  votecharset.h \
   votetally.h
+
 
 JSON_H = \
   json/json_spirit.h \
@@ -134,6 +136,7 @@ libbitcoin_server_a_SOURCES = \
   voteproposal.cpp \
   voteobject.cpp \
   votetally.cpp \
+  votecharset.cpp \
   shavite.c \
   simd.c \
   skein.c \
