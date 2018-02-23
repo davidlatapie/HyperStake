@@ -8,6 +8,7 @@
 #include <iostream>
 #include "main.h"
 #include "serialize.h"
+#include "votetally.h"
 
 class CVoteProposal
 {
@@ -19,13 +20,13 @@ private:
     uint8_t nShift;
 
     // where in the blockchain we start counting votes, nStartHeight
-    unsigned int nStartTime;
+    unsigned int nStartHeight;
 
     // how far in the blockchain are we scanning
     int nCheckSpan;
 
     // number of bits in the block version used for one vote, nBitCount
-    uint8_t nCardinals;
+    uint8_t nBitCount;
 
     // description of the proposal; may link to additional transactions
     std::string strDescription;
@@ -37,9 +38,9 @@ public:
     {
         strName = "";
         nShift = 0;
-        nStartTime = 0;
+        nStartHeight = 0;
         nCheckSpan = 0;
-        nCardinals = 0;
+        nBitCount = 0;
         strDescription = "";
     }
 
@@ -50,14 +51,14 @@ public:
         SetNull();
     }
 
-    CVoteProposal(std::string strName, uint8_t nShift, unsigned int nStartTime, int nCheckSpan, uint8_t nCardinals,
+    CVoteProposal(std::string strName, uint8_t nShift, unsigned int nStartHeight, int nCheckSpan, uint8_t nCardinals,
                   std::string strDescription)
     {
         this->strName = strName;
         this->nShift = nShift;
-        this->nStartTime = nStartTime;
+        this->nStartHeight = nStartHeight;
         this->nCheckSpan = nCheckSpan;
-        this->nCardinals = nCardinals;
+        this->nBitCount = nCardinals;
         this->strDescription = strDescription;
     }
 
@@ -65,20 +66,21 @@ public:
     (
        READWRITE(strName);
        READWRITE(nShift);
-       READWRITE(nStartTime);
+       READWRITE(nStartHeight);
        READWRITE(nCheckSpan);
-       READWRITE(nCardinals);
+       READWRITE(nBitCount);
        READWRITE(strDescription);
     )
 
     bool ConstructTransaction(CTransaction& tx);
-    int GetShift() { return nShift; }
-    uint8_t GetCardinals() { return nCardinals; }
-    int GetCheckSpan() { return nCheckSpan; }
-    std::string GetName() { return strName; }
-    std::string GetDescription() { return strDescription; }
-    unsigned int GetStartTime() { return nStartTime; }
-    uint256 GetHash();
+    int GetShift() const { return nShift; }
+    uint8_t GetBitCount() const { return nBitCount; }
+    int GetCheckSpan() const { return nCheckSpan; }
+    std::string GetName() const { return strName; }
+    std::string GetDescription() const { return strDescription; }
+    unsigned int GetStartHeight() const { return nStartHeight; }
+    VoteLocation GetLocation() const;
+    uint256 GetHash() const;
 
 };
 

@@ -364,8 +364,8 @@ Value listproposals(const Array& params, bool fHelp)
             jsonProposal.emplace_back(Pair("name", proposal.GetName()));
             jsonProposal.emplace_back(Pair("description", proposal.GetDescription()));
             jsonProposal.emplace_back(Pair("shift", proposal.GetShift()));
-            jsonProposal.emplace_back(Pair("start_time", (boost::int64_t)proposal.GetStartTime()));
-            jsonProposal.emplace_back(Pair("cardinals", proposal.GetCardinals()));
+            jsonProposal.emplace_back(Pair("start_time", (boost::int64_t)proposal.GetStartHeight()));
+            jsonProposal.emplace_back(Pair("cardinals", proposal.GetBitCount()));
             arrRet.emplace_back(jsonProposal);
         }
     }

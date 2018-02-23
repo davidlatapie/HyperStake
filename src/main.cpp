@@ -12,6 +12,7 @@
 #include "kernel.h"
 #include "scrypt_mine.h"
 #include "votetally.h"
+#include "voteproposalmanager.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -77,6 +78,8 @@ std::map<uint256, CTransaction> mapPendingProposals;
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
 bool fWalletStaking = false;
+
+CVoteProposalManager proposalManager;
 
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
@@ -1671,15 +1674,20 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             CVoteProposal proposal;
             if (ProposalFromTransaction(tx, proposal)) {
                 mapProposals[txid] = GetHash();
-                if (!voteDB.WriteProposal(txid, proposal))
+                if (!voteDB.WriteProposal(txid, proposal)) {
                     printf("%s : failed to record proposal to db\n", __func__);
+                } else {
+                    if (!proposalManager.Add(proposal))
+                        printf("%s: failed to add proposal %s to manager\n", __func__, txid.GetHex().c_str());
+                }
             }
         }
     }
 
     //Record new votes to the tally
     CVoteTally tally(pindex->pprev->tally);
-    //tally.SetNewPositions(mapNewLocations);
+    map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
+    tally.SetNewPositions(mapActive);
     tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
     pindex->tally = tally;
 

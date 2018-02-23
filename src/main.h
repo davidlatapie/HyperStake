@@ -12,6 +12,7 @@
 #include "scrypt_mine.h"
 #include "hashblock.h"
 #include "votetally.h"
+#include "voteproposalmanager.h"
 #include <iostream>
 #include <list>
 
@@ -102,6 +103,7 @@ extern bool fStrictProtocol;
 extern bool fStrictIncoming;
 extern bool fGenerateBitcoins;
 extern bool fWalletStaking;
+extern CVoteProposalManager proposalManager;
 
 // Settings
 extern int64 nTransactionFee;

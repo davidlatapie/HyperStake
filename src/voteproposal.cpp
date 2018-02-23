@@ -6,9 +6,8 @@
 
 using namespace std;
 
-
-
-uint256 CVoteProposal::GetHash() {
+uint256 CVoteProposal::GetHash() const
+{
     return SerializeHash(*this);
 }
 
@@ -75,4 +74,12 @@ bool ProposalFromTransaction(const CTransaction& tx, CVoteProposal& proposal)
     }
 
     return true;
+}
+
+VoteLocation CVoteProposal::GetLocation() const
+{
+    VoteLocation location;
+    location.first = static_cast<uint8_t>(GetShift());
+    location.second = static_cast<uint8_t>(location.first - GetBitCount());
+    return location;
 }

@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(vote_tally)
 
     map<uint256, VoteLocation> mapNewLocations;
     VoteLocation location;
-    location.first = static_cast<uint8_t>(proposal.GetShift() - proposal.GetCardinals());
+    location.first = static_cast<uint8_t>(proposal.GetShift() - proposal.GetBitCount());
     location.second = static_cast<uint8_t>(proposal.GetShift());
     mapNewLocations.insert(make_pair(proposal.GetHash(), location));
 

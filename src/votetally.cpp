@@ -23,30 +23,12 @@ void CVoteTally::RemoveStaleSummaries()
     }
 }
 
-//! See if the new location is in the range of the existing location
-bool CVoteTally::IsLocationOccupied(VoteLocation location)
-{
-    for (auto it : mapLocations) {
-        uint8_t nStart = it.second.first;
-        uint8_t nEnd = it.second.second;
-
-        if (location.first >= nStart && location.first <= nEnd)
-            return true;
-
-        if (location.second >= nStart && location.second <= nEnd)
-            return true;
-    }
-
-    return false;
-}
-
 //! Proposal Manager will give a set of new positions if any start this block
 bool CVoteTally::SetNewPositions(std::map<uint256, VoteLocation> &mapNewLocations)
 {
+    mapLocations.clear();
     for (auto it : mapNewLocations) {
         VoteLocation locationNew = it.second;
-        if (IsLocationOccupied(locationNew))
-            return error("%s: location is already occupied!", __func__);
 
         mapLocations.insert(make_pair(it.first, locationNew));
         CVoteSummary summary;

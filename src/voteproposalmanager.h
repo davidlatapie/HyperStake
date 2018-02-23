@@ -5,16 +5,27 @@
 #ifndef HYPERSTAKE_VOTEPROPOSALMANAGER_H
 #define HYPERSTAKE_VOTEPROPOSALMANAGER_H
 
+#include <set>
+#include "votetally.h"
+
+class CVoteProposal;
+
+struct CProposalMetaData
+{
+    uint256 hash;
+    VoteLocation location;
+    unsigned int nHeightStart;
+    unsigned int nHeightEnd;
+};
+
 class CVoteProposalManager
 {
 private:
-    int nPendingCount;
+    std::map<uint256, CProposalMetaData> mapProposalData;
 public:
-    CVoteProposalManager()
-    {
-    }
-    std::string GetProposals();
-    int GetPendingCount() {return nPendingCount;};
+    bool Add(const CVoteProposal& proposal);
+    void Remove(const uint256& hashProposal);
+    std::map<uint256, VoteLocation> GetActive(int nHeight);
 };
 
 #endif //HYPERSTAKE_VOTEPROPOSALMANAGER_H
