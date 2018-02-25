@@ -3018,9 +3018,23 @@ Value getvotes(const Array& params, bool fHelp)
         Array ret;
         map<uint256, CVoteObject>::iterator it;
         for (it = pwalletMain->mapVoteObjects.begin(); it != pwalletMain->mapVoteObjects.end(); it++) {
+
+            uint256 txid = 0;
+            for (auto mit : mapProposals) {
+                if (mit.second == it->first)
+                    txid = mit.first;
+                    break;
+            }
+
+            if (txid == 0)
+                return JSONRPCError(RPC_DATABASE_ERROR, strprintf("failed to find txid for proposal %s", it->first.GetHex().c_str()));
+
             CVoteProposal proposal;
-            if (!votedb.ReadProposal(it->first, proposal))
-                return JSONRPCError(RPC_DATABASE_ERROR, "Failed to find proposal in database");
+            if (!votedb.ReadProposal(it->first, proposal)) {
+                string strMessage = strprintf("Failed to find proposal %s in database", it->first.GetHex().c_str());
+                return JSONRPCError(RPC_DATABASE_ERROR, strMessage);
+            }
+
 
             int voteValue = it->second.GetFormattedVote() >> proposal.GetShift() & proposal.GetBitCount();
             Object entry;

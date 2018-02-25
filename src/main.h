@@ -838,8 +838,8 @@ class CBlock
 {
 public:
     // header
-    static const int CURRENT_VERSION=4;
     static const int VOTING_VERSION = 0x50000000;
+    static const int CURRENT_VERSION=VOTING_VERSION;
     int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -1059,30 +1059,7 @@ public:
 
 
 
-    void print() const
-    {
-        std::cout << "CBlock(hash="
-                  << GetHash().ToString().c_str() 
-                  << " ver = " << nVersion
-                  << " hashPrevBlock = " << hashPrevBlock.ToString().c_str()
-                  << " hasMerkleRoot = " << hashMerkleRoot.ToString().c_str()
-                  << " nTime = " << nTime
-                  << " nBits = " << nBits
-                  << " nNonce = " <<  nNonce
-                  << " vtx = " << vtx.size()
-                  << " vhcBlockSig = " << HexStr(vchBlockSig.begin(), vchBlockSig.end()).c_str();
-        for (unsigned int i = 0; i < vtx.size(); i++)
-        {
-            printf("  ");
-            vtx[i].print();
-        }
-        printf("  vMerkleTree: ");
-        for (unsigned int i = 0; i < vMerkleTree.size(); i++)
-            printf("%s ", vMerkleTree[i].ToString().substr(0,10).c_str());
-        printf("\n");
-    }
-
-
+    void print() const;
     bool DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex);
     bool ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck=false);
     bool ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions=true);

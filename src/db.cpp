@@ -888,7 +888,15 @@ bool CVoteDB::Load()
             {
                 uint256 txid;
                 ssKey >> txid;
-                mapProposals.insert(make_pair(txid, uint256(0)));
+
+                try {
+                    CVoteProposal proposal;
+                    ssValue >> proposal;
+                    mapProposals.insert(make_pair(txid, proposal.GetHash()));
+                    proposalManager.Add(proposal);
+                } catch (...) {
+                    printf("**failed to deserialize proposal\n");
+                }
             }
             else
             {

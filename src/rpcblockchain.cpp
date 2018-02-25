@@ -360,7 +360,8 @@ Value listproposals(const Array& params, bool fHelp)
         CVoteProposal proposal;
         if (voteDB.ReadProposal(it.first, proposal)) {
             Object jsonProposal;
-            jsonProposal.emplace_back(Pair("hash", it.first.GetHex()));
+            jsonProposal.emplace_back(Pair("txhash", it.first.GetHex()));
+            jsonProposal.emplace_back(Pair("proposalhash", proposal.GetHash().GetHex()));
             jsonProposal.emplace_back(Pair("name", proposal.GetName()));
             jsonProposal.emplace_back(Pair("description", proposal.GetDescription()));
             jsonProposal.emplace_back(Pair("shift", proposal.GetShift()));

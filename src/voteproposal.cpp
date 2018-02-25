@@ -69,8 +69,7 @@ bool ProposalFromTransaction(const CTransaction& tx, CVoteProposal& proposal)
     try {
         ss >> proposal;
     } catch(std::exception& e) {
-        std::cout << "failed to deserialize: " << e.what() << "\n";
-        return false;
+        return error("%s: failed to deserialize: %s ", __func__, e.what());
     }
 
     return true;

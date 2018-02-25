@@ -73,7 +73,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 map<unsigned int, unsigned int> mapHashedBlocks;
 map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 std::map <std::string, int> mapPeerRejectedBlocks;
-std::map<uint256, uint256> mapProposals;
+std::map<uint256, uint256> mapProposals; //txid, proposal hash
 std::map<uint256, CTransaction> mapPendingProposals;
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
@@ -1673,7 +1673,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         if (count(vQueuedProposals.begin(), vQueuedProposals.end(), txid)) {
             CVoteProposal proposal;
             if (ProposalFromTransaction(tx, proposal)) {
-                mapProposals[txid] = GetHash();
+                mapProposals[txid] = proposal.GetHash();
                 if (!voteDB.WriteProposal(txid, proposal)) {
                     printf("%s : failed to record proposal to db\n", __func__);
                 } else {
@@ -1821,6 +1821,30 @@ bool static Reorganize(CTxDB& txdb, CBlockIndex* pindexNew)
     return true;
 }
 
+void CBlock::print() const
+{
+    std::stringstream ss;
+    ss << "CBlock(hash="
+       << GetHash().ToString().c_str()
+       << " ver = " << nVersion
+       << " hashPrevBlock = " << hashPrevBlock.ToString().c_str()
+       << " hasMerkleRoot = " << hashMerkleRoot.ToString().c_str()
+       << " nTime = " << nTime
+       << " nBits = " << nBits
+       << " nNonce = " <<  nNonce
+       << " vtx = " << vtx.size()
+       << " vhcBlockSig = " << HexStr(vchBlockSig.begin(), vchBlockSig.end()).c_str();
+    printf("%s ", ss.str().c_str());
+    for (unsigned int i = 0; i < vtx.size(); i++)
+    {
+        printf("  ");
+        vtx[i].print();
+    }
+    printf("  vMerkleTree: ");
+    for (unsigned int i = 0; i < vMerkleTree.size(); i++)
+        printf("%s ", vMerkleTree[i].ToString().substr(0,10).c_str());
+    printf("\n");
+}
 
 // Called from inside SetBestChain: attaches a block to the new best chain being built
 bool CBlock::SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew)
@@ -4143,43 +4167,41 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
         return NULL;
 
     // Only use the first 4 bits for the version encoding
-    pblock->nVersion = pblock->nVersion << 28;
+    pblock->nVersion = CBlock::VOTING_VERSION;
 
     //Check to see if proposals need to be voted on
     if (mapProposals.size() > 0) {
         list<int32_t> votes;
 
         // Get all the vote objects versions
+        map<uint256, VoteLocation> mapActiveProposals = proposalManager.GetActive(nBestHeight);
         if (pwalletMain->mapVoteObjects.size() > 0) {
-            map<uint256, uint256>::iterator it;
-            for (it = mapProposals.begin(); it != mapProposals.end(); it++) {
+            for (map<uint256, uint256>::iterator it = mapProposals.begin(); it != mapProposals.end(); it++) {
                 CWalletTx walletTx;
                 if (!pwalletMain->GetTransaction(it->first, walletTx)) {
-                    cout << "tried to get transaction but failed" << endl;
                     continue;
                 }
 
                 CTransaction tx = *(CTransaction *) &walletTx;
                 if (!tx.IsProposal()) {
-                    cout << "tx in the map of proposals isn't a proposal" << endl;
                     continue;
                 }
 
                 CVoteProposal proposal;
                 if (!ProposalFromTransaction(tx, proposal)) {
-                    cout << "Couldn't get the proposal from the transaction" << endl;
                     continue;
                 }
 
+                if (!mapActiveProposals.count(proposal.GetHash()))
+                    continue;
+
                 if (pwalletMain->mapVoteObjects.count(proposal.GetHash()) == 0) {
-                    cout << "Vote object not found in mapVoteObjects" << endl;
                     continue;
                 }
 
                 CVoteObject voteObject = pwalletMain->mapVoteObjects[proposal.GetHash()];
-
-                cout << "voteObjectFormattedVote" + voteObject.GetFormattedVote() << endl;
                 votes.push_back(voteObject.GetFormattedVote());
+                printf("*** added vote for %s\n", proposal.GetName());
             }
         }
 
