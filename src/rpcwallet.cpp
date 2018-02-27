@@ -3021,17 +3021,18 @@ Value getvotes(const Array& params, bool fHelp)
 
             uint256 txid = 0;
             for (auto mit : mapProposals) {
-                if (mit.second == it->first)
+                if (mit.second == it->first) {
                     txid = mit.first;
                     break;
+                }
             }
 
             if (txid == 0)
                 return JSONRPCError(RPC_DATABASE_ERROR, strprintf("failed to find txid for proposal %s", it->first.GetHex().c_str()));
 
             CVoteProposal proposal;
-            if (!votedb.ReadProposal(it->first, proposal)) {
-                string strMessage = strprintf("Failed to find proposal %s in database", it->first.GetHex().c_str());
+            if (!votedb.ReadProposal(txid, proposal)) {
+                string strMessage = strprintf("Failed to find proposal %s in database", txid.GetHex().c_str());
                 return JSONRPCError(RPC_DATABASE_ERROR, strMessage);
             }
 
@@ -3040,7 +3041,7 @@ Value getvotes(const Array& params, bool fHelp)
             Object entry;
             entry.push_back(Pair("Proposal Name", proposal.GetName()));
             entry.push_back(Pair("Proposal Description", proposal.GetDescription()));
-            entry.push_back(Pair("Your Vote", voteValue));
+            entry.push_back(Pair("Your Vote", (int64_t)it->second.GetVote()));
             ret.push_back(entry);
         }
         return ret;

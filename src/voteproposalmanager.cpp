@@ -33,6 +33,7 @@ bool CVoteProposalManager::Add(const CVoteProposal& proposal)
     }
 
     mapProposalData.insert(make_pair(newProposal.hash, newProposal));
+    printf("%s: added proposal %s\n", __func__, newProposal.hash.GetHex().c_str());
     return true;
 }
 
@@ -50,7 +51,7 @@ map<uint256, VoteLocation> CVoteProposalManager::GetActive(int nHeight)
     map<uint256, VoteLocation> mapActive;
     for (auto it : mapProposalData) {
         CProposalMetaData data = it.second;
-        if ((int)data.nHeightStart >= nHeight && (int)data.nHeightEnd <= nHeight)
+        if ((int)data.nHeightStart <= nHeight && (int)data.nHeightEnd >= nHeight)
             mapActive.insert(make_pair(data.hash, data.location));
     }
 

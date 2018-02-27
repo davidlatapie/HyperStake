@@ -1,5 +1,6 @@
 #include "votetally.h"
 #include "util.h"
+#include "db.h"
 
 #define VOTEMASK 0x0FFFFFFF
 
@@ -28,10 +29,26 @@ bool CVoteTally::SetNewPositions(std::map<uint256, VoteLocation> &mapNewLocation
 {
     mapLocations.clear();
     for (auto it : mapNewLocations) {
-        VoteLocation locationNew = it.second;
+        if (mapLocations.count(it.first))
+            continue;
 
+        uint256 txid = 0;
+        if (!GetProposalTXID(it.first, txid))
+            return error("%s: could not find transaction ID for proposal %s", __func__, it.first.GetHex().c_str());
+
+        CVoteProposal proposal;
+        CVoteDB votedb("r");
+        if (!votedb.ReadProposal(txid, proposal))
+            return error("%s: failed to read proposal from DB for %s", __func__, it.first.GetHex().c_str());
+
+        //Map the proposal to this bit range
+        VoteLocation locationNew = it.second;
         mapLocations.insert(make_pair(it.first, locationNew));
+
+        //Start a new summary object that will track the votes for this proposal
         CVoteSummary summary;
+        summary.nBlockStart = proposal.GetStartHeight();
+        summary.nCheckSpan = proposal.GetCheckSpan();
         mapVotes.insert(make_pair(it.first, summary));
     }
 
@@ -42,6 +59,12 @@ bool CVoteTally::SetNewPositions(std::map<uint256, VoteLocation> &mapNewLocation
 void CVoteTally::ProcessNewVotes(const uint32_t& nVersion)
 {
     for (auto it : mapVotes) {
+        printf("%s processing vote for %s\n", __func__, it.first.GetHex().c_str());
+        if (!mapLocations.count(it.first)) {
+            printf("%s: ERROR: did not find location for vote\n", __func__);
+            return;
+        }
+
         VoteLocation location = mapLocations.at(it.first);
         int32_t nVote = nVersion;
         nVote &= VOTEMASK; // remove version bits
@@ -61,6 +84,7 @@ void CVoteTally::ProcessNewVotes(const uint32_t& nVersion)
             mapVotes.at(it.first).nYesTally++;
         } else if (nVote > 1)
             mapVotes.at(it.first).nNoTally++;
+        printf("%s: nVote=%d\n", __func__, nVote);
     }
 }
 
@@ -71,7 +95,6 @@ bool CVoteTally::GetSummary(const uint256& hashProposal, CVoteSummary& summary)
         return false;
 
     summary = it->second;
-
     return true;
 }
 

@@ -1685,11 +1685,13 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     }
 
     //Record new votes to the tally
-    CVoteTally tally(pindex->pprev->tally);
-    map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
-    tally.SetNewPositions(mapActive);
-    tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
-    pindex->tally = tally;
+    if (pindex->pprev) {
+        CVoteTally tally(pindex->pprev->tally);
+        map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
+        tally.SetNewPositions(mapActive);
+        tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
+        pindex->tally = tally;
+    }
 
     // Write queued txindex changes
     for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)
@@ -1826,7 +1828,7 @@ void CBlock::print() const
     std::stringstream ss;
     ss << "CBlock(hash="
        << GetHash().ToString().c_str()
-       << " ver = " << nVersion
+       << " ver = " << ReverseEndianString(HexStr(BEGIN(nVersion), END(nVersion))).c_str()
        << " hashPrevBlock = " << hashPrevBlock.ToString().c_str()
        << " hasMerkleRoot = " << hashMerkleRoot.ToString().c_str()
        << " nTime = " << nTime
@@ -4060,6 +4062,18 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
     return true;
 }
 
+bool GetProposalTXID(const uint256& hashProposal, uint256& txid)
+{
+    txid = 0;
+    for (auto mit : mapProposals) {
+        if (mit.second == hashProposal) {
+            txid = mit.first;
+            return true;
+        }
+    }
+    return false;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -4179,35 +4193,42 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
             for (map<uint256, uint256>::iterator it = mapProposals.begin(); it != mapProposals.end(); it++) {
                 CWalletTx walletTx;
                 if (!pwalletMain->GetTransaction(it->first, walletTx)) {
+                    printf("*** failed to get transaction %s!\n", it->first.GetHex().c_str());
                     continue;
                 }
 
                 CTransaction tx = *(CTransaction *) &walletTx;
                 if (!tx.IsProposal()) {
+                    printf("*** tx is not a proposal!\n");
                     continue;
                 }
 
                 CVoteProposal proposal;
                 if (!ProposalFromTransaction(tx, proposal)) {
+                    printf("*** failed to deserialize!\n");
                     continue;
                 }
 
-                if (!mapActiveProposals.count(proposal.GetHash()))
+                if (!mapActiveProposals.count(proposal.GetHash())) {
                     continue;
+                }
 
                 if (pwalletMain->mapVoteObjects.count(proposal.GetHash()) == 0) {
+                    printf("*** mapVoteObjects does not have proposal hash\n");
                     continue;
                 }
 
                 CVoteObject voteObject = pwalletMain->mapVoteObjects[proposal.GetHash()];
                 votes.push_back(voteObject.GetFormattedVote());
-                printf("*** added vote for %s\n", proposal.GetName());
+                //printf("*** added vote for %s\n", proposal.GetName().c_str());
             }
-        }
+        } else
+            printf("*** mapVoteObjects empty!\n");
 
         // Update the block version to have all votes
         for (int32_t vote : votes) {
             pblock->nVersion |= vote;
+            //printf("***voted!\n");
         }
     }
 

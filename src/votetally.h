@@ -45,6 +45,7 @@ public:
     {
         nHeight = 0;
         mapVotes.clear();
+        mapLocations.clear();
     }
 
     CVoteTally()

@@ -152,6 +152,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake);
 void ResendWalletTransactions();
 bool GetWalletFile(CWallet* pwallet, std::string &strWalletFileOut);
+bool GetProposalTXID(const uint256& hashProposal, uint256& txid);
 
 /** Position on disk for a particular transaction. */
 class CDiskTxPos
@@ -839,7 +840,7 @@ class CBlock
 public:
     // header
     static const int VOTING_VERSION = 0x50000000;
-    static const int CURRENT_VERSION=VOTING_VERSION;
+    static const int CURRENT_VERSION=4;
     int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -1355,15 +1356,11 @@ public:
             READWRITE(nStakeTime);
             READWRITE(hashProofOfStake);
         }
-        else if (fRead)
-        {
-            const_cast<CDiskBlockIndex*>(this)->prevoutStake.SetNull();
-            const_cast<CDiskBlockIndex*>(this)->nStakeTime = 0;
-            const_cast<CDiskBlockIndex*>(this)->hashProofOfStake = 0;
+        else if (fRead) {
+            const_cast<CDiskBlockIndex *>(this)->prevoutStake.SetNull();
+            const_cast<CDiskBlockIndex *>(this)->nStakeTime = 0;
+            const_cast<CDiskBlockIndex *>(this)->hashProofOfStake = 0;
         }
-
-        if (this->nVersion >= CBlock::VOTING_VERSION)
-            READWRITE(tally);
 
         // block header
         READWRITE(this->nVersion);
@@ -1373,6 +1370,9 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
 		READWRITE(blockHash);
+
+        if (this->nVersion >= CBlock::VOTING_VERSION)
+            READWRITE(tally);
     )
 
     uint256 GetBlockHash() const
