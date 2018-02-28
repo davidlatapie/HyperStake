@@ -1655,8 +1655,6 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     // ppcoin: track money supply and mint amount info
     pindex->nMint = nValueOut - nValueIn + nFees;
     pindex->nMoneySupply = (pindex->pprev? pindex->pprev->nMoneySupply : 0) + nValueOut - nValueIn;
-    if (!txdb.WriteBlockIndex(CDiskBlockIndex(pindex)))
-        return error("Connect() : WriteBlockIndex for pindex failed");
 
     // ppcoin: fees are not collected by miners as in bitcoin
     // ppcoin: fees are destroyed to compensate the entire network
@@ -1686,12 +1684,15 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     //Record new votes to the tally
     if (pindex->pprev) {
-        CVoteTally tally(pindex->pprev->tally);
+        pindex->tally = CVoteTally(pindex->pprev->tally);
         map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
-        tally.SetNewPositions(mapActive);
-        tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
-        pindex->tally = tally;
+        pindex->tally.SetNewPositions(mapActive);
+        pindex->tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
     }
+
+    //Write index to disk
+    if (!txdb.WriteBlockIndex(CDiskBlockIndex(pindex)))
+        return error("Connect() : WriteBlockIndex for pindex failed");
 
     // Write queued txindex changes
     for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)

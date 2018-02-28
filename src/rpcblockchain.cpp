@@ -309,7 +309,7 @@ Value createproposal(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 6)
         throw runtime_error(
-                "createproposal \n<strName>\n<nShift>\n<nStartTime>\n<nCheckSpan>\n<nCardinals>\n<strDescription>\n"
+                "createproposal \n<strName>\n<nShift>\n<nStartBlock>\n<nCheckSpan>\n<nBits>\n<strDescription>\n"
                 "Returns new VoteProposal object with specified parameters\n");
     // name of issue
     string strName = params[0].get_str();
@@ -413,9 +413,11 @@ Value getproposalstatus(const Array& params, bool fHelp)
     objRet.emplace_back(Pair("total_blocks_voted", nBlocksVoted));
     objRet.emplace_back(Pair("yes_votes", (int64_t)summary.nYesTally));
     objRet.emplace_back(Pair("no_votes", (int64_t)summary.nNoTally));
+    double nAbstain = nBlocksVoted - summary.nNoTally - summary.nYesTally;
+    objRet.emplace_back(Pair("abstain_votes", nAbstain));
     double nRatio = 0;
     if (nBlocksVoted)
-        nRatio = (double)summary.nYesTally / (double)nBlocksVoted;
+        nRatio = (double)summary.nYesTally / ((double)nBlocksVoted - nAbstain);
 
     objRet.emplace_back(Pair("ratio", nRatio));
     return objRet;

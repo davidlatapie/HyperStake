@@ -6,6 +6,20 @@
 
 using namespace std;
 
+//Convert char* into string showing its binary
+string PrintBinary(uint32_t n)
+{
+    string result;
+    for (int i = 0; i < 32; i ++) {
+        result.push_back( '0' + (n & 1) );
+        n >>= 1;
+    }
+
+    reverse( result.begin(), result.end() );
+
+    return result;
+}
+
 CVoteTally::CVoteTally(CVoteTally* tallyPrev)
 {
     this->nHeight = tallyPrev->nHeight + 1;
@@ -59,24 +73,20 @@ bool CVoteTally::SetNewPositions(std::map<uint256, VoteLocation> &mapNewLocation
 void CVoteTally::ProcessNewVotes(const uint32_t& nVersion)
 {
     for (auto it : mapVotes) {
+        if (!mapLocations.count(it.first))
+            continue;
+
         printf("%s processing vote for %s\n", __func__, it.first.GetHex().c_str());
-        if (!mapLocations.count(it.first)) {
-            printf("%s: ERROR: did not find location for vote\n", __func__);
-            return;
-        }
 
         VoteLocation location = mapLocations.at(it.first);
         int32_t nVote = nVersion;
         nVote &= VOTEMASK; // remove version bits
-        nVote >>= location.first + 1; //shift it over to the starting position
-        int32_t nBits = location.second - location.first;
+        nVote >>= location.first; //shift it over to the starting position
+        int32_t nBits = location.first - location.second;
 
         // Remove any bits to the left of the vote bits
-        int32_t nMask = 1;
-        for (int i = 0; i < nBits - 1; i++) {
-            nMask <<= 1;
-            nMask |= 1;
-        }
+        uint32_t nMask = ~0;
+        nMask >>= (32 - nBits);
         nVote &= nMask;
 
         //Count the vote if it is yes or no
