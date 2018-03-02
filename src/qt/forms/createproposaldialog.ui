@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Create Vote Proposal</string>
+   <string>Proposal Creation</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
