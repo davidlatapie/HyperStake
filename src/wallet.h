@@ -392,6 +392,8 @@ public:
     void FixSpentCoins(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound, bool fCheckOnly = false);
     void DisableTransaction(const CTransaction &tx);
 
+    bool SendProposal(const CVoteProposal& proposal, uint256& txid);
+
     /** Address book entry changed.
      * @note called with lock cs_wallet held.
      */

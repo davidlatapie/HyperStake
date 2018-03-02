@@ -20,6 +20,7 @@ class StakeForCharityDialog;
 class TransactionTableModel;
 class TransactionView;
 class WalletModel;
+class VotingDialog;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -74,6 +75,7 @@ private:
     Bip38ToolDialog *bip38Dialog;
 	StakeForCharityDialog *stakeForCharityDialog;
 	BlockBrowser *blockBrowser;
+    VotingDialog* votingDialog;
 
     QLabel *labelEncryptionIcon;
     QLabel *labelMintingIcon;
@@ -112,6 +114,7 @@ private:
 	QAction *stakingIconAction;
 	QAction *charityAction;
 	QAction *calcAction;
+    QAction *votingAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -194,6 +197,8 @@ private slots:
     void gotoVerifyMessageTab(QString addr = "");
     /** Show BIP 38 tool - default to Encryption tab */
     void gotoBip38Tool();
+    /** Show the voting dialog */
+    void gotoVotingDialog();
 	/** Allow user to unlock wallet from click */
 	void lockIconClicked();
     /** Show configuration dialog */

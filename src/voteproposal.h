@@ -10,6 +10,11 @@
 #include "serialize.h"
 #include "votetally.h"
 
+#define MAX_CHAR_NAME 10
+#define MAX_CHAR_ABSTRACT 30
+#define MAX_BLOCKS_IN_FUTURE 28800
+#define MAX_CHECKSPAN 28800
+
 class CVoteProposal
 {
 private:
@@ -44,21 +49,21 @@ public:
         strDescription = "";
     }
 
-    bool IsNull () { return strName.empty(); }
+    bool IsNull () const { return strName.empty(); }
 
     CVoteProposal()
     {
         SetNull();
     }
 
-    CVoteProposal(std::string strName, uint8_t nShift, unsigned int nStartHeight, int nCheckSpan, uint8_t nCardinals,
+    CVoteProposal(std::string strName, uint8_t nShift, unsigned int nStartHeight, int nCheckSpan, uint8_t nBitCount,
                   std::string strDescription)
     {
         this->strName = strName;
         this->nShift = nShift;
         this->nStartHeight = nStartHeight;
         this->nCheckSpan = nCheckSpan;
-        this->nBitCount = nCardinals;
+        this->nBitCount = nBitCount;
         this->strDescription = strDescription;
     }
 
@@ -72,7 +77,7 @@ public:
        READWRITE(strDescription);
     )
 
-    bool ConstructTransaction(CTransaction& tx);
+    bool ConstructTransaction (CTransaction& tx) const;
     int GetShift() const { return nShift; }
     uint8_t GetBitCount() const { return nBitCount; }
     int GetCheckSpan() const { return nCheckSpan; }

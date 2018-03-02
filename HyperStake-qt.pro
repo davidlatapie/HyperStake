@@ -235,7 +235,10 @@ HEADERS += src/qt/bitcoingui.h \
     src/sph_simd.h \
     src/sph_types.h \ 
     src/qt/networkstyle.h \
-    src/qt/scicon.h
+    src/qt/scicon.h \
+    src/qt/votingdialog.h \
+    src/qt/createproposaldialog.h \
+    src/qt/proposalsdialog.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/transactiontablemodel.cpp \
@@ -318,7 +321,10 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/simd.c \
     src/clientversion.cpp \
     src/qt/networkstyle.cpp \
-    src/qt/scicon.cpp
+    src/qt/scicon.cpp \
+    src/qt/votingdialog.cpp \
+    src/qt/createproposaldialog.cpp \
+    src/qt/proposalsdialog.cpp
 
 RESOURCES += \
     src/qt/bitcoin.qrc
@@ -339,7 +345,10 @@ FORMS += \
     src/qt/forms/askpassphrasedialog.ui \
     src/qt/forms/rpcconsole.ui \
     src/qt/forms/optionsdialog.ui \
-    src/qt/forms/bip38tooldialog.ui	
+    src/qt/forms/bip38tooldialog.ui \	
+    src/qt/forms/votingdialog.ui \
+    src/qt/forms/createproposaldialog.ui \
+    src/qt/forms/proposalsdialog.ui
 
 contains(USE_QRCODE, 1) {
     HEADERS += src/qt/qrcodedialog.h

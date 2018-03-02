@@ -15,14 +15,14 @@ uint256 CVoteProposal::GetHash() const
 * The vote proposal is serialized and added to a CTransaction as a data object via OP_RETURN transaction output.
 * The transaction is marked as a proposal by marking the first 4 bytes as "PROP" in ASCII
 */
-bool CVoteProposal::ConstructTransaction(CTransaction& tx)
+bool CVoteProposal::ConstructTransaction (CTransaction& tx) const
 {
 //    if (tx.vin.empty()) {
 //        printf("%s : transaction does not have any inputs!\n", __func__);
 //        return false;
 //    }
 
-    if (this->IsNull()) {
+    if (IsNull()) {
         printf("%s : vote proposal is null!\n", __func__);
         return false;
     }
