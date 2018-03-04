@@ -90,7 +90,7 @@ void CreateProposalDialog::on_button_CreateProposal_clicked()
 void CreateProposalDialog::on_button_SendProposal_clicked()
 {
     uint256 txid;
-    if (!walletModel->sendProposal(*proposal, txid)) {
+    if (!pwalletMain->SendProposal(*proposal, txid)) {
         QMessageBox msg;
         msg.setText(tr("Failed to send proposal"));
         msg.exec();

@@ -2555,7 +2555,7 @@ bool CWallet::SendProposal(const CVoteProposal& proposal, uint256& txid)
 
     printf("*** after available coins\n");
 
-    int64 nFee = CVoteProposal::FEE * COIN;
+    int64 nFee = CVoteProposal::FEE;
     int64 nValueIn = 0;
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
