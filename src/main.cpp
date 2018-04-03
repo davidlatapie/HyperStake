@@ -4192,13 +4192,13 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
         map<uint256, VoteLocation> mapActiveProposals = proposalManager.GetActive(nBestHeight);
         if (pwalletMain->mapVoteObjects.size() > 0) {
             for (map<uint256, uint256>::iterator it = mapProposals.begin(); it != mapProposals.end(); it++) {
-                CWalletTx walletTx;
-                if (!pwalletMain->GetTransaction(it->first, walletTx)) {
+                CTransaction tx;
+                uint256 hashBlock;
+                if (!GetTransaction(it->first, tx, hashBlock)) {
                     printf("*** failed to get transaction %s!\n", it->first.GetHex().c_str());
                     continue;
                 }
 
-                CTransaction tx = *(CTransaction *) &walletTx;
                 if (!tx.IsProposal()) {
                     printf("*** tx is not a proposal!\n");
                     continue;
