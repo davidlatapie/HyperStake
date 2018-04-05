@@ -80,8 +80,8 @@ bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int 
 
     //create a vector tracking available spots
     vector<int> vAvailable;
-    for (int i = 0; i < 28; i++)
-        vAvailable.emplace_back(i + 1);
+    for (int i = 28; i > 0; i--)
+        vAvailable.emplace_back(i);
 
     //remove spots that are already taken
     for (auto data : vConflictingTime) {
