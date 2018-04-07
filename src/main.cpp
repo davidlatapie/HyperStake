@@ -4229,7 +4229,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
         // Update the block version to have all votes
         for (uint32_t vote : votes) {
             pblock->nVersion |= vote;
-            printf("***voted %d \n", vote);
+
         }
     } else {
         printf("map proposals empty\n");
@@ -4648,7 +4648,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 
         fWalletStaking = false;
 
-        while (vNodes.empty() || IsInitialBlockDownload() || pwallet->IsLocked()  ||  !fMintableCoins)
+        while (/*vNodes.empty() || IsInitialBlockDownload() || */pwallet->IsLocked()  ||  !fMintableCoins)
         {
             nLastCoinStakeSearchInterval = 0;
             Sleep(1000);

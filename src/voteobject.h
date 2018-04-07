@@ -54,7 +54,7 @@ public:
     )
 
     bool Vote(int nVotersChoice);
-    uint32_t GetFormattedVote() { return (nChoice << (nShift - nCardinals - 1)); }
+    uint32_t GetFormattedVote() { return (nChoice << nShift); }
     uint32_t GetVote() { return nChoice; }
 };
 
