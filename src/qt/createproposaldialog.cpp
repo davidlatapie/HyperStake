@@ -46,7 +46,7 @@ void CreateProposalDialog::on_button_CreateProposal_clicked()
     }
 
     int nStartHeight = ui->lineEdit_StartBlock->text().toInt();
-    if (nStartHeight < nBestHeight || nStartHeight > nBestHeight + MAX_BLOCKS_IN_FUTURE) {
+    if (nStartHeight <= nBestHeight || nStartHeight > nBestHeight + MAX_BLOCKS_IN_FUTURE) {
         QMessageBox msg;
         msg.setText(tr("Start height needs to be greater than current height (%1) and less than %2.").arg(nBestHeight).arg(nStartHeight + MAX_BLOCKS_IN_FUTURE));
         msg.exec();
