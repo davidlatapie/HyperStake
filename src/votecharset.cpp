@@ -12,7 +12,7 @@ bool ConvertTo6bit(std::string strFromUser, std::vector<unsigned char>& vchRet)
 {
     std::transform(strFromUser.begin(), strFromUser.end(), strFromUser.begin(), ::tolower);
     uint160 v = 0;
-    for (int i = 0; i < strFromUser.size(); i++) {
+    for (unsigned int i = 0; i < strFromUser.size(); i++) {
         char c = strFromUser[i];
         std::cout << "first in: " << c << std::endl;
         uint160 pos = strCharCodes.find(c);
@@ -36,7 +36,7 @@ bool ConvertTo6bit(std::string strFromUser, std::vector<unsigned char>& vchRet)
 bool ConvertTo8bit(std::vector<unsigned char> vch, std::string& strRet)
 {
     uint160 n = 0;
-    for (int i = 0; i < vch.size(); i++) {
+    for (unsigned int i = 0; i < vch.size(); i++) {
         n >>= 8;
         n |= uint160(vch[i]) << 154;
     }

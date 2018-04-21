@@ -330,7 +330,7 @@ bool CTransaction::IsStandard() const
 
 bool CTransaction::IsProposal() const
 {
-    for (int i = 0; i < vout.size(); i++) {
+    for (unsigned int i = 0; i < vout.size(); i++) {
         CScript scriptPubKey = vout[i].scriptPubKey;
         if (scriptPubKey.IsDataCarrier()) {
             if (scriptPubKey.size() >= 5) {
@@ -1684,7 +1684,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     //Record new votes to the tally
     if (pindex->pprev) {
-        if (fTestNet || pindex->nHeight >= VOTING_START)
+        if (fTestNet || pindex->nHeight >= (int)VOTING_START)
         pindex->tally = CVoteTally(pindex->pprev->tally);
         map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
         pindex->tally.SetNewPositions(mapActive);
@@ -4178,7 +4178,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
     CReserveKey reservekey(pwallet);
 
     // Create new block
-    auto_ptr<CBlock> pblock(new CBlock());
+    std::unique_ptr<CBlock> pblock(new CBlock());
     if (!pblock.get())
         return NULL;
 
@@ -4672,7 +4672,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
         unsigned int nTransactionsUpdatedLast = nTransactionsUpdated;
         CBlockIndex* pindexPrev = pindexBest;
 
-        auto_ptr<CBlock> pblock(CreateNewBlock(pwallet, fProofOfStake));
+        std::unique_ptr<CBlock> pblock(CreateNewBlock(pwallet, fProofOfStake));
         if (!pblock.get())
             return;
         IncrementExtraNonce(pblock.get(), pindexPrev, nExtraNonce);

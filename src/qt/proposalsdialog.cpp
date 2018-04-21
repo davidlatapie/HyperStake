@@ -49,8 +49,8 @@ void ProposalsDialog::UpdateTable()
         CVoteProposal proposal;
         if (voteDB.ReadProposal(it.first, proposal)) {
             //Filters
-            bool hasStarted = proposal.GetStartHeight() < nBestHeight;
-            bool isFinished = (proposal.GetStartHeight() + proposal.GetCheckSpan()) < nBestHeight;
+            bool hasStarted = (int)proposal.GetStartHeight() < nBestHeight;
+            bool isFinished = (int)(proposal.GetStartHeight() + proposal.GetCheckSpan()) < nBestHeight;
             bool isActive = hasStarted && !isFinished;
 
             bool fUpcomingChecked = ui->checkBox_Upcoming->checkState() == Qt::CheckState::Checked;

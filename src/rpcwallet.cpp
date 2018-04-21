@@ -3035,8 +3035,6 @@ Value getvotes(const Array& params, bool fHelp)
                 return JSONRPCError(RPC_DATABASE_ERROR, strMessage);
             }
 
-
-            int voteValue = it->second.GetFormattedVote() >> proposal.GetShift() & proposal.GetBitCount();
             Object entry;
             entry.push_back(Pair("Proposal Name", proposal.GetName()));
             entry.push_back(Pair("Proposal Description", proposal.GetDescription()));

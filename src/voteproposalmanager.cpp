@@ -65,9 +65,9 @@ bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int 
     for (auto it : mapProposalData) {
         CProposalMetaData data = it.second;
         int nEndHeight = nStartHeight + nCheckSpan;
-        if (data.nHeightEnd < nStartHeight)
+        if ((int)data.nHeightEnd < nStartHeight)
             continue;
-        if (data.nHeightStart > nEndHeight)
+        if ((int)data.nHeightStart > nEndHeight)
             continue;
         vConflictingTime.emplace_back(data);
     }
@@ -92,11 +92,12 @@ bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int 
     //find an available sequence of bits that fit the proposal
     vector<int> vRange;
     int nSequential = 0;
-    for (uint8_t i = 27; i >= 0; i--) {
-        nSequential = vAvailable.at(i) == 1 ? nSequential + 1 : 0;
+    for (int i = 27; i >= 0; i--) {
+        uint8_t n = static_cast<uint8_t>(i);
+        nSequential = vAvailable.at(n) == 1 ? nSequential + 1 : 0;
         if (nSequential == nBitCount) {
-            location.nLeastSignificantBit = i;
-            location.nMostSignificantBit = (uint8_t )(i + nBitCount - 1);
+            location.nLeastSignificantBit = n;
+            location.nMostSignificantBit = static_cast<uint8_t>(n + nBitCount - 1);
             return true;
         }
     }
