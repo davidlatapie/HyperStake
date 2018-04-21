@@ -67,7 +67,7 @@ void SetVotesDialog::on_voteButton_clicked()
         return;
     }
 
-    CVoteObject voteObject(proposal.GetHash(), proposal.GetBitCount(), proposal.GetShift());
+    CVoteObject voteObject(proposal.GetHash(), proposal.GetLocation());
 
     voteObject.Vote(voteChoice);
 
@@ -127,7 +127,7 @@ void SetVotesDialog::UpdateTable()
                 return;
             }
 
-            int voteValue = it->second.GetVote();
+            int voteValue = it->second.GetUnformattedVote();
             std::string strVote;
 
             switch(voteValue) {
