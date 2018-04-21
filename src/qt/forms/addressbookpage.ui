@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
+    <width>821</width>
     <height>380</height>
    </rect>
   </property>
@@ -53,6 +53,13 @@
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="deleteCheckBox">
+     <property name="text">
+      <string>Enable Deletion of Receiving Address - WARNING YOU WILL LOSE KEYS TO ANY COINS AT THE ADDRESS, BACK UP WALLET FIRST!</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -121,6 +128,20 @@
        <property name="icon">
         <iconset resource="../bitcoin.qrc">
          <normaloff>:/icons/transaction_0</normaloff>:/icons/transaction_0</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stakeForCharityPushButton">
+       <property name="toolTip">
+        <string>Send a percentage of stake to a specified HyperStake address</string>
+       </property>
+       <property name="text">
+        <string>&amp;Stake For Charity</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../bitcoin.qrc">
+         <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
        </property>
       </widget>
      </item>

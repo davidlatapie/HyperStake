@@ -6,6 +6,7 @@
 #define BITCOIN_DB_H
 
 #include "main.h"
+#include "voteproposal.h"
 
 #include <map>
 #include <string>
@@ -340,15 +341,23 @@ public:
     bool WriteHashBestChain(uint256 hashBestChain);
     bool ReadBestInvalidTrust(CBigNum& bnBestInvalidTrust);
     bool WriteBestInvalidTrust(CBigNum bnBestInvalidTrust);
-    bool ReadSyncCheckpoint(uint256& hashCheckpoint);
-    bool WriteSyncCheckpoint(uint256 hashCheckpoint);
-    bool ReadCheckpointPubKey(std::string& strPubKey);
-    bool WriteCheckpointPubKey(const std::string& strPubKey);
     bool LoadBlockIndex();
 private:
     bool LoadBlockIndexGuts();
 };
 
+class CVoteDB : public CDB
+{
+public:
+    CVoteDB(const char* pszMode="r+") : CDB("governance.dat", pszMode) { }
+private:
+    CVoteDB(const CVoteDB&);
+    void operator=(const CVoteDB&);
+public:
+    bool Load();
+    bool WriteProposal(const uint256& hash, const CVoteProposal& proposal);
+    bool ReadProposal(const uint256& hash, CVoteProposal& proposal);
+};
 
 
 

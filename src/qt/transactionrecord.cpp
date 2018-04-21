@@ -33,8 +33,49 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
     if (wtx.IsCoinStake())
     {
-        // Stake generation
-        parts.append(TransactionRecord(hash, nTime, TransactionRecord::StakeMint, "", -nDebit, wtx.GetValueOut()));
+        CTxDestination address;
+		if (!ExtractDestination(wtx.vout[1].scriptPubKey, address))
+			return parts;
+		
+		if(!IsMine(*wallet, address)) //if the address is not yours then it means you have a tx sent to you in someone elses coinstake tx
+		{
+			for(unsigned int i = 0; i < wtx.vout.size(); i++)
+			{
+				if(i == 0)
+					continue; // first tx is blank
+				CTxDestination outAddress;
+				if(ExtractDestination(wtx.vout[i].scriptPubKey, outAddress))
+				{
+					if(IsMine(*wallet, outAddress))
+					{
+						TransactionRecord txrMultiSendRec = TransactionRecord(hash, nTime, TransactionRecord::RecvWithAddress, CBitcoinAddress(outAddress).ToString(), wtx.vout[i].nValue, 0);
+						parts.append(txrMultiSendRec);
+					}
+				}
+			}
+		}
+		else
+		{
+			TransactionRecord txrCoinStake = TransactionRecord(hash, nTime, TransactionRecord::StakeMint, CBitcoinAddress(address).ToString(), -nDebit, wtx.GetValueOut());
+			// Stake generation
+			parts.append(txrCoinStake);
+			
+			//if some of your outputs went to another address we will make them as a sendtoaddress tx
+			for(unsigned int i = 0; i < wtx.vout.size(); i++)
+			{
+				if(i == 0)
+					continue; //first tx is blank
+				CTxDestination outAddress;
+				if(ExtractDestination(wtx.vout[i].scriptPubKey, outAddress))
+				{
+					if(CBitcoinAddress(outAddress).ToString() != CBitcoinAddress(address).ToString())
+					{
+						TransactionRecord txrCoinStakeMultiSend = TransactionRecord(hash, nTime, TransactionRecord::SendToAddress, CBitcoinAddress(outAddress).ToString(), wtx.vout[i].nValue * -1, 0);
+						parts.append(txrCoinStakeMultiSend);
+					}
+				}
+			}
+		}
     }
     else if (nNet > 0 || wtx.IsCoinBase())
     {
@@ -84,10 +125,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         if (fAllFromMe && fAllToMe)
         {
             // Payment to self
-            int64 nChange = wtx.GetChange();
-
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-                            -(nDebit - nChange), nCredit - nChange));
+            int64 nChange = wtx.GetChange();	
+			TransactionRecord sub(hash, nTime);
+			sub.type = TransactionRecord::SendToSelf;
+			sub.credit = nCredit - nChange;
+			sub.debit =  -(nDebit - nChange);		
+			CTxDestination address;
+			if (ExtractDestination(wtx.vout[0].scriptPubKey, address))
+				 sub.address = CBitcoinAddress(address).ToString();
+			parts.append(sub);
         }
         else if (fAllFromMe)
         {

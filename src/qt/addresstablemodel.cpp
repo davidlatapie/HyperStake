@@ -1,7 +1,7 @@
 #include "addresstablemodel.h"
 #include "guiutil.h"
 #include "walletmodel.h"
-
+#include "walletdb.h"
 #include "wallet.h"
 #include "base58.h"
 
@@ -357,7 +357,7 @@ bool AddressTableModel::removeRows(int row, int count, const QModelIndex & paren
 {
     Q_UNUSED(parent);
     AddressTableEntry *rec = priv->index(row);
-    if(count != 1 || !rec || rec->type == AddressTableEntry::Receiving)
+    if(count != 1 || !rec )
     {
         // Can only remove one row at a time, and cannot remove rows not in model.
         // Also refuse to remove receiving addresses.
@@ -366,6 +366,10 @@ bool AddressTableModel::removeRows(int row, int count, const QModelIndex & paren
     {
         LOCK(wallet->cs_wallet);
         wallet->DelAddressBookName(CBitcoinAddress(rec->address.toStdString()).Get());
+		if(rec->type == AddressTableEntry::Receiving)
+		{
+			wallet->TopUpKeyPool(); //mark existing keypool as used and refill keypool
+		}
     }
     return true;
 }

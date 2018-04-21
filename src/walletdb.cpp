@@ -12,7 +12,6 @@ using namespace boost;
 
 
 static uint64 nAccountingEntryNumber = 0;
-extern bool fWalletUnlockMintOnly;
 
 //
 // CWalletDB
@@ -53,6 +52,17 @@ bool CWalletDB::WriteAccountingEntry(const CAccountingEntry& acentry)
     return WriteAccountingEntry(++nAccountingEntryNumber, acentry);
 }
 
+bool CWalletDB::ReadVoteObject(const string& strVoteObject, CVoteObject& voteObject)
+{
+    voteObject.SetNull();
+    return Read(make_pair(string("vote"), strVoteObject), voteObject);
+}
+
+bool CWalletDB::WriteVoteObject(const string& strVoteObject, const CVoteObject& voteObject)
+{
+    return Write(make_pair(string("vote"), strVoteObject), voteObject, true);
+}
+
 int64 CWalletDB::GetAccountCreditDebit(const string& strAccount)
 {
     list<CAccountingEntry> entries;
@@ -73,7 +83,7 @@ void CWalletDB::ListAccountCreditDebit(const string& strAccount, list<CAccountin
     if (!pcursor)
         throw runtime_error("CWalletDB::ListAccountCreditDebit() : cannot create DB cursor");
     unsigned int fFlags = DB_SET_RANGE;
-    loop
+    while (true)
     {
         // Read next record
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
@@ -237,7 +247,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 
             //// debug print
             //printf("LoadWallet  %s\n", wtx.GetHash().ToString().c_str());
-            //printf(" %12"PRI64d"  %s  %s  %s\n",
+            //printf(" %12lld  %s  %s  %s\n",
             //    wtx.vout[0].nValue,
             //    DateTimeStrFormat("%x %H:%M:%S", wtx.GetBlockTime()).c_str(),
             //    wtx.hashBlock.ToString().substr(0,20).c_str(),
@@ -373,6 +383,67 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             ssValue >> pwallet->nOrderPosNext;
         }
+		else if (strType == "stakeSplitThreshold") //presstab HyperStake
+		{
+            ssValue >> pwallet->nStakeSplitThreshold;
+		}
+		else if (strType == "multisend") //presstab HyperStake
+		{
+			unsigned int i;
+			ssKey >> i;
+			std::pair<std::string, int> pMultiSend;
+			ssValue >> pMultiSend;
+			if(CBitcoinAddress(pMultiSend.first).IsValid())
+			{
+				pwallet->vMultiSend.push_back(pMultiSend);
+			}
+		}
+		else if(strType == "msettings")//presstab HyperStake
+		{
+		   std::pair<bool, int> pSettings;
+		   ssValue >> pSettings;
+		   pwallet->fMultiSend = pSettings.first;
+		   pwallet->nLastMultiSendHeight = pSettings.second;
+		}
+		else if (strType == "mcoinstake")
+		{
+			bool fMultiSendCoinStake;
+			ssValue >> fMultiSendCoinStake;
+			pwallet->fMultiSendCoinStake = fMultiSendCoinStake;
+		}
+		else if(strType == "mdisabled")//presstab HyperStake
+		{
+		   std::string strDisabledAddress;
+		   ssValue >> strDisabledAddress;
+		   pwallet->vDisabledAddresses.push_back(strDisabledAddress);
+		}
+		else if(strType == "hashdrift")//presstab HyperStake
+		{
+		   unsigned int nHashDrift;
+		   ssValue >> nHashDrift;
+		   pwallet->nHashDrift = nHashDrift;
+		}
+		else if(strType == "hashinterval")//presstab HyperStake
+		{
+		   unsigned int nHashInterval;
+		   ssValue >> nHashInterval;
+		   pwallet->nHashInterval = nHashInterval;
+		}
+		else if(strType == "combinedust")//presstab HyperStake
+		{
+		   bool fCombineDust;
+		   ssValue >> fCombineDust;
+		   pwallet->fCombineDust = fCombineDust;
+		}
+        else if (strType == "vote")
+        {
+            std::string strHash;
+            ssKey >> strHash;
+            uint256 hash(strHash);
+            CVoteObject vote;
+            ssValue >> vote;
+            pwallet->mapVoteObjects[hash] = vote;
+        }
     } catch (...)
     {
         return false;
@@ -414,7 +485,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
             return DB_CORRUPT;
         }
 
-        loop
+        while (true)
         {
             // Read next record
             CDataStream ssKey(SER_DISK, CLIENT_VERSION);
@@ -536,7 +607,7 @@ void ThreadFlushWalletDB(void* parg)
                         bitdb.CheckpointLSN(strFile);
 
                         bitdb.mapFileUseCount.erase(mi++);
-                        printf("Flushed wallet.dat %"PRI64d"ms\n", GetTimeMillis() - nStart);
+                        printf("Flushed wallet.dat %lldms\n", GetTimeMillis() - nStart);
                     }
                 }
             }
@@ -597,7 +668,7 @@ bool CWalletDB::Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys)
     // Set -rescan so any missing transactions will be
     // found.
     int64 now = GetTime();
-    std::string newFilename = strprintf("wallet.%"PRI64d".bak", now);
+    std::string newFilename = strprintf("wallet.%lld.bak", now);
 
     int result = dbenv.dbenv.dbrename(NULL, filename.c_str(), NULL,
                                       newFilename.c_str(), DB_AUTO_COMMIT);
@@ -616,7 +687,7 @@ bool CWalletDB::Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys)
         printf("Salvage(aggressive) found no records in %s.\n", newFilename.c_str());
         return false;
     }
-    printf("Salvage(aggressive) found %"PRIszu" records\n", salvagedData.size());
+    printf("Salvage(aggressive) found %lu records\n", salvagedData.size());
 
     bool fSuccess = allOK;
     Db* pdbCopy = new Db(&dbenv.dbenv, 0);

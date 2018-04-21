@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1040</width>
     <height>500</height>
    </rect>
   </property>
@@ -382,7 +382,7 @@
         <height>41</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0,0,0,0">
        <property name="spacing">
         <number>14</number>
        </property>
@@ -429,6 +429,35 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButtonCustomCC">
+         <property name="text">
+          <string>Select Coins</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="QComboBoxFilterCoins"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditCustomCC">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -454,7 +483,7 @@
       <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>11</number>
+      <number>16</number>
      </property>
      <attribute name="headerShowSortIndicator" stdset="0">
       <bool>true</bool>
@@ -464,53 +493,71 @@
      </attribute>
      <column>
       <property name="text">
-       <string/>
+       <string>Select</string> /** checkbox **/
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Amount</string>
+       <string>Amount</string> /** amount **/
       </property>
      </column>
-     
-	 <column>
+     <column>
       <property name="text">
-       <string>Confirmations</string>
+       <string>Confirmations</string> /** confs **/
       </property>
       <property name="toolTip">
        <string>Confirmed</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Age</string> /** age **/
+      </property>
+     </column>
 	 
 	 <column>
       <property name="text">
-       <string>Weight</string>
+       <string>Potential Stake</string> /** potential stake **/
       </property>
      </column>
-	 
 	 <column>
       <property name="text">
-       <string>Label</string>
+       <string>Days to Stake (est.)</string> /** stake time estimate **/
       </property>
      </column>
-	 
      <column>
       <property name="text">
-       <string>Address</string>
+       <string>Weight</string> /** weight **/
       </property>
      </column>
-	 
      <column>
       <property name="text">
-       <string>Date</string>
+       <string>Label</string> /** label **/
       </property>
      </column>
-	 
-     
-	 
      <column>
       <property name="text">
-       <string>Priority</string>
+       <string>Address</string> /** address **/
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Date</string> /** date **/
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Priority</string> /** priority **/
+      </property>
+     </column>
+	 <column>
+      <property name="text"> /** age int 64 invisible **/
+       <string/>
+      </property>
+     </column>
+	 <column>
+      <property name="text"> /** pot stake int 64 invisible **/
+       <string/>
       </property>
      </column>
      <column>

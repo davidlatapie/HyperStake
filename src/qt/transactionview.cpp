@@ -75,7 +75,6 @@ TransactionView::TransactionView(QWidget *parent) :
                                   TransactionFilterProxy::TYPE(TransactionRecord::SendToOther));
     typeWidget->addItem(tr("To yourself"), TransactionFilterProxy::TYPE(TransactionRecord::SendToSelf));
     typeWidget->addItem(tr("Minted"), TransactionFilterProxy::TYPE(TransactionRecord::StakeMint));
-    typeWidget->addItem(tr("Mined"), TransactionFilterProxy::TYPE(TransactionRecord::Generated));
     typeWidget->addItem(tr("Other"), TransactionFilterProxy::TYPE(TransactionRecord::Other));
 
     hlayout->addWidget(typeWidget);
@@ -128,14 +127,19 @@ TransactionView::TransactionView(QWidget *parent) :
     QAction *copyLabelAction = new QAction(tr("Copy label"), this);
     QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
     QAction *editLabelAction = new QAction(tr("Edit label"), this);
+	QAction *copyTxID = new QAction(tr("Copy Tx ID"), this);
     QAction *showDetailsAction = new QAction(tr("Show transaction details"), this);
+	QAction *showBlockBrowser = new QAction(tr("Show transaction in block browser"), this);
 
     contextMenu = new QMenu();
     contextMenu->addAction(copyAddressAction);
     contextMenu->addAction(copyLabelAction);
     contextMenu->addAction(copyAmountAction);
     contextMenu->addAction(editLabelAction);
+	contextMenu->addAction(copyTxID);
     contextMenu->addAction(showDetailsAction);
+	contextMenu->addAction(showBlockBrowser);
+	
 
     // Connect actions
     connect(dateWidget, SIGNAL(activated(int)), this, SLOT(chooseDate(int)));
@@ -150,7 +154,10 @@ TransactionView::TransactionView(QWidget *parent) :
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
     connect(editLabelAction, SIGNAL(triggered()), this, SLOT(editLabel()));
+	connect(copyTxID, SIGNAL(triggered()), this, SLOT(copyTx()));
     connect(showDetailsAction, SIGNAL(triggered()), this, SLOT(showDetails()));
+	connect(showBlockBrowser, SIGNAL(triggered()), this, SLOT(showBrowser()));
+	
 }
 
 void TransactionView::setModel(WalletModel *model)
@@ -171,7 +178,7 @@ void TransactionView::setModel(WalletModel *model)
         transactionView->setSelectionBehavior(QAbstractItemView::SelectRows);
         transactionView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         transactionView->setSortingEnabled(true);
-        transactionView->sortByColumn(TransactionTableModel::Status, Qt::DescendingOrder);
+        transactionView->sortByColumn(TransactionTableModel::Date, Qt::DescendingOrder);
         transactionView->verticalHeader()->hide();
 
         transactionView->horizontalHeader()->resizeSection(
@@ -180,10 +187,17 @@ void TransactionView::setModel(WalletModel *model)
                 TransactionTableModel::Date, 120);
         transactionView->horizontalHeader()->resizeSection(
                 TransactionTableModel::Type, 120);
+		#if QT_VERSION < 0x050000
         transactionView->horizontalHeader()->setResizeMode(
                 TransactionTableModel::ToAddress, QHeaderView::Stretch);
+		#else
+		transactionView->horizontalHeader()->setSectionResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
+		#endif
         transactionView->horizontalHeader()->resizeSection(
                 TransactionTableModel::Amount, 100);
+
+        transactionProxyModel->setMinAmount(0);
+        updateTotalAmount();
     }
 }
 
@@ -192,7 +206,7 @@ void TransactionView::chooseDate(int idx)
     if(!transactionProxyModel)
         return;
     QDate current = QDate::currentDate();
-    dateRangeWidget->setVisible(false);
+    enableDateRangeWidget(false);
     switch(dateWidget->itemData(idx).toInt())
     {
     case All:
@@ -229,10 +243,11 @@ void TransactionView::chooseDate(int idx)
                 TransactionFilterProxy::MAX_DATE);
         break;
     case Range:
-        dateRangeWidget->setVisible(true);
+        enableDateRangeWidget(true);
         dateRangeChanged();
         break;
     }
+    updateTotalAmount();
 }
 
 void TransactionView::chooseType(int idx)
@@ -241,6 +256,7 @@ void TransactionView::chooseType(int idx)
         return;
     transactionProxyModel->setTypeFilter(
         typeWidget->itemData(idx).toInt());
+    updateTotalAmount();
 }
 
 void TransactionView::changedPrefix(const QString &prefix)
@@ -248,6 +264,7 @@ void TransactionView::changedPrefix(const QString &prefix)
     if(!transactionProxyModel)
         return;
     transactionProxyModel->setAddressPrefix(prefix);
+    updateTotalAmount();
 }
 
 void TransactionView::changedAmount(const QString &amount)
@@ -263,6 +280,13 @@ void TransactionView::changedAmount(const QString &amount)
     {
         transactionProxyModel->setMinAmount(0);
     }
+    updateTotalAmount();
+}
+
+void TransactionView::updateTotalAmount()
+{
+    QString str = BitcoinUnits::format(BitcoinUnits::BTC, transactionProxyModel->getTotalAmount());
+    totalAmountWidget->setText(str);
 }
 
 void TransactionView::exportClicked()
@@ -316,6 +340,11 @@ void TransactionView::copyLabel()
 void TransactionView::copyAmount()
 {
     GUIUtil::copyEntryData(transactionView, 0, TransactionTableModel::FormattedAmountRole);
+}
+
+void TransactionView::copyTx()
+{
+    GUIUtil::copyEntryData(transactionView, 0, TransactionTableModel::TxIDRole);
 }
 
 void TransactionView::editLabel()
@@ -376,15 +405,25 @@ void TransactionView::showDetails()
     }
 }
 
+void TransactionView::enableDateRangeWidget(bool enable)
+{
+    dateFrom->setVisible(enable);
+    dateTo->setVisible(enable);
+    to->setVisible(enable);
+    range->setVisible(enable);
+}
+
 QWidget *TransactionView::createDateRangeWidget()
 {
     dateRangeWidget = new QFrame();
+    dateRangeWidget->setObjectName("rangeFrame");
     dateRangeWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
     dateRangeWidget->setContentsMargins(1,1,1,1);
     QHBoxLayout *layout = new QHBoxLayout(dateRangeWidget);
     layout->setContentsMargins(0,0,0,0);
     layout->addSpacing(23);
-    layout->addWidget(new QLabel(tr("Range:")));
+    range = new QLabel(tr("Range:"));
+    layout->addWidget(range);
 
     dateFrom = new QDateTimeEdit(this);
     dateFrom->setDisplayFormat("dd/MM/yy");
@@ -392,7 +431,8 @@ QWidget *TransactionView::createDateRangeWidget()
     dateFrom->setMinimumWidth(100);
     dateFrom->setDate(QDate::currentDate().addDays(-7));
     layout->addWidget(dateFrom);
-    layout->addWidget(new QLabel(tr("to")));
+    to = new QLabel(tr("to"));
+    layout->addWidget(to);
 
     dateTo = new QDateTimeEdit(this);
     dateTo->setDisplayFormat("dd/MM/yy");
@@ -402,8 +442,15 @@ QWidget *TransactionView::createDateRangeWidget()
     layout->addWidget(dateTo);
     layout->addStretch();
 
+    layout->addWidget(new QLabel(tr("Total:")));
+    totalAmountWidget = new QLabel(this);
+    totalAmountWidget->setText("0");
+    totalAmountWidget->setFixedWidth(120);
+    totalAmountWidget->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    layout->addWidget(totalAmountWidget);
+
     // Hide by default
-    dateRangeWidget->setVisible(false);
+    enableDateRangeWidget(false);
 
     // Notify on change
     connect(dateFrom, SIGNAL(dateChanged(QDate)), this, SLOT(dateRangeChanged()));
@@ -419,6 +466,7 @@ void TransactionView::dateRangeChanged()
     transactionProxyModel->setDateRange(
             QDateTime(dateFrom->date()),
             QDateTime(dateTo->date()).addDays(1));
+    updateTotalAmount();
 }
 
 void TransactionView::focusTransaction(const QModelIndex &idx)
@@ -429,4 +477,17 @@ void TransactionView::focusTransaction(const QModelIndex &idx)
     transactionView->scrollTo(targetIdx);
     transactionView->setCurrentIndex(targetIdx);
     transactionView->setFocus();
+}
+
+void TransactionView::showBrowser()
+{
+	if(!transactionView->selectionModel())
+		return;
+	QModelIndexList selection = transactionView->selectionModel()->selectedRows();
+	QString transactionId;
+	
+	if(!selection.isEmpty())
+		transactionId = selection.at(0).data(TransactionTableModel::TxIDRole).toString();
+		
+	emit blockBrowserSignal(transactionId);
 }
