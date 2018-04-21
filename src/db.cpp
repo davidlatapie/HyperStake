@@ -831,7 +831,9 @@ bool CTxDB::LoadBlockIndexGuts()
             pindexNew->nTime          = diskindex.nTime;
             pindexNew->nBits          = diskindex.nBits;
             pindexNew->nNonce         = diskindex.nNonce;
-            pindexNew->tally          = diskindex.tally;
+
+//            if (fTestNet || pindexNew->nHeight >= (int)VOTING_START)
+//                pindexNew->tally          = diskindex.tally;
 
             // Watch for genesis block
             if (pindexGenesisBlock == NULL && blockHash == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet))
