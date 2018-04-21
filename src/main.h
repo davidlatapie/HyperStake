@@ -11,6 +11,8 @@
 #include "script.h"
 #include "scrypt_mine.h"
 #include "hashblock.h"
+#include "votetally.h"
+#include "voteproposalmanager.h"
 #include <iostream>
 #include <list>
 
@@ -42,6 +44,7 @@ static const int64 MAX_MINT_PROOF_OF_STAKE = 2.00 * COIN;	// 200% annual interes
 static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 7.50 * COIN;	// 750% annual interest
 static const unsigned int FORK_TIME = 1404678625; // Sun, 06 Jul 2014 20:30:25 GMT
 static const unsigned int FORK_TIME2 = 1423836000; // Fri, 13 Feb 2015 14:00:00 GMT
+static const unsigned int VOTING_START = 9999999; // when voting becomes available on mainnet
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 
 inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
@@ -95,10 +98,13 @@ extern bool fHaveGUI;
 extern std::map<unsigned int, unsigned int> mapHashedBlocks;
 extern std::map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 extern std::map <std::string, int> mapPeerRejectedBlocks;
+extern std::map<uint256, uint256> mapProposals; // txid, blockhash
+extern std::map<uint256, CTransaction> mapPendingProposals; // txid, blockhash
 extern bool fStrictProtocol;
 extern bool fStrictIncoming;
 extern bool fGenerateBitcoins;
 extern bool fWalletStaking;
+extern CVoteProposalManager proposalManager;
 
 // Settings
 extern int64 nTransactionFee;
@@ -147,6 +153,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake);
 void ResendWalletTransactions();
 bool GetWalletFile(CWallet* pwallet, std::string &strWalletFileOut);
+bool GetProposalTXID(const uint256& hashProposal, uint256& txid);
 
 /** Position on disk for a particular transaction. */
 class CDiskTxPos
@@ -538,6 +545,7 @@ public:
         return (IsCoinBase() || IsCoinStake());
     }
 
+    bool IsProposal() const;
 
     /** Check for standard transaction types
         @return True if all outputs (scriptPubKeys) use only standard transaction forms
@@ -832,6 +840,7 @@ class CBlock
 {
 public:
     // header
+    static const int VOTING_VERSION = 0x50000000;
     static const int CURRENT_VERSION=4;
     int nVersion;
     uint256 hashPrevBlock;
@@ -1052,30 +1061,7 @@ public:
 
 
 
-    void print() const
-    {
-        std::cout << "CBlock(hash="
-                  << GetHash().ToString().c_str() 
-                  << " ver = " << nVersion
-                  << " hashPrevBlock = " << hashPrevBlock.ToString().c_str()
-                  << " hasMerkleRoot = " << hashMerkleRoot.ToString().c_str()
-                  << " nTime = " << nTime
-                  << " nBits = " << nBits
-                  << " nNonce = " <<  nNonce
-                  << " vtx = " << vtx.size()
-                  << " vhcBlockSig = " << HexStr(vchBlockSig.begin(), vchBlockSig.end()).c_str();
-        for (unsigned int i = 0; i < vtx.size(); i++)
-        {
-            printf("  ");
-            vtx[i].print();
-        }
-        printf("  vMerkleTree: ");
-        for (unsigned int i = 0; i < vMerkleTree.size(); i++)
-            printf("%s ", vMerkleTree[i].ToString().substr(0,10).c_str());
-        printf("\n");
-    }
-
-
+    void print() const;
     bool DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex);
     bool ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck=false);
     bool ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions=true);
@@ -1128,6 +1114,9 @@ public:
     unsigned int nStakeTime;
     uint256 hashProofOfStake;
 
+    //Voting
+    CVoteTally tally;
+
     // block header
     int nVersion;
     uint256 hashMerkleRoot;
@@ -1152,6 +1141,7 @@ public:
         hashProofOfStake = 0;
         prevoutStake.SetNull();
         nStakeTime = 0;
+        tally.SetNull();
 
         nVersion       = 0;
         hashMerkleRoot = 0;
@@ -1175,6 +1165,7 @@ public:
         nStakeModifier = 0;
         nStakeModifierChecksum = 0;
         hashProofOfStake = 0;
+        tally.SetNull();
         if (block.IsProofOfStake())
         {
             SetProofOfStake();
@@ -1366,11 +1357,10 @@ public:
             READWRITE(nStakeTime);
             READWRITE(hashProofOfStake);
         }
-        else if (fRead)
-        {
-            const_cast<CDiskBlockIndex*>(this)->prevoutStake.SetNull();
-            const_cast<CDiskBlockIndex*>(this)->nStakeTime = 0;
-            const_cast<CDiskBlockIndex*>(this)->hashProofOfStake = 0;
+        else if (fRead) {
+            const_cast<CDiskBlockIndex *>(this)->prevoutStake.SetNull();
+            const_cast<CDiskBlockIndex *>(this)->nStakeTime = 0;
+            const_cast<CDiskBlockIndex *>(this)->hashProofOfStake = 0;
         }
 
         // block header
@@ -1381,6 +1371,9 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
 		READWRITE(blockHash);
+
+        if (this->nVersion >= CBlock::VOTING_VERSION)
+            READWRITE(tally);
     )
 
     uint256 GetBlockHash() const

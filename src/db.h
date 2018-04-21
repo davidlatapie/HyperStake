@@ -6,6 +6,7 @@
 #define BITCOIN_DB_H
 
 #include "main.h"
+#include "voteproposal.h"
 
 #include <map>
 #include <string>
@@ -345,6 +346,18 @@ private:
     bool LoadBlockIndexGuts();
 };
 
+class CVoteDB : public CDB
+{
+public:
+    CVoteDB(const char* pszMode="r+") : CDB("governance.dat", pszMode) { }
+private:
+    CVoteDB(const CVoteDB&);
+    void operator=(const CVoteDB&);
+public:
+    bool Load();
+    bool WriteProposal(const uint256& hash, const CVoteProposal& proposal);
+    bool ReadProposal(const uint256& hash, CVoteProposal& proposal);
+};
 
 
 

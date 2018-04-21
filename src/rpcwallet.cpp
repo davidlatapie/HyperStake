@@ -10,6 +10,7 @@
 #include "main.h"
 #include "base58.h"
 #include "coincontrol.h"
+#include "voteobject.h"
 
 #include <sstream>
 #include <boost/lexical_cast.hpp>
@@ -2794,4 +2795,257 @@ Value getstakingstatus(const Array& params, bool fHelp)
 
     return obj;
 }
-	
+
+// HyperStake
+Value sendproposal(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "sendproposal <proposal hash>\n"
+                "Sends a vote proposal to the network. WARNING this adds a transaction fee of 5 HYP!\n"
+                "\nResult:\n"
+                "{\n"
+                "  \"txid\": hash,             (string) the hash of the transaction that was sent\n"
+                "}\n");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
+
+    //! See if this proposal exists in our map of pending proposals
+    uint256 hashProposal;
+    hashProposal.SetHex(params[0].get_str());
+    if (!mapPendingProposals.count(hashProposal))
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot find proposal");
+
+    CTransaction tx = mapPendingProposals.at(hashProposal);
+    CWalletTx wtx(pwalletMain, tx);
+
+    //! Get available coins and add enough to cover the proposal fee
+    vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins, true);
+
+    int64 nFee = 5 * COIN;
+    int64 nValueIn = 0;
+
+    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    if (!pwalletMain->SelectCoinsMinConf(nFee, tx.nTime, 1, 6, vCoins, setCoins, nValueIn))
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    //! Fill vin
+    for (pair<const CWalletTx*,unsigned int> coin : setCoins)
+        wtx.vin.push_back(CTxIn(coin.first->GetHash(),coin.second));
+
+    //! Add the min value required for an output to the proposal UTXO
+    wtx.vout[0].nValue = MIN_TXOUT_AMOUNT;
+
+    //! Figure out change amount
+    nFee -= wtx.vout[0].nValue;
+    int64 nChange = nValueIn - nFee - MIN_TXOUT_AMOUNT;
+    if (nChange > 500) {
+        //!Lookup the address of one of the inputs and return the change to that address
+        uint256 hashBlock;
+        CTransaction txPrev;
+        if(!GetTransaction(wtx.vin[0].prevout.hash, txPrev, hashBlock))
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Failed to select coins");
+
+        CScript scriptReturn = txPrev.vout[wtx.vin[0].prevout.n].scriptPubKey;
+        CTxOut out(nChange, scriptReturn);
+
+        //!Add the change output to the new transaction
+        wtx.vout.push_back(out);
+    }
+
+    //! Sign the transaction
+    int nIn = 0;
+    for (const pair<const CWalletTx*,unsigned int>& coin : setCoins) {
+        if (!SignSignature(*pwalletMain, *coin.first, wtx, nIn++))
+            return false;
+    }
+
+    //! Broadcast the transaction to the network
+    CReserveKey reserveKey = CReserveKey(pwalletMain);
+    if (!pwalletMain->CommitTransaction(wtx, reserveKey))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Failed to commit transaction");
+
+    Object ret;
+    ret.push_back(Pair("txid", wtx.GetHash().GetHex()));
+
+    return ret;
+}
+
+// HyperStake
+Value setvote(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+                "setvote <txid> <number>\n"
+                        "Creates a vote object for the proposal in the txid which will trigger when you Stake.\n"
+                        "\nResult:\n"
+                        "{\n"
+                        "  \"Proposal Name\":,             (string) The name of the proposal\n"
+                        "  \"Proposal Description\":,      (string) The description of the proposal\n"
+                        "  \"Your vote\":,                 (int)    0 - Abstain, 1 - Yes, 2 - No, 3 - Request proposal revision\n"
+                        "}\n");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet vote on a proposal");
+
+    //Get params
+    uint256 txHash(params[0].get_str());
+    int voteChoice = params[1].get_int();
+
+    CTransaction tx;
+    uint256 hashBlock;
+    if(!GetTransaction(txHash, tx, hashBlock))
+        return "Transaction not found in wallet";
+
+    if (!tx.IsProposal())
+        return "Transaction does not contain a proposal";
+
+    if (voteChoice > 3 || voteChoice < 0)
+        return "You must vote on the following using a number from 0-3(inclusive)\n 0 - Abstain,\n 1 - Yes,\n 2 - No,\n 3 - Request proposal revision";
+
+    CVoteProposal proposal;
+    if (!ProposalFromTransaction(tx, proposal))
+        return "Proposal couldn't be found in the transaction";
+
+    CVoteObject voteObject(proposal.GetHash(), proposal.GetLocation());
+
+    voteObject.Vote(voteChoice);
+
+    //add the voteObject in the map
+    pwalletMain->mapVoteObjects[proposal.GetHash()] = voteObject;
+
+    //write the vote object to the database
+    CWalletDB walletdb(pwalletMain->strWalletFile);
+    if (!walletdb.WriteVoteObject(proposal.GetHash().GetHex(), voteObject)) {
+        return "The vote was saved, however had problems writing the vote to the database";
+    }
+
+    Object ret;
+    ret.push_back(Pair("Proposal Name", proposal.GetName()));
+    ret.push_back(Pair("Proposal Description", proposal.GetDescription()));
+    ret.push_back(Pair("Your Vote", voteChoice));
+    return ret;
+}
+
+// HyperStake
+Value getvote(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "getvote <txid> \n"
+                        "Returns the vote you made on a proposal from the given txid\n"
+                        "\nResult:\n"
+                        "{\n"
+                        "  \"Proposal Name\":,             (string) The name of the proposal\n"
+                        "  \"Proposal Description\":,      (string) The description of the proposal\n"
+                        "  \"Your vote\":,                 (int)    0 - Abstain, 1 - Yes, 2 - No, 3 - Request proposal revision\n"
+                        "}\n");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet vote on a proposal");
+
+    //Get params
+    uint256 txHash(params[0].get_str());
+
+    CTransaction tx;
+    uint256 hashBlock;
+    if (!GetTransaction(txHash, tx, hashBlock))
+        return "Transaction not found in wallet";
+
+    if (!tx.IsProposal())
+        return "Transaction does not contain a proposal";
+
+    CVoteProposal proposal;
+    if (!ProposalFromTransaction(tx, proposal))
+        return "Proposal couldn't be found in the transaction";
+
+    uint256 proposalHash(proposal.GetHash());
+
+    // Check to see if we have the vote object loaded from the database, if we do return the info
+    if (pwalletMain->mapVoteObjects.count(proposalHash) != 0) {
+        CVoteObject voteObject = pwalletMain->mapVoteObjects[proposalHash];
+
+        int voteValue = voteObject.GetUnformattedVote();
+
+        Object ret;
+        ret.push_back(Pair("Proposal Name", proposal.GetName()));
+        ret.push_back(Pair("Proposal Description", proposal.GetDescription()));
+        ret.push_back(Pair("Your Vote", voteValue));
+        ret.push_back(Pair("Proposal Hash", proposal.GetHash().GetHex()));
+        return ret;
+    }
+
+    // Try and find the voteobject in the walletdb and return it if found
+    CWalletDB walletdb(pwalletMain->strWalletFile);
+
+    CVoteObject voteObject;
+    if (!walletdb.ReadVoteObject(proposal.GetHash().GetHex(), voteObject))
+        return "No vote has been stored for this proposal ";
+
+    int voteValue = voteObject.GetUnformattedVote();
+
+    Object ret;
+    ret.push_back(Pair("Proposal Name", proposal.GetName()));
+    ret.push_back(Pair("Proposal Description", proposal.GetDescription()));
+    ret.push_back(Pair("Your Vote", voteValue));
+    ret.push_back(Pair("Proposal Hash", proposal.GetHash().GetHex()));
+    return ret;
+}
+
+// HyperStake
+Value getvotes(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "getvotes \n"
+                        "Returns all vote objects\n"
+                        "\nResult:\n"
+                        "{\n"
+                        "  \"Proposal Name\":,             (string) The name of the proposal\n"
+                        "  \"Proposal Description\":,      (string) The description of the proposal\n"
+                        "  \"Proposal Tx\":,               (string) The tx the proposal was started in\n"
+                        "  \"Your vote\":,                 (int)    0 - Abstain, 1 - Yes, 2 - No, 3 - Request proposal revision\n"
+                        "}\n");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet vote on a proposal");
+
+    CVoteDB votedb("r");
+    if (pwalletMain->mapVoteObjects.size() > 0) {
+        Array ret;
+        map<uint256, CVoteObject>::iterator it;
+        for (it = pwalletMain->mapVoteObjects.begin(); it != pwalletMain->mapVoteObjects.end(); it++) {
+
+            uint256 txid = 0;
+            for (auto mit : mapProposals) {
+                if (mit.second == it->first) {
+                    txid = mit.first;
+                    break;
+                }
+            }
+
+            if (txid == 0)
+                return JSONRPCError(RPC_DATABASE_ERROR, strprintf("failed to find txid for proposal %s", it->first.GetHex().c_str()));
+
+            CVoteProposal proposal;
+            if (!votedb.ReadProposal(txid, proposal)) {
+                string strMessage = strprintf("Failed to find proposal %s in database", txid.GetHex().c_str());
+                return JSONRPCError(RPC_DATABASE_ERROR, strMessage);
+            }
+
+
+            int voteValue = it->second.GetFormattedVote() >> proposal.GetShift() & proposal.GetBitCount();
+            Object entry;
+            entry.push_back(Pair("Proposal Name", proposal.GetName()));
+            entry.push_back(Pair("Proposal Description", proposal.GetDescription()));
+            entry.push_back(Pair("Your Vote", (int64_t)it->second.GetUnformattedVote()));
+            ret.push_back(entry);
+        }
+        return ret;
+    }
+    return "You don't have any votes saved into the database";
+}
+
+

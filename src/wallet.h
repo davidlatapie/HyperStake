@@ -119,6 +119,9 @@ public:
 	std::string strDisableArg;
 	double dUserNumber;
 	bool fStakeRequirement;
+
+    // Voting
+    std::map<uint256, CVoteObject> mapVoteObjects;
 	
     CWallet()
     {
@@ -262,7 +265,8 @@ public:
     bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, int nSplitBlock, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
-	bool GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nAmount);
+    bool FinalizeProposal(CTransaction& txProposal);
+    bool GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nAmount);
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64 nSearchInterval, CTransaction& txNew);
 	bool GetStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight);
     uint64 GetTimeToNextMaturity();
@@ -387,6 +391,8 @@ public:
 
     void FixSpentCoins(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound, bool fCheckOnly = false);
     void DisableTransaction(const CTransaction &tx);
+
+    bool SendProposal(const CVoteProposal& proposal, uint256& txid);
 
     /** Address book entry changed.
      * @note called with lock cs_wallet held.

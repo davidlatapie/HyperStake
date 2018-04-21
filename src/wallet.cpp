@@ -11,6 +11,7 @@
 #include "base58.h"
 #include "kernel.h"
 #include "coincontrol.h"
+#include "voteproposal.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -1920,6 +1921,33 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 }
 
 
+// hyperstake: complete construction of a proposal transaction
+bool CWallet::FinalizeProposal(CTransaction& txProposal)
+{
+    //! Choose coins to use
+    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    int64 nValueIn = 0;
+    if (!SelectCoins(5 * COIN, GetTime(), setCoins, nValueIn, NULL) || nValueIn < CVoteProposal::FEE)
+        return error("Failed to select coins to spend");
+
+    //! Select one of the addresses to send the change to, and add inputs to the proposal tx
+    CScript scriptChange;
+    nValueIn = 0;
+    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins) {
+        scriptChange = pcoin.first->vout[pcoin.second].scriptPubKey;
+        txProposal.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
+        nValueIn += pcoin.first->vout[pcoin.second].nValue;
+    }
+
+    //! Add change output
+    if (nValueIn > CVoteProposal::FEE + CENT) {
+        CTxOut out(nValueIn - CVoteProposal::FEE, scriptChange);
+        txProposal.vout.push_back(out);
+    }
+
+    return true;
+}
+
 // Call after CreateTransaction unless you want to abort
 bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
 {
@@ -2512,6 +2540,67 @@ void CWallet::DisableTransaction(const CTransaction &tx)
             }
         }
     }
+}
+
+bool CWallet::SendProposal(const CVoteProposal& proposal, uint256& txid)
+{
+    CTransaction tx;
+    if (!proposal.ConstructTransaction(tx))
+        return error("%s: failed to construct proposal tx\n", __func__);
+    CWalletTx wtx(this, tx);
+
+    //! Get available coins and add enough to cover the proposal fee
+    vector<COutput> vCoins;
+    AvailableCoins(vCoins, true);
+
+    printf("*** after available coins\n");
+
+    int64 nFee = CVoteProposal::FEE;
+    int64 nValueIn = 0;
+
+    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    if (!SelectCoinsMinConf(nFee, tx.nTime, 1, 6, vCoins, setCoins, nValueIn))
+        return error("%s: Insufficient funds", __func__);
+
+    //! Fill vin
+    for (pair<const CWalletTx*,unsigned int> coin : setCoins)
+        wtx.vin.push_back(CTxIn(coin.first->GetHash(),coin.second));
+
+    //! Add the min value required for an output to the proposal UTXO
+    wtx.vout[0].nValue = MIN_TXOUT_AMOUNT;
+
+    //! Figure out change amount
+    nFee -= wtx.vout[0].nValue;
+    int64 nChange = nValueIn - nFee - MIN_TXOUT_AMOUNT;
+    if (nChange > 500) {
+        //!Lookup the address of one of the inputs and return the change to that address
+        uint256 hashBlock;
+        CTransaction txPrev;
+        if(!::GetTransaction(wtx.vin[0].prevout.hash, txPrev, hashBlock))
+            return error("%s: Failed to select coins", __func__);
+
+        CScript scriptReturn = txPrev.vout[wtx.vin[0].prevout.n].scriptPubKey;
+        CTxOut out(nChange, scriptReturn);
+
+        //!Add the change output to the new transaction
+        wtx.vout.push_back(out);
+    }
+
+    //! Sign the transaction
+    int nIn = 0;
+    for (const pair<const CWalletTx*,unsigned int>& coin : setCoins) {
+        if (!SignSignature(*this, *coin.first, wtx, nIn++))
+            return false;
+    }
+
+    //! Broadcast the transaction to the network
+    CReserveKey reserveKey = CReserveKey(this);
+    if (!CommitTransaction(wtx, reserveKey))
+        return error("%s: Failed to commit transaction", __func__);
+
+    txid = wtx.GetHash();
+
+    return true;
 }
 
 CPubKey CReserveKey::GetReservedKey()

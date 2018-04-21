@@ -11,6 +11,8 @@
 #include "ui_interface.h"
 #include "kernel.h"
 #include "scrypt_mine.h"
+#include "votetally.h"
+#include "voteproposalmanager.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -71,9 +73,13 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 map<unsigned int, unsigned int> mapHashedBlocks;
 map<std::string, std::pair<int, int> > mapGetBlocksRequests;
 std::map <std::string, int> mapPeerRejectedBlocks;
+std::map<uint256, uint256> mapProposals; //txid, proposal hash
+std::map<uint256, CTransaction> mapPendingProposals;
 bool fStrictProtocol = false;
 bool fStrictIncoming = false;
 bool fWalletStaking = false;
+
+CVoteProposalManager proposalManager;
 
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
@@ -320,6 +326,23 @@ bool CTransaction::IsStandard() const
             return false;
     }
     return true;
+}
+
+bool CTransaction::IsProposal() const
+{
+    for (int i = 0; i < vout.size(); i++) {
+        CScript scriptPubKey = vout[i].scriptPubKey;
+        if (scriptPubKey.IsDataCarrier()) {
+            if (scriptPubKey.size() >= 5) {
+                // "PROP" in ascii
+                if (scriptPubKey.at(2) == 0x70 && scriptPubKey.at(3) == 0x72 && scriptPubKey.at(4) == 0x6f &&
+                        scriptPubKey.at(5) == 0x70)
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 //
@@ -1562,6 +1585,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     else
         nTxPos = pindex->nBlockPos + ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - (2 * GetSizeOfCompactSize(0)) + GetSizeOfCompactSize(vtx.size());
 
+    vector<uint256> vQueuedProposals;
     map<uint256, CTxIndex> mapQueuedChanges;
     int64 nFees = 0;
     int64 nValueIn = 0;
@@ -1616,6 +1640,13 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
             if (!tx.ConnectInputs(txdb, mapInputs, mapQueuedChanges, posThisTx, pindex, true, false, fStrictPayToScriptHash))
                 return false;
+
+            //Track vote proposals
+            if (tx.IsProposal()) {
+                //Needs to have the proper fee or else it will not be counted
+                if (nTxValueIn - nTxValueOut >= CVoteProposal::FEE - MIN_TXOUT_AMOUNT)
+                    vQueuedProposals.push_back(hashTx);
+            }
         }
 
         mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
@@ -1624,8 +1655,6 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     // ppcoin: track money supply and mint amount info
     pindex->nMint = nValueOut - nValueIn + nFees;
     pindex->nMoneySupply = (pindex->pprev? pindex->pprev->nMoneySupply : 0) + nValueOut - nValueIn;
-    if (!txdb.WriteBlockIndex(CDiskBlockIndex(pindex)))
-        return error("Connect() : WriteBlockIndex for pindex failed");
 
     // ppcoin: fees are not collected by miners as in bitcoin
     // ppcoin: fees are destroyed to compensate the entire network
@@ -1634,6 +1663,37 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     if (fJustCheck)
         return true;
+
+    // Keep track of any vote proposals that were added to the blockchain
+    CVoteDB voteDB;
+    BOOST_FOREACH (const CTransaction& tx, vtx) {
+        uint256 txid = tx.GetHash();
+        if (count(vQueuedProposals.begin(), vQueuedProposals.end(), txid)) {
+            CVoteProposal proposal;
+            if (ProposalFromTransaction(tx, proposal)) {
+                mapProposals[txid] = proposal.GetHash();
+                if (!voteDB.WriteProposal(txid, proposal)) {
+                    printf("%s : failed to record proposal to db\n", __func__);
+                } else {
+                    if (!proposalManager.Add(proposal))
+                        printf("%s: failed to add proposal %s to manager\n", __func__, txid.GetHex().c_str());
+                }
+            }
+        }
+    }
+
+    //Record new votes to the tally
+    if (pindex->pprev) {
+        if (fTestNet || pindex->nHeight >= VOTING_START)
+        pindex->tally = CVoteTally(pindex->pprev->tally);
+        map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
+        pindex->tally.SetNewPositions(mapActive);
+        pindex->tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
+    }
+
+    //Write index to disk
+    if (!txdb.WriteBlockIndex(CDiskBlockIndex(pindex)))
+        return error("Connect() : WriteBlockIndex for pindex failed");
 
     // Write queued txindex changes
     for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)
@@ -1765,6 +1825,30 @@ bool static Reorganize(CTxDB& txdb, CBlockIndex* pindexNew)
     return true;
 }
 
+void CBlock::print() const
+{
+    std::stringstream ss;
+    ss << "CBlock(hash="
+       << GetHash().ToString().c_str()
+       << " ver = " << ReverseEndianString(HexStr(BEGIN(nVersion), END(nVersion))).c_str()
+       << " hashPrevBlock = " << hashPrevBlock.ToString().c_str()
+       << " hasMerkleRoot = " << hashMerkleRoot.ToString().c_str()
+       << " nTime = " << nTime
+       << " nBits = " << nBits
+       << " nNonce = " <<  nNonce
+       << " vtx = " << vtx.size()
+       << " vhcBlockSig = " << HexStr(vchBlockSig.begin(), vchBlockSig.end()).c_str();
+    printf("%s ", ss.str().c_str());
+    for (unsigned int i = 0; i < vtx.size(); i++)
+    {
+        printf("  ");
+        vtx[i].print();
+    }
+    printf("  vMerkleTree: ");
+    for (unsigned int i = 0; i < vMerkleTree.size(); i++)
+        printf("%s ", vMerkleTree[i].ToString().substr(0,10).c_str());
+    printf("\n");
+}
 
 // Called from inside SetBestChain: attaches a block to the new best chain being built
 bool CBlock::SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew)
@@ -2613,6 +2697,12 @@ bool LoadBlockIndex(bool fAllowNew)
         nStakeTargetSpacing = 90; // test block spacing is 90 seconds
     }
 
+    // Load vote proposals
+    CVoteDB votedb("cr");
+    if (!votedb.Load())
+        return error("Failed to load votedb");
+    votedb.Close();
+
     //
     // Load block index
     //
@@ -2620,6 +2710,8 @@ bool LoadBlockIndex(bool fAllowNew)
     if (!txdb.LoadBlockIndex())
         return false;
     txdb.Close();
+
+
 
     //
     // Init with genesis block
@@ -3972,8 +4064,17 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
     return true;
 }
 
-
-
+bool GetProposalTXID(const uint256& hashProposal, uint256& txid)
+{
+    txid = 0;
+    for (auto mit : mapProposals) {
+        if (mit.second == hashProposal) {
+            txid = mit.first;
+            return true;
+        }
+    }
+    return false;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -4082,7 +4183,55 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
         return NULL;
 
     // Only use the first 4 bits for the version encoding
-    pblock->nVersion = pblock->nVersion << 28;
+    pblock->nVersion = CBlock::VOTING_VERSION;
+
+    //Check to see if proposals need to be voted on
+    if (mapProposals.size() > 0) {
+        vector<CVoteObject> votes;
+
+        // Get all the vote objects versions
+        map<uint256, VoteLocation> mapActiveProposals = proposalManager.GetActive(nBestHeight);
+        if (pwalletMain->mapVoteObjects.size() > 0) {
+            for(auto it: mapProposals) {
+                CTransaction tx;
+                uint256 hashBlock;
+                if (!GetTransaction(it.first, tx, hashBlock)) {
+                    printf("*** failed to get transaction %s!\n", it.first.GetHex().c_str());
+                    continue;
+                }
+
+                if (!tx.IsProposal()) {
+                    printf("*** tx is not a proposal!\n");
+                    continue;
+                }
+
+                CVoteProposal proposal;
+                if (!ProposalFromTransaction(tx, proposal)) {
+                    printf("*** failed to deserialize!\n");
+                    continue;
+                }
+
+                if (!mapActiveProposals.count(proposal.GetHash())) {
+                    continue;
+                }
+
+                if (pwalletMain->mapVoteObjects.count(proposal.GetHash()) == 0) {
+                    //printf("*** mapVoteObjects does not have proposal hash\n");
+                    continue;
+                }
+
+                CVoteObject voteObject = pwalletMain->mapVoteObjects[proposal.GetHash()];
+                votes.emplace_back(voteObject);
+                //printf("*** added vote for %s\n", proposal.GetName().c_str());
+            }
+        } else
+            printf("*** mapVoteObjects empty!\n");
+
+        // Update the block version to have all votes
+        pblock->nVersion |= CVoteObject::GetCombinedVotes(votes);
+    } else {
+        printf("map proposals empty\n");
+    }
 
     // Create coinbase tx
     CTransaction txNew;

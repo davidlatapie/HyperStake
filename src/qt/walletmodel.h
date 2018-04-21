@@ -18,6 +18,7 @@ class COutPoint;
 class uint256;
 class CCoinControl;
 class CBitcoinAddress;
+class CVoteProposal;
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -133,6 +134,7 @@ public:
     void unlockCoin(COutPoint& output);
     void listLockedCoins(std::vector<COutPoint>& vOutpts);
 	bool isMine(const CBitcoinAddress &address);
+    bool sendProposal(const CVoteProposal& proposal, uint256& txid);
 
 private:
     CWallet *wallet;

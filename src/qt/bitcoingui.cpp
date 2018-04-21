@@ -32,6 +32,7 @@
 #include "wallet.h"
 #include "bitcoinrpc.h"
 #include "blockbrowser.h"
+#include "votingdialog.h"
 #include "../wallet.h"
 
 #ifdef Q_OS_MAC
@@ -145,6 +146,7 @@ BitcoinGUI::BitcoinGUI(const NetworkStyle * networkStyle, QWidget *parent):
     bip38Dialog = new Bip38ToolDialog(this);
 	stakeForCharityDialog = new StakeForCharityDialog(this);
 	blockBrowser = new BlockBrowser((this));
+    votingDialog = new VotingDialog(this);
 	
     centralWidget = new QStackedWidget(this);
     centralWidget->addWidget(overviewPage);
@@ -323,6 +325,10 @@ void BitcoinGUI::createActions()
 	blockAction->setStatusTip(tr("Explore the BlockChain"));
 	blockAction->setToolTip(blockAction->statusTip());
 
+    votingAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Voting"), this);
+    votingAction->setStatusTip(tr("Set and View Vote Proposals and Settings"));
+    votingAction->setToolTip(votingAction->statusTip());
+
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
@@ -381,6 +387,7 @@ void BitcoinGUI::createActions()
 	connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWalletForMint()));
 	
 	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
+    connect(votingAction, SIGNAL(triggered()), this, SLOT(gotoVotingDialog()));
 
     /* zeewolf: Hot swappable wallet themes */
     if (themesList.count()>0)
@@ -437,6 +444,7 @@ void BitcoinGUI::createMenuBar()
 	settings->addAction(charityAction);
 	settings->addAction(calcAction);
     settings->addAction(bip38ToolAction);
+    settings->addAction(votingAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
 
@@ -518,6 +526,7 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         signVerifyMessageDialog->setModel(walletModel);
         bip38Dialog->setModel(walletModel);
 		stakeForCharityDialog->setModel(walletModel);
+        votingDialog->SetWalletModel(walletModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -873,6 +882,11 @@ void BitcoinGUI::gotoBlockBrowser(QString transactionId)
 		blockBrowser->setTransactionId(transactionId);
 	
 	blockBrowser->show();
+}
+
+void BitcoinGUI::gotoVotingDialog()
+{
+    votingDialog->show();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()

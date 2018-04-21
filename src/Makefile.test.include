@@ -16,6 +16,7 @@ JSON_TEST_FILES = \
 GENERATED_TEST_FILES = $(JSON_TEST_FILES:.json=.json.h)
 
 BITCOIN_TESTS =\
+  test/voting_tests.cpp \
   test/allocator_tests.cpp \
   test/base32_tests.cpp \
   test/base64_tests.cpp \

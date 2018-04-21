@@ -831,6 +831,7 @@ bool CTxDB::LoadBlockIndexGuts()
             pindexNew->nTime          = diskindex.nTime;
             pindexNew->nBits          = diskindex.nBits;
             pindexNew->nNonce         = diskindex.nNonce;
+            pindexNew->tally          = diskindex.tally;
 
             // Watch for genesis block
             if (pindexGenesisBlock == NULL && blockHash == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet))
@@ -857,8 +858,70 @@ bool CTxDB::LoadBlockIndexGuts()
     return true;
 }
 
+bool CVoteDB::Load()
+{
+    // Get database cursor
+    Dbc* pcursor = GetCursor();
+    if (!pcursor)
+        return false;
 
+    // Load mapProposals
+    unsigned int fFlags = DB_SET_RANGE;
+    while (true)
+    {
+        // Read next record
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        if (fFlags == DB_SET_RANGE)
+            ssKey << make_pair(string("prop"), uint256(0));
+        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        int ret = ReadAtCursor(pcursor, ssKey, ssValue, fFlags);
+        fFlags = DB_NEXT;
+        if (ret == DB_NOTFOUND)
+            break;
+        else if (ret != 0)
+            return false;
 
+        // Unserialize
+        try {
+            string strType;
+            ssKey >> strType;
+            if (strType == "prop" && !fRequestShutdown)
+            {
+                uint256 txid;
+                ssKey >> txid;
+
+                try {
+                    CVoteProposal proposal;
+                    ssValue >> proposal;
+                    mapProposals.insert(make_pair(txid, proposal.GetHash()));
+                    proposalManager.Add(proposal);
+                } catch (...) {
+                    printf("**failed to deserialize proposal\n");
+                }
+            }
+            else
+            {
+                break; // if shutdown requested or finished loading block index
+            }
+        }    // try
+        catch (std::exception &e) {
+            return error("%s() : deserialize error", __PRETTY_FUNCTION__);
+        }
+    }
+    pcursor->close();
+
+    return true;
+}
+
+bool CVoteDB::WriteProposal(const uint256 &hash, const CVoteProposal &proposal)
+{
+    return Write(make_pair(string("prop"), hash), proposal);
+}
+
+bool CVoteDB::ReadProposal(const uint256 &hash, CVoteProposal &proposal)
+{
+    return Read(make_pair(string("prop"), hash), proposal);
+}
 
 
 //
