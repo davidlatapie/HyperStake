@@ -1372,8 +1372,10 @@ public:
         READWRITE(nNonce);
 		READWRITE(blockHash);
 
-        if (this->nVersion >= CBlock::VOTING_VERSION)
-            READWRITE(tally);
+        if (this->nVersion >= CBlock::VOTING_VERSION) {
+            if (fTestNet || nHeight >= (int)VOTING_START)
+                READWRITE(tally);
+        }
     )
 
     uint256 GetBlockHash() const
