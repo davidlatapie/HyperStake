@@ -44,6 +44,7 @@ static const int64 MAX_MINT_PROOF_OF_STAKE = 2.00 * COIN;	// 200% annual interes
 static const int64 MAX_MINT_PROOF_OF_STAKEV2 = 7.50 * COIN;	// 750% annual interest
 static const unsigned int FORK_TIME = 1404678625; // Sun, 06 Jul 2014 20:30:25 GMT
 static const unsigned int FORK_TIME2 = 1423836000; // Fri, 13 Feb 2015 14:00:00 GMT
+static const unsigned int VOTING_START = 9999999; // when voting becomes available on mainnet
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 
 inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }

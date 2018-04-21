@@ -1684,6 +1684,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     //Record new votes to the tally
     if (pindex->pprev) {
+        if (fTestNet || pindex->nHeight >= VOTING_START)
         pindex->tally = CVoteTally(pindex->pprev->tally);
         map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
         pindex->tally.SetNewPositions(mapActive);
