@@ -391,7 +391,7 @@ Value getproposalstatus(const Array& params, bool fHelp)
     if (!voteDB.ReadProposal(hash, proposal))
         throw JSONRPCError(RPC_INVALID_PARAMETER, "failed to find proposal");
 
-    if (nBestHeight < proposal.GetStartHeight()) {
+    if (nBestHeight < (int)proposal.GetStartHeight()) {
         Object obj;
         obj.emplace_back(Pair("block_start", (int64_t)proposal.GetStartHeight()));
         return obj;
