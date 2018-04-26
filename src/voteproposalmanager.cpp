@@ -7,6 +7,42 @@
 
 using namespace std;
 
+bool CVoteProposalManager::CheckProposal(const CVoteProposal &proposal)
+{
+    // If the proposal is already in the blockchain then it's guaranteed to be valid
+    if (mapProposalData.count(proposal.GetHash()) != 0) {
+        return true;
+    }
+
+    // Proposal name length must be between 1 and MAX_CHAR_NAME (inclusive)
+    if (proposal.GetName().empty() || proposal.GetName().size() > MAX_CHAR_NAME) {
+        return false;
+    }
+
+    // Proposal description length must be between 1 and MAX_CHAR_ABSTRACT (inclusive)
+    if (proposal.GetDescription().empty() || proposal.GetDescription().size() > MAX_CHAR_ABSTRACT) {
+        return false;
+    }
+
+    // Proposal voting period cannot start before or at the current height or after MAX_BLOCKS_IN_FUTURE
+    if (proposal.GetStartHeight() <= nBestHeight || proposal.GetStartHeight() > nBestHeight + MAX_BLOCKS_IN_FUTURE) {
+        return false;
+    }
+
+    // Proposal voting period length must be between 1 and MAX_CHECKSPAN (inclusive)
+    if (!proposal.GetCheckSpan() || proposal.GetCheckSpan() > MAX_CHECKSPAN) {
+        return false;
+    }
+
+    // Check to see if there is room on the blockchain for this proposal
+    VoteLocation location;
+    if (!GetNextLocation(proposal.GetBitCount(), proposal.GetStartHeight(), proposal.GetCheckSpan(), location)) {
+        return false;
+    }
+
+    return true;
+}
+
 //! Add a proposal to the manager. Note that it must not have conflicts in its scheduling.
 bool CVoteProposalManager::Add(const CVoteProposal& proposal)
 {

@@ -711,6 +711,17 @@ bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx, bool fCheckInputs,
     if (ptxOld)
         EraseFromWallets(ptxOld->GetHash());
 
+    // If the transaction is a proposal then verify validity
+    if (tx.IsProposal()) {
+        CVoteProposal proposal;
+        ProposalFromTransaction(tx, proposal);
+
+        // Verify that the proposal is valid
+        if(!proposalManager.CheckProposal(proposal)) {
+            return error("CTxMemPool::accept() : Invalid Proposal %s", hash.ToString().substr(0,10).c_str());
+        }
+    }
+
     printf("CTxMemPool::accept() : accepted %s (poolsz %lu)\n",
            hash.ToString().substr(0,10).c_str(),
            mapTx.size());

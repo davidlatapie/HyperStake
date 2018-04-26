@@ -28,6 +28,7 @@ public:
     std::map<uint256, VoteLocation> GetActive(int nHeight);
     bool GetNextLocation(int nBitCount, int nStartHeight, int nCheckSpan, VoteLocation& location);
     std::map<uint256, CProposalMetaData> GetAllProposals() const { return mapProposalData; };
+    bool CheckProposal (const CVoteProposal& proposal);
 };
 
 #endif //HYPERSTAKE_VOTEPROPOSALMANAGER_H
