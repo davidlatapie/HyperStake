@@ -2,7 +2,7 @@
 #define GUICONSTANTS_H
 
 /* Milliseconds between model updates */
-static const int MODEL_UPDATE_DELAY = 5000; //update every 5 seconds
+static const int MODEL_UPDATE_DELAY = 2000; //update every 5 seconds
 static const int MINTING_UPDATE_DELAY = 5000; //update every 5 seconds
 static const int TXTABLE_UPDATE_DELAY = 30000; //update every 30 seconds
 

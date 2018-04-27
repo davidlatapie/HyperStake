@@ -444,7 +444,8 @@ void BitcoinGUI::createMenuBar()
 	settings->addAction(charityAction);
 	settings->addAction(calcAction);
     settings->addAction(bip38ToolAction);
-    settings->addAction(votingAction);
+    if (fTestNet)
+        settings->addAction(votingAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
 

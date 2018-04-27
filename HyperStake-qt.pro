@@ -1,9 +1,9 @@
 TEMPLATE = app
 TARGET = HyperStake-qt
-VERSION = 0.7.2
+VERSION = 1.1.5
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN __NO_SYSTEM_INCLUDES
-CONFIG += no_include_pwd static
+CONFIG += no_include_pwd static c++11
 QT += core gui xml network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -238,22 +238,53 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/scicon.h \
     src/qt/votingdialog.h \
     src/qt/createproposaldialog.h \
-    src/qt/proposalsdialog.h
+    src/qt/proposalsdialog.h \
+    src/qt/setvotesdialog.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
-    src/qt/transactiontablemodel.cpp \
+    src/qt/aboutdialog.cpp \
+    src/qt/addressbookpage.cpp \
     src/qt/addresstablemodel.cpp \
-    src/qt/optionsdialog.cpp \
-    src/qt/sendcoinsdialog.cpp \
+    src/qt/askpassphrasedialog.cpp \
+    src/qt/bip38tooldialog.cpp \
+    src/qt/bitcoinstrings.cpp \
+    src/qt/bitcoinamountfield.cpp \
+    src/qt/bitcoinaddressvalidator.cpp \
+    src/qt/bitcoinunits.cpp \
+    src/qt/blockbrowser.cpp \
+    src/qt/calcdialog.cpp \
+    src/qt/charitydialog.cpp \
+    src/qt/clientmodel.cpp \
     src/qt/coincontroldialog.cpp \
     src/qt/coincontroltreewidget.cpp \
-    src/qt/addressbookpage.cpp \
-    src/qt/signverifymessagedialog.cpp \
-    src/qt/aboutdialog.cpp \
-    src/qt/calcdialog.cpp \
+    src/qt/createproposaldialog.cpp \
+    src/qt/csvmodelwriter.cpp \
     src/qt/editaddressdialog.cpp \
-    src/qt/bitcoinaddressvalidator.cpp \
-    src/qt/bip38tooldialog.cpp \
+    src/qt/guiutil.cpp \
+    src/qt/monitoreddatamapper.cpp \
+    src/qt/networkstyle.cpp \
+    src/qt/notificator.cpp \
+    src/qt/optionsdialog.cpp \
+    src/qt/optionsmodel.cpp \
+    src/qt/overviewpage.cpp \
+    src/qt/paymentserver.cpp \
+    src/qt/proposalsdialog.cpp \
+    src/qt/qvalidatedlineedit.cpp \
+    src/qt/qvaluecombobox.cpp \
+    src/qt/rpcconsole.cpp \
+    src/qt/scicon.cpp \
+    src/qt/signverifymessagedialog.cpp \
+    src/qt/sendcoinsdialog.cpp \
+    src/qt/sendcoinsentry.cpp \
+    src/qt/setvotesdialog.cpp \
+    src/qt/transactiondesc.cpp \
+    src/qt/transactiondescdialog.cpp \
+    src/qt/transactionfilterproxy.cpp \
+    src/qt/transactionrecord.cpp \
+    src/qt/transactiontablemodel.cpp \
+    src/qt/transactionview.cpp \
+    src/qt/votingdialog.cpp \
+    src/qt/walletmodel.cpp \
     src/alert.cpp \
     src/bip38.cpp \
     src/version.cpp \
@@ -270,20 +301,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/addrman.cpp \
     src/db.cpp \
     src/walletdb.cpp \
-    src/qt/clientmodel.cpp \
-    src/qt/guiutil.cpp \
-    src/qt/transactionrecord.cpp \
-    src/qt/optionsmodel.cpp \
-    src/qt/monitoreddatamapper.cpp \
-    src/qt/transactiondesc.cpp \
-    src/qt/transactiondescdialog.cpp \
-    src/qt/bitcoinstrings.cpp \
-    src/qt/bitcoinamountfield.cpp \
     src/wallet.cpp \
     src/keystore.cpp \
-    src/qt/transactionfilterproxy.cpp \
-    src/qt/transactionview.cpp \
-    src/qt/walletmodel.cpp \
     src/bitcoinrpc.cpp \
     src/rpcdump.cpp \
     src/rpcnet.cpp \
@@ -291,18 +310,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/rpcwallet.cpp \
     src/rpcblockchain.cpp \
     src/rpcrawtransaction.cpp \
-    src/qt/overviewpage.cpp \
-    src/qt/csvmodelwriter.cpp \
     src/crypter.cpp \
-    src/qt/sendcoinsentry.cpp \
-    src/qt/qvalidatedlineedit.cpp \
-    src/qt/bitcoinunits.cpp \
-    src/qt/qvaluecombobox.cpp \
-    src/qt/askpassphrasedialog.cpp \
     src/protocol.cpp \
-    src/qt/notificator.cpp \
-    src/qt/paymentserver.cpp \
-    src/qt/rpcconsole.cpp \
     src/noui.cpp \
     src/kernel.cpp \
     src/pbkdf2.cpp \
@@ -316,15 +325,13 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/cubehash.c \
     src/shavite.c \
     src/echo.c \
-    src/qt/blockbrowser.cpp \
-    src/qt/charitydialog.cpp \
     src/simd.c \
     src/clientversion.cpp \
-    src/qt/networkstyle.cpp \
-    src/qt/scicon.cpp \
-    src/qt/votingdialog.cpp \
-    src/qt/createproposaldialog.cpp \
-    src/qt/proposalsdialog.cpp
+    src/votecharset.cpp \
+    src/voteproposal.cpp \
+    src/voteproposalmanager.cpp \
+    src/voteobject.cpp \
+    src/votetally.cpp
 
 RESOURCES += \
     src/qt/bitcoin.qrc
