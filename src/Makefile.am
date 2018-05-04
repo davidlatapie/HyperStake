@@ -80,7 +80,7 @@ BITCOIN_CORE_H = \
   version.h \
   wallet.h \
   walletdb.h \
-  voteproposalmamager.h \
+  voteproposalmanager.h \
   voteproposal.h \
   voteobject.h \
   votecharset.h \
