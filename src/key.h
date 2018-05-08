@@ -14,6 +14,8 @@
 #include "uint256.h"
 #include "util.h"
 
+#include <openssl/ec.h>
+
 // secp160k1
 // const unsigned int PRIVATE_KEY_SIZE = 192;
 // const unsigned int PUBLIC_KEY_SIZE  = 41;
