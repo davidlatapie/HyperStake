@@ -240,7 +240,7 @@ RES_IMAGES = \
 
 RES_STYLESHEETS =
 
-RES_MOVIES = $(wildcard qt/res/movies/*.mng)
+RES_MOVIES = $(wildcard qt/res/movies/*.gif)
 
 BITCOIN_RC = qt/res/bitcoin-qt.rc
 
