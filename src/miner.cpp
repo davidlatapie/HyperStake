@@ -533,8 +533,6 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     return true;
 }
 
-void static ThreadBitcoinMiner(void* parg);
-
 bool fGenerateBitcoins = false;
 static bool fLimitProcessors = false;
 static int nLimitProcessors = -1;
@@ -558,13 +556,6 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
     CReserveKey reservekey(pwallet);
     unsigned int nExtraNonce = 0;
 
-    //control the amount of times the client will check for mintable coins
-    if(pwallet->GetMintableOutputCount() < 2 || GetTime() - nMintableLastCheck > 60) //check for mintable coins every 60 seconds
-    {
-        nMintableLastCheck = GetTime();
-        fMintableCoins = pwallet->MintableCoins();
-    }
-
     while (fGenerateBitcoins || fProofOfStake)
     {
         if (fShutdown)
@@ -578,6 +569,14 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
             Sleep(1000);
             if (fShutdown)
                 return;
+
+            //control the amount of times the client will check for mintable coins
+            if (GetTime() - nMintableLastCheck > 60) //check for mintable coins every 60 seconds
+            {
+                nMintableLastCheck = GetTime();
+                fMintableCoins = pwallet->MintableCoins();
+            }
+
             if (!fGenerateBitcoins && !fProofOfStake)
                 return;
         }
@@ -725,7 +724,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 }
 
 
-void static ThreadBitcoinMiner(void* parg)
+void ThreadBitcoinMiner(void* parg)
 {
     CWallet* pwallet = (CWallet*)parg;
     try
