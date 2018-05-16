@@ -302,4 +302,4 @@ add_executable(HyperStake
         src/wallet.cpp
         src/wallet.h
         src/walletdb.cpp
-        src/walletdb.h)
+        src/walletdb.h src/miner.h src/miner.cpp)
