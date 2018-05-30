@@ -118,7 +118,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
         // Get all the vote objects versions
         std::map<uint256, VoteLocation> mapActiveProposals = proposalManager.GetActive(nBestHeight);
         if (pwalletMain->mapVoteObjects.size() > 0) {
-            for(auto it: mapProposals) {
+            for (auto it: mapProposals) {
                 CTransaction tx;
                 uint256 hashBlock;
                 if (!GetTransaction(it.first, tx, hashBlock)) {
@@ -150,13 +150,10 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
                 votes.emplace_back(voteObject);
                 //printf("*** added vote for %s\n", proposal.GetName().c_str());
             }
-        } else
-            printf("*** mapVoteObjects empty!\n");
+        }
 
         // Update the block version to have all votes
         pblock->nVersion |= CVoteObject::GetCombinedVotes(votes);
-    } else {
-        printf("map proposals empty\n");
     }
 
     // Create coinbase tx
