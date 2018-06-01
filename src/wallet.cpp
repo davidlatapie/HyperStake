@@ -2513,7 +2513,7 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64& nBalanceInQuestion, int&
            nOrphansFound++;
            if (!fCheckOnly)
            {
-             //EraseFromWallet(hash);
+             EraseFromWallet(hash);
              NotifyTransactionChanged(this, hash, CT_DELETED);
            }
            printf("FixSpentCoins %s orphaned generation tx %s\n", fCheckOnly ? "found" : "removed", hash.ToString().c_str());
