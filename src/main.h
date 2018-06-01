@@ -959,7 +959,7 @@ public:
     uint256 BuildMerkleTree() const
     {
         vMerkleTree.clear();
-        BOOST_FOREACH(const CTransaction& tx, vtx)
+        for (const CTransaction& tx : vtx)
             vMerkleTree.push_back(tx.GetHash());
         int j = 0;
         for (int nSize = vtx.size(); nSize > 1; nSize = (nSize + 1) / 2)
@@ -1067,7 +1067,7 @@ public:
     bool ReadFromDisk(const CBlockIndex* pindex, bool fReadTransactions=true);
     bool SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew);
     bool AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos);
-    bool CheckBlock(bool fCheckPOW=true, bool fCheckMerkleRoot=true) const;
+    bool CheckBlock(bool fCheckPOW=true, bool fCheckMerkleRoot=true, bool fFullCheck=true) const;
     bool AcceptBlock();
     bool GetCoinAge(uint64& nCoinAge) const; // ppcoin: calculate total coin age spent in block
     bool SignBlock(const CKeyStore& keystore);
