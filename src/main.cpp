@@ -1569,7 +1569,8 @@ bool CBlock::DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex)
 bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 {
     // Check it again in case a previous version let a bad block in
-    if (!CheckBlock(!fJustCheck, !fJustCheck))
+    bool fFullCheck = pindex->nHeight >= Checkpoints::GetTotalBlocksEstimate();
+    if (!CheckBlock(!fJustCheck, !fJustCheck, fFullCheck))
         return false;
 
     // Do not allow blocks that contain transactions which 'overwrite' older transactions,
@@ -1602,14 +1603,13 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     int64 nValueIn = 0;
     int64 nValueOut = 0;
     unsigned int nSigOps = 0;
-    BOOST_FOREACH(CTransaction& tx, vtx)
-    {
+    for (CTransaction& tx : vtx) {
         uint256 hashTx = tx.GetHash();
 
         if (fEnforceBIP30) {
             CTxIndex txindexOld;
             if (txdb.ReadTxIndex(hashTx, txindexOld)) {
-                BOOST_FOREACH(CDiskTxPos &pos, txindexOld.vSpent)
+                for (CDiskTxPos &pos : txindexOld.vSpent)
                     if (pos.IsNull())
                         return false;
             }
@@ -1677,16 +1677,16 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     // Keep track of any vote proposals that were added to the blockchain
     CVoteDB voteDB;
-    BOOST_FOREACH (const CTransaction& tx, vtx) {
-        uint256 txid = tx.GetHash();
-        if (count(vQueuedProposals.begin(), vQueuedProposals.end(), txid)) {
-            CVoteProposal proposal;
-            if (ProposalFromTransaction(tx, proposal)) {
-                mapProposals[txid] = proposal.GetHash();
-                if (!voteDB.WriteProposal(txid, proposal)) {
-                    printf("%s : failed to record proposal to db\n", __func__);
-                } else {
-                    if (!proposalManager.Add(proposal))
+    if (vQueuedProposals.size()) {
+        for (const CTransaction& tx : vtx) {
+            uint256 txid = tx.GetHash();
+            if (count(vQueuedProposals.begin(), vQueuedProposals.end(), txid)) {
+                CVoteProposal proposal;
+                if (ProposalFromTransaction(tx, proposal)) {
+                    mapProposals[txid] = proposal.GetHash();
+                    if (!voteDB.WriteProposal(txid, proposal))
+                        printf("%s : failed to record proposal to db\n", __func__);
+                    else if (!proposalManager.Add(proposal))
                         printf("%s: failed to add proposal %s to manager\n", __func__, txid.GetHex().c_str());
                 }
             }
@@ -1696,8 +1696,8 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     //Record new votes to the tally
     if (pindex->pprev) {
         if (fTestNet || pindex->nHeight >= (int)VOTING_START)
-        pindex->tally = CVoteTally(pindex->pprev->tally);
-        map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
+            pindex->tally = CVoteTally(pindex->pprev->tally);
+        std::map<uint256, VoteLocation> mapActive = proposalManager.GetActive(pindex->nHeight);
         pindex->tally.SetNewPositions(mapActive);
         pindex->tally.ProcessNewVotes(static_cast<uint32_t>(pindex->nVersion));
     }
@@ -1707,18 +1707,14 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         return error("Connect() : WriteBlockIndex for pindex failed");
 
     // Write queued txindex changes
-    for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi)
-    {
+    for (auto mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi) {
         if (!txdb.UpdateTxIndex((*mi).first, (*mi).second))
             return error("ConnectBlock() : UpdateTxIndex failed");
     }
 
 	uint256 prevHash = 0;
 	if(pindex->pprev)
-	{
 		prevHash = pindex->pprev->GetBlockHash();
-		// printf("==> Got prevHash = %s\n", prevHash.ToString().c_str());
-	}
 
 	if (vtx[0].GetValueOut() > GetProofOfWorkReward(pindex->nHeight, nFees, prevHash))
 		return false;
@@ -1734,7 +1730,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     }
 
     // Watch for transactions paying to me
-    BOOST_FOREACH(CTransaction& tx, vtx)
+    for (CTransaction& tx : vtx)
         SyncWithWallets(tx, this, true);
 
     return true;
@@ -2152,7 +2148,7 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
 }
 
 
-bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot) const
+bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fFullCheck) const
 {
     // These are checks that are independent of context
     // that can be verified before saving an orphan block.
@@ -2193,31 +2189,28 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot) const
         return DoS(50, error("CheckBlock() : coinstake timestamp violation nTimeBlock=%lld nTimeTx=%u", GetBlockTime(), vtx[1].nTime));
 
     // Check transactions
-    BOOST_FOREACH(const CTransaction& tx, vtx)
+    set<uint256> uniqueTx;
+    for (const CTransaction& tx : vtx)
     {
-        if (!tx.CheckTransaction())
+        if (fFullCheck && !tx.CheckTransaction())
             return DoS(tx.nDoS, error("CheckBlock() : CheckTransaction failed"));
 
         // ppcoin: check transaction timestamp
         if (GetBlockTime() < (int64)tx.nTime)
             return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
+
+        uniqueTx.insert(tx.GetHash());
     }
 
     // Check for duplicate txids. This is caught by ConnectInputs(),
     // but catching it earlier avoids a potential DoS attack:
-    set<uint256> uniqueTx;
-    BOOST_FOREACH(const CTransaction& tx, vtx)
-    {
-        uniqueTx.insert(tx.GetHash());
-    }
     if (uniqueTx.size() != vtx.size())
         return DoS(100, error("CheckBlock() : duplicate transaction"));
 
     unsigned int nSigOps = 0;
-    BOOST_FOREACH(const CTransaction& tx, vtx)
-    {
+    for (const CTransaction& tx : vtx)
         nSigOps += tx.GetLegacySigOpCount();
-    }
+
     if (nSigOps > MAX_BLOCK_SIGOPS)
         return DoS(100, error("CheckBlock() : out-of-bounds SigOpCount"));
 
@@ -2226,7 +2219,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot) const
         return DoS(100, error("CheckBlock() : hashMerkleRoot mismatch"));
 
     // ppcoin: check block signature
-    if (!CheckBlockSignature())
+    if (fFullCheck && !CheckBlockSignature())
         return DoS(100, error("CheckBlock() : bad block signature"));
 
     return true;
@@ -2247,9 +2240,8 @@ bool CBlock::AcceptBlock()
     CBlockIndex* pindexPrev = (*mi).second;
     int nHeight = pindexPrev->nHeight+1;
 
-
     if (IsProofOfWork() && nHeight > POW_CUTOFF_HEIGHT)
-             return DoS(100, error("AcceptBlock() : No proof-of-work allowed anymore (height = %d)", nHeight));
+        return DoS(100, error("AcceptBlock() : No proof-of-work allowed anymore (height = %d)", nHeight));
 
     // Check proof-of-work or proof-of-stake
     if (nBits != GetNextTargetRequired(pindexPrev, IsProofOfStake()))
@@ -2260,7 +2252,7 @@ bool CBlock::AcceptBlock()
         return error("AcceptBlock() : block's timestamp is too early");
 
     // Check that all transactions are finalized
-    BOOST_FOREACH(const CTransaction& tx, vtx)
+    for (const CTransaction& tx : vtx)
         if (!tx.IsFinal(nHeight, GetBlockTime()))
             return DoS(10, error("AcceptBlock() : contains a non-final transaction"));
 
@@ -2292,7 +2284,7 @@ bool CBlock::AcceptBlock()
     if (hashBestChain == hash)
     {
         LOCK(cs_vNodes);
-        BOOST_FOREACH(CNode* pnode, vNodes)
+        for (CNode* pnode : vNodes)
             if (nBestHeight > (pnode->nStartingHeight != -1 ? pnode->nStartingHeight - 2000 : nBlockEstimate))
                 pnode->PushInventory(CInv(MSG_BLOCK, hash));
     }
@@ -2370,6 +2362,11 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
 		return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString().c_str(), pblock->GetProofOfStake().second, hash.ToString().c_str());
 	}
 
+    // If this block is before the last hardened checkpoint, then do not perform complete signature checks
+    bool fFullCheck = true;
+    if (mapBlockIndex.count(pblock->hashPrevBlock))
+        fFullCheck = mapBlockIndex.at(pblock->hashPrevBlock)->nHeight > Checkpoints::GetTotalBlocksEstimate();
+
     // Preliminary checks
     if (!pblock->CheckBlock())
         return error("ProcessBlock() : CheckBlock FAILED");
@@ -2378,11 +2375,11 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
     if (pblock->IsProofOfStake())
     {
         uint256 hashProofOfStake = 0;
-        if (!CheckProofOfStake(pblock->vtx[1], pblock->nBits, hashProofOfStake))
-        {
+        if (fFullCheck && !CheckProofOfStake(pblock->vtx[1], pblock->nBits, hashProofOfStake)) {
 			printf("WARNING: ProcessBlock(): check proof-of-stake failed for block %s\n", hash.ToString().c_str());
 			return false;
         }
+
         if (!mapProofOfStake.count(hash)) // add to mapProofOfStake
             mapProofOfStake.insert(make_pair(hash, hashProofOfStake));
     }
@@ -2448,7 +2445,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
 		if (!pwalletMain->MultiSend() )
 			printf("ERROR While trying to use MultiSend");
 
-		
 	// presstab HyperStake: enable of disable staking based on block difficulty
 	if(pwalletMain->fStakeRequirement)
 	{

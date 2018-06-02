@@ -2460,13 +2460,14 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64& nBalanceInQuestion, int&
 		// needs to be located above the readtxindex code or else it will not be triggered
 		if(!pcoin->IsConfirmedInMainChain() && (GetTime() - pcoin->GetTxTime()) > (60*10)) //give the tx 10 minutes before considering it failed
         {
-           nOrphansFound++;
-           if (!fCheckOnly)
-           {
-             EraseFromWallet(hash);
-             NotifyTransactionChanged(this, hash, CT_DELETED);
-           }
-           printf("FixSpentCoins %s rejected transaction %s\n", fCheckOnly ? "found" : "removed", hash.ToString().c_str());
+            nOrphansFound++;
+            if (!fCheckOnly)
+            {
+                EraseFromWallet(hash);
+                NotifyTransactionChanged(this, hash, CT_DELETED);
+            }
+            printf("FixSpentCoins %s rejected transaction %s\n", fCheckOnly ? "found" : "removed", hash.ToString().c_str());
+            continue;
         }
 		
         // Find the corresponding transaction index
