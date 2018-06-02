@@ -193,6 +193,23 @@ namespace
 
         return nHeuristic;
     }
+
+    //returns a vector of proposals that overlap with the given range
+    vector<CProposalMetaData> GetOverlappingProposals(const map<uint256, CProposalMetaData>& mapProposalData,
+                                                      const int& nStart, const int& nEnd)
+    {
+        vector<CProposalMetaData> vConflictingTime;
+        for (auto it : mapProposalData) {
+            CProposalMetaData data = it.second;
+            if ((int)data.nHeightEnd < nStart)
+                continue;
+            if ((int)data.nHeightStart > nEnd)
+                continue;
+            vConflictingTime.emplace_back(data);
+        }
+
+        return vConflictingTime;
+    }
 }
 
 bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int nCheckSpan, VoteLocation& location)
