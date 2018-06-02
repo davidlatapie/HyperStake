@@ -239,4 +239,66 @@ BOOST_AUTO_TEST_CASE(vote_charset)
         BOOST_CHECK_MESSAGE(nVersion == correctResult, "votes were not combined correctly");
 }
 
+
+//BOOST_AUTO_TEST_CASE(vote_deterministic_ordering) {
+//
+//    std::cout << "testing deterministic ordering of proposal transactions" << endl;
+//
+//    CVoteProposalManager manager;
+//
+//    std::string strName = "prop";
+//    std::string strDescription = "this is the description";
+//    std::string strRefundAddress = "kxpSiwFkHJdNnYFojNDAvP3iiYyw3GH6ZL";
+//    int nMaxFee = 5000000;
+//
+//    CVoteProposal proposal1(strName, nStartHeight, nCheckSpan, strDescription + "1", nMaxFee, strRefundAddress);
+//    CVoteProposal proposal2(strName, nStartHeight, nCheckSpan, strDescription + "2", nMaxFee, strRefundAddress);
+//    CVoteProposal proposal3(strName, nStartHeight, nCheckSpan, strDescription + "3", nMaxFee, strRefundAddress);
+//    CVoteProposal proposal4(strName, nStartHeight, nCheckSpan, strDescription + "4", nMaxFee, strRefundAddress);
+//    CVoteProposal proposal5(strName, nStartHeight, nCheckSpan, strDescription + "5", nMaxFee, strRefundAddress);
+//
+//    CTransaction txProposal1;
+//    BOOST_CHECK_MESSAGE(proposal1.ConstructTransaction(txProposal1), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal2;
+//    BOOST_CHECK_MESSAGE(proposal2.ConstructTransaction(txProposal2), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal3;
+//    BOOST_CHECK_MESSAGE(proposal3.ConstructTransaction(txProposal3), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal4;
+//    BOOST_CHECK_MESSAGE(proposal4.ConstructTransaction(txProposal4), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal5;
+//    BOOST_CHECK_MESSAGE(proposal5.ConstructTransaction(txProposal5), CONSTRUCT_ERROR);
+//
+//    vector<CTransaction> vTxProposals = {txProposal1, txProposal2, txProposal3, txProposal4, txProposal5};
+//
+//    vector<CTransaction> vOrderedTxProposals1;
+//    BOOST_CHECK_MESSAGE(proposalManager.GetDeterministicOrdering(uint256("0xba04fd9cd0e9487f1a713e80828055284c04e362167ceb5f75db70153c613736"),
+//                                                                 vTxProposals, vOrderedTxProposals1), CREATE_ORDER_ERROR);
+//
+//    vector<CTransaction> vOrderedTxProposals2;
+//    BOOST_CHECK_MESSAGE(proposalManager.GetDeterministicOrdering(uint256("0xba04fd9cd0e9487f1a713e80828055284c04e362167ceb5f75db70153c613736"),
+//                                                                 vTxProposals, vOrderedTxProposals2), CREATE_ORDER_ERROR);
+//
+//    // verify that both orderings of tx proposals are the same
+//    for(int i = 0; i < vTxProposals.size(); i++) {
+//        BOOST_CHECK_MESSAGE(vOrderedTxProposals1.at(i).GetHash() == vOrderedTxProposals2.at(i).GetHash(),
+//                            DIFFERENT_ORDER_ERROR);
+//    }
+//
+//    vector<CTransaction> vDifferentOrderedTxProposals;
+//    BOOST_CHECK_MESSAGE(proposalManager.GetDeterministicOrdering(uint256("0xd7ec1705209f0212de02409cea9a9ca565571ae2977241f690dac11a7889d3f4"),
+//                                                                 vTxProposals, vDifferentOrderedTxProposals), CREATE_ORDER_ERROR);
+//
+//    // verify that the ordering of the tx proposals is different for a new proof hash
+//    bool bSameOrder = true;
+//    for(int i = 0; i < vTxProposals.size(); i++) {
+//        bSameOrder = bSameOrder && (vOrderedTxProposals1.at(i).GetHash() == vDifferentOrderedTxProposals.at(i).GetHash());
+//    }
+//
+//    BOOST_CHECK_MESSAGE(!bSameOrder, SAME_ORDER_ERROR);
+//}
+
 BOOST_AUTO_TEST_SUITE_END()
