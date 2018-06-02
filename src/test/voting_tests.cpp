@@ -16,6 +16,25 @@ using namespace std;
 
 BOOST_AUTO_TEST_SUITE(voting_tests)
 
+// ERROR MESSAGES
+const std::string CONSTRUCT_ERROR = "failed to construct tx";
+const std::string NOT_PROPOSAL_ERROR = "Transaction is not a proposal";
+const std::string COULD_NOT_DESERIALIZE_ERROR = "Failed to deserialize";
+const std::string BIT_LOCATION_ERROR = "location of proposal after it is deserialized isn't equal to its original value";
+const std::string BIT_COUNT_ERROR = "bitcount of proposal after it is deserialized isn't equal to its original value";
+const std::string SHIFT_ERROR = "shift of proposal after it is deserialized isn't equal to its original value";
+const std::string START_HEIGHT_ERROR = "start height of proposal after it is deserialized isn't equal to its original value";
+const std::string SPAN_ERROR = "check span of proposal after it is deserialized isn't equal to its original value";
+const std::string DESCRIPTION_ERROR = "description of proposal after it is deserialized isn't equal to its original value";
+const std::string NAME_ERROR = "name of proposal after it is deserialized isn't equal to its original value";
+const std::string HASH_ERROR = "hash of proposal after it is deserialized isn't equal to its original value";
+const std::string REFUND_ADDRESS_ERROR = "refund address is not equal to its original value after deserialization";
+const std::string MAX_FEE_ERROR = "the max fee of the proposal after it is deserialized isn't equal to its original value";
+const std::string DIFFERENT_ORDER_ERROR = "the deterministic ordering should be the same for both vectors but isn't";
+const std::string SAME_ORDER_ERROR = "the deterministic orderings of the same vector for two different proofhashes are the same";
+const std::string CREATE_ORDER_ERROR = "failed to construct deterministic ordering of proposals";
+const std::string REFUND_OUT_ERROR = "the refund outputs in the coinbase tx were not constructed correctly";
+
 // name of issue
 std::string strName = "proposal1";
 // check version for existing proposals Shift
