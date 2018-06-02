@@ -301,4 +301,91 @@ BOOST_AUTO_TEST_CASE(vote_charset)
 //    BOOST_CHECK_MESSAGE(!bSameOrder, SAME_ORDER_ERROR);
 //}
 
+//BOOST_AUTO_TEST_CASE(vote_refund_process) {
+//    std::cout << "testing refund process for proposal requests" << endl;
+//
+//    CVoteProposalManager manager;
+//
+//    std::string strName = "prop";
+//    std::string strDescription = "this is the description";
+//    std::string strRefundAddress = "kxpSiwFkHJdNnYFojNDAvP3iiYyw3GH6ZL";
+//    int nMaxFee1 = 5000000;
+//    int nMaxFee2 = 938049809;
+//    int nMaxFee3 = 3;
+//    int nMaxFee4 = 1000000000;
+//    int nMaxFee5 = 6000000;
+//
+//    CTransaction txCoinBase;
+//    txCoinBase.vin.resize(1);
+//    txCoinBase.vin[0].prevout.SetNull();
+//    txCoinBase.vout.resize(1);
+//
+//    CVoteProposal proposal1(strName, nStartHeight, nCheckSpan, strDescription, nMaxFee1, strRefundAddress);
+//    CVoteProposal proposal2(strName, nStartHeight, nCheckSpan, strDescription, nMaxFee2, strRefundAddress);
+//    CVoteProposal proposal3(strName, nStartHeight, nCheckSpan, strDescription, nMaxFee3, strRefundAddress);
+//    CVoteProposal proposal4(strName, nStartHeight, nCheckSpan, strDescription, nMaxFee4, strRefundAddress);
+//    CVoteProposal proposal5(strName, nStartHeight, nCheckSpan, strDescription, nMaxFee5, strRefundAddress);
+//
+//    CTransaction txProposal1;
+//    BOOST_CHECK_MESSAGE(proposal1.ConstructTransaction(txProposal1), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal2;
+//    BOOST_CHECK_MESSAGE(proposal2.ConstructTransaction(txProposal2), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal3;
+//    BOOST_CHECK_MESSAGE(proposal3.ConstructTransaction(txProposal3), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal4;
+//    BOOST_CHECK_MESSAGE(proposal4.ConstructTransaction(txProposal4), CONSTRUCT_ERROR);
+//
+//    CTransaction txProposal5;
+//    BOOST_CHECK_MESSAGE(proposal5.ConstructTransaction(txProposal5), CONSTRUCT_ERROR);
+//
+//    vector<CTransaction> vTxProposals = {txProposal1, txProposal2, txProposal3, txProposal4, txProposal5};
+//
+//    vector<CTransaction> vOrderedTxProposals;
+//    BOOST_CHECK_MESSAGE(proposalManager.GetDeterministicOrdering(uint256("0xba04fd9cd0e9487f1a713e80828055284c04e362167ceb5f75db70153c613736"),
+//                                                                 vTxProposals, vOrderedTxProposals), CREATE_ORDER_ERROR);
+//
+//    for (CTransaction txProposal: vOrderedTxProposals) {
+//        // output variables
+//        int nRequiredFee;
+//        CVoteProposal proposal;
+//        VoteLocation location;
+//
+//        // Skip this txProposal if a proposal object cannot be extracted from it
+//        BOOST_CHECK_MESSAGE(ProposalFromTransaction(txProposal, proposal), CONSTRUCT_ERROR);
+//        proposalManager.Add(proposal);
+//
+//        // input variables
+//        int nTxFee = CVoteProposal::BASE_FEE;
+//        int nBitCount = proposal.GetBitCount();
+//        int nStartHeight = proposal.GetStartHeight();
+//        int nCheckSpan = proposal.GetCheckSpan();
+//
+//        // If a valid voting location cannot be found then create an unaccepted proposal refund
+//        if (!proposalManager.GetNextLocation(nBitCount, nStartHeight, nCheckSpan, location)) {
+//            proposalManager.AddRefundToCoinBase(proposal, nRequiredFee, nTxFee, false, txCoinBase);
+//        } else {
+//            BOOST_CHECK(true);
+//            // If a fee cannot be calculated then skip this proposal without creating a refund tx
+//            proposal.SetLocation(location);
+//            BOOST_CHECK_MESSAGE(proposalManager.GetFee(proposal, nRequiredFee), "could not calculate fee.");
+//
+//            BOOST_CHECK(true);
+//            // If the maximum fee provided by the proposal creator is less than the required fee
+//            // then create an unaccepted proposal refund
+//            if (nRequiredFee > proposal.GetMaxFee()) {
+//                BOOST_CHECK(true);
+//                proposalManager.AddRefundToCoinBase(proposal, nRequiredFee, nTxFee, false, txCoinBase);
+//            } else {
+//                BOOST_CHECK(true);
+//                proposalManager.AddRefundToCoinBase(proposal, nRequiredFee, nTxFee, true, txCoinBase);
+//            }
+//        }
+//    }
+//
+//    BOOST_CHECK_MESSAGE(proposalManager.CheckRefundTransaction(vOrderedTxProposals, txCoinBase), REFUND_OUT_ERROR);
+//}
+
 BOOST_AUTO_TEST_SUITE_END()
