@@ -96,7 +96,29 @@ map<uint256, VoteLocation> CVoteProposalManager::GetActive(int nHeight)
 
 namespace
 {
+    //An Event is either the beginning or end of a vote proposal span.
+    //This struct is used for GetMaxOverlap
+    struct Event
+    {
+        bool start;
+        int position;
+        int bitCount;
 
+        //default constructor
+        Event() {}
+
+        Event(bool start, int position, int bitCount = 0)
+        {
+            this->start = start;
+            this->position = position;
+            this->bitCount = bitCount;
+        }
+
+        static bool Compare(const Event& lhs, const Event& rhs)
+        {
+            return lhs.position < rhs.position;
+        }
+    };
 }
 
 bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int nCheckSpan, VoteLocation& location)
