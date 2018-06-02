@@ -94,6 +94,11 @@ map<uint256, VoteLocation> CVoteProposalManager::GetActive(int nHeight)
     return mapActive;
 }
 
+namespace
+{
+
+}
+
 bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int nCheckSpan, VoteLocation& location)
 {
     //Conflicts for block range
