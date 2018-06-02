@@ -119,6 +119,32 @@ namespace
             return lhs.position < rhs.position;
         }
     };
+
+    //returns the maximum number of proposals overlapping at any point within the given range
+    unsigned int GetMaxOverlap(const vector<CProposalMetaData>& vProposals, const unsigned int& nStart, const unsigned int& nEnd)
+    {
+        int nMaxOverlapQuantity = -1;
+        vector<Event> vEvents(2 * vProposals.size());
+        for(auto proposalData: vProposals) {
+            if(proposalData.nHeightEnd < nStart) continue;
+            if(proposalData.nHeightStart > nEnd) continue;
+            vEvents.emplace_back(Event(true, proposalData.nHeightStart));
+            vEvents.emplace_back(Event(false, proposalData.nHeightEnd));
+        }
+
+        // sort the events in order of time (defined by Compare method in Event struct
+        sort(vEvents.begin(), vEvents.end(), Event::Compare);
+
+        // iterate through all events and keep track of overlapping intervals
+        int nCurValueCounter = 0;
+        for(Event event: vEvents) {
+            nCurValueCounter += event.start ? 1 : -1;
+            nMaxOverlapQuantity = max(nMaxOverlapQuantity, nCurValueCounter);
+        }
+
+        // return the maximum number of overlapping intervals contained in vProposals at any point in time
+        return (unsigned int)nMaxOverlapQuantity;
+    }
 }
 
 bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int nCheckSpan, VoteLocation& location)
