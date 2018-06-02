@@ -145,6 +145,54 @@ namespace
         // return the maximum number of overlapping intervals contained in vProposals at any point in time
         return (unsigned int)nMaxOverlapQuantity;
     }
+
+    // return a deterministic 64 bit integer that represents the resource usage of a given proposal
+    long GetResourceUsageHeuristic(const vector<CProposalMetaData>& vProposals, const CVoteProposal& proposal)
+    {
+        long nHeuristic = 0;
+        int nStart = proposal.GetStartHeight();
+        int nEnd = proposal.GetStartHeight() + proposal.GetCheckSpan();
+
+        // An event is defined as either a proposal interval start or a proposal interval ending.
+        vector<Event> vEvents(2 * vProposals.size());
+
+        // For each proposal in vProposals that overlaps with the given proposal, create a start and end event then
+        // add it to vEvents. This vector will be used to determine the number of overlapping voting intervals efficiently.
+        for(auto proposalData: vProposals) {
+            if(proposalData.nHeightEnd < nStart) continue;
+            if(proposalData.nHeightStart > nEnd) continue;
+
+            Event startEvent(true, proposalData.nHeightStart, proposalData.location.GetBitCount());
+            Event endEvent(false, proposalData.nHeightEnd + 1, proposalData.location.GetBitCount());
+
+            vEvents.emplace_back(startEvent);
+            vEvents.emplace_back(endEvent);
+        }
+
+        // sort the events so that those that happen earlier appear first in the vector
+        sort(vEvents.begin(), vEvents.end(), Event::Compare);
+
+        // iterate through events in sorted order and keep a running counter of how many bits are consumed
+        int nCurValueCounter = 0;
+        for(unsigned int i = 0; i < vEvents.size() - 1; i++) {
+            Event curEvent = vEvents.at(i);
+            Event nextEvent = vEvents.at(i + 1);
+
+            nCurValueCounter += curEvent.start ? curEvent.bitCount : -1 * curEvent.bitCount;
+
+            // only start the counter when we have entered the voting intervals of the given proposal
+            if(nextEvent.position <= nStart) continue;
+            if(curEvent.position > nEnd) break;
+
+            // the number of bits used is guaranteed to be constant for every block between these two events
+            int gap = min(nEnd, nextEvent.position) - max(nStart, curEvent.position);
+
+            // TODO: heuristic updated; this is subject to change
+            nHeuristic += (100000 * ((long) proposal.GetBitCount())) / (28 - nCurValueCounter) * gap;
+        }
+
+        return nHeuristic;
+    }
 }
 
 bool CVoteProposalManager::GetNextLocation(int nBitCount, int nStartHeight, int nCheckSpan, VoteLocation& location)
