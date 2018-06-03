@@ -54,10 +54,14 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
         ui->labelExplanation->setVisible(false);
         ui->deleteButton->setVisible(true);
         ui->signMessage->setVisible(false);
+		ui->stakeForCharityPushButton->setVisible(true);
+		ui->deleteCheckBox->setVisible(false);
         break;
     case ReceivingTab:
         ui->deleteButton->setVisible(false);
         ui->signMessage->setVisible(true);
+		ui->stakeForCharityPushButton->setVisible(false);
+		ui->deleteCheckBox->setVisible(true);
         break;
     }
 
@@ -68,6 +72,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     QAction *showQRCodeAction = new QAction(ui->showQRCode->text(), this);
     QAction *signMessageAction = new QAction(ui->signMessage->text(), this);
     QAction *verifyMessageAction = new QAction(ui->verifyMessage->text(), this);
+	QAction *stakeForCharityAction = new QAction(ui->stakeForCharityPushButton->text(), this);
     deleteAction = new QAction(ui->deleteButton->text(), this);
 
     // Build context menu
@@ -82,8 +87,10 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     if(tab == ReceivingTab)
         contextMenu->addAction(signMessageAction);
     else if(tab == SendingTab)
+	{
         contextMenu->addAction(verifyMessageAction);
-
+		contextMenu->addAction(stakeForCharityAction);
+	}
     // Connect signals for context menu actions
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(on_copyToClipboard_clicked()));
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(onCopyLabelAction()));
@@ -92,7 +99,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     connect(showQRCodeAction, SIGNAL(triggered()), this, SLOT(on_showQRCode_clicked()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(on_signMessage_clicked()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(on_verifyMessage_clicked()));
-
+	connect(stakeForCharityAction, SIGNAL(triggered()), this, SLOT(on_stakeForCharityPushButton_clicked()));
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
 
     // Pass through accept action from button box
@@ -132,11 +139,16 @@ void AddressBookPage::setModel(AddressTableModel *model)
     ui->tableView->sortByColumn(0, Qt::AscendingOrder);
 
     // Set column widths
+	#if QT_VERSION < 0x050000 
     ui->tableView->horizontalHeader()->resizeSection(
             AddressTableModel::Address, 320);
     ui->tableView->horizontalHeader()->setResizeMode(
             AddressTableModel::Label, QHeaderView::Stretch);
-
+	#else
+	ui->tableView->horizontalHeader()->setSectionResizeMode(AddressTableModel::Label, QHeaderView::Stretch);
+	ui->tableView->horizontalHeader()->setSectionResizeMode(AddressTableModel::Address, QHeaderView::ResizeToContents);
+	#endif
+	
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(selectionChanged()));
 
@@ -150,6 +162,22 @@ void AddressBookPage::setModel(AddressTableModel *model)
 void AddressBookPage::setOptionsModel(OptionsModel *optionsModel)
 {
     this->optionsModel = optionsModel;
+}
+
+void AddressBookPage::on_deleteCheckBox_clicked()
+{
+	if(ui->deleteCheckBox->checkState() == Qt::Checked)
+	{
+		ui->deleteButton->setEnabled(true);
+		ui->deleteButton->setVisible(true);
+		deleteAction->setEnabled(true);
+	}
+	else
+	{
+		ui->deleteButton->setEnabled(false);
+		ui->deleteButton->setVisible(false);
+		deleteAction->setEnabled(false);
+	}
 }
 
 void AddressBookPage::on_copyToClipboard_clicked()
@@ -210,6 +238,21 @@ void AddressBookPage::on_verifyMessage_clicked()
     emit verifyMessage(addr);
 }
 
+void AddressBookPage::on_stakeForCharityPushButton_clicked()
+{
+	QTableView *table = ui->tableView;
+	QModelIndexList indexes = table->selectionModel()->selectedRows(AddressTableModel::Address);
+	QString addr;
+	
+	foreach (QModelIndex index, indexes)
+	{
+		QVariant address = index.data();
+		addr = address.toString();
+	}
+	
+	emit stakeForCharitySignal(addr);
+}
+
 void AddressBookPage::on_newAddressButton_clicked()
 {
     if(!model)
@@ -257,16 +300,22 @@ void AddressBookPage::selectionChanged()
             ui->signMessage->setVisible(false);
             ui->verifyMessage->setEnabled(true);
             ui->verifyMessage->setVisible(true);
+			ui->stakeForCharityPushButton->setEnabled(true);
+			ui->stakeForCharityPushButton->setVisible(true);
             break;
         case ReceivingTab:
-            // Deleting receiving addresses, however, is not allowed
+            // Deleting receiving addresses is allowed if enabled on deleteCheckBox
             ui->deleteButton->setEnabled(false);
-            ui->deleteButton->setVisible(false);
-            deleteAction->setEnabled(false);
+			ui->deleteButton->setVisible(false);
+			deleteAction->setEnabled(false);
             ui->signMessage->setEnabled(true);
             ui->signMessage->setVisible(true);
             ui->verifyMessage->setEnabled(false);
             ui->verifyMessage->setVisible(false);
+			ui->stakeForCharityPushButton->setEnabled(false);
+			ui->stakeForCharityPushButton->setVisible(false );
+			ui->deleteCheckBox->setVisible(true);
+			
             break;
         }
         ui->copyToClipboard->setEnabled(true);
@@ -279,6 +328,7 @@ void AddressBookPage::selectionChanged()
         ui->copyToClipboard->setEnabled(false);
         ui->signMessage->setEnabled(false);
         ui->verifyMessage->setEnabled(false);
+		ui->stakeForCharityPushButton->setEnabled(false);
     }
 }
 

@@ -2,33 +2,49 @@
  * W.J. van der Laan 2011-2012
  */
 #include "bitcoingui.h"
-#include "clientmodel.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
-#include "guiutil.h"
-#include "guiconstants.h"
 
+#include "clientmodel.h"
+#include "guiconstants.h"
+#include "guiutil.h"
 #include "init.h"
+#include "networkstyle.h"
+#include "optionsmodel.h"
 #include "ui_interface.h"
-#include "qtipcserver.h"
+
+#include "paymentserver.h"
+#include "walletmodel.h"
 
 #include <QApplication>
 #include <QMessageBox>
+#if QT_VERSION < 0x050000
 #include <QTextCodec>
+#endif
 #include <QLocale>
+#include <QTimer>
 #include <QTranslator>
 #include <QSplashScreen>
 #include <QLibraryInfo>
 
-#if defined(BITCOIN_NEED_QT_PLUGINS) && !defined(_BITCOIN_QT_PLUGINS_INCLUDED)
-#define _BITCOIN_QT_PLUGINS_INCLUDED
-#define __INSURE__
+#if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
+#if QT_VERSION < 0x050000
 Q_IMPORT_PLUGIN(qcncodecs)
 Q_IMPORT_PLUGIN(qjpcodecs)
 Q_IMPORT_PLUGIN(qtwcodecs)
 Q_IMPORT_PLUGIN(qkrcodecs)
 Q_IMPORT_PLUGIN(qtaccessiblewidgets)
+#else
+#if QT_VERSION < 0x050400
+Q_IMPORT_PLUGIN(AccessibleFactory)
+#endif
+#if defined(QT_QPA_PLATFORM_XCB)
+Q_IMPORT_PLUGIN(QXcbIntegrationPlugin);
+#elif defined(QT_QPA_PLATFORM_WINDOWS)
+Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+#elif defined(QT_QPA_PLATFORM_COCOA)
+Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
+#endif
+#endif
 #endif
 
 // Need a global reference for the notifications to find the GUI
@@ -70,20 +86,11 @@ static bool ThreadSafeAskFee(int64 nFeeRequired, const std::string& strCaption)
     return payFee;
 }
 
-static void ThreadSafeHandleURI(const std::string& strURI)
-{
-    if(!guiref)
-        return;
-
-    QMetaObject::invokeMethod(guiref, "handleURI", GUIUtil::blockingGUIThreadConnection(),
-                               Q_ARG(QString, QString::fromStdString(strURI)));
-}
-
 static void InitMessage(const std::string &message)
 {
     if(splashref)
     {
-        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,200));
+        splashref->showMessage(QString::fromStdString(message+'\n'+'\n') + QString::fromStdString(FormatFullVersion().c_str()), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,200));
         QApplication::instance()->processEvents();
     }
 }
@@ -113,23 +120,42 @@ static void handleRunawayException(std::exception *e)
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char *argv[])
 {
-    // Do this early as we don't want to bother initializing if we are just calling IPC
-    ipcScanRelay(argc, argv);
-
-    // Internal string conversion is all UTF-8
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
-
-    Q_INIT_RESOURCE(bitcoin);
-    QApplication app(argc, argv);
-
-    // Install global event filter that makes sure that long tooltips can be word-wrapped
-    app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
-
+    fHaveGUI = true;
+    
+    /// 1. Parse command-line options. These take precedence over anything else.
     // Command-line options take precedence:
     ParseParameters(argc, argv);
 
-    // ... then bitcoin.conf:
+    // Do not refer to data directory yet, this can be overridden by Intro::pickDataDirectory
+    
+    /// 2. Basic Qt initialization (not dependent on parameters or configuration)
+    #if QT_VERSION < 0x050000
+    // Internal string conversion is all UTF-8
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
+	#endif
+	
+    Q_INIT_RESOURCE(bitcoin);
+    
+    QApplication app(argc, argv);
+#if QT_VERSION > 0x050100
+    // Generate high-dpi pixmaps
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+#ifdef Q_OS_MAC
+    QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
+    
+    // Do this early as we don't want to bother initializing if we are just calling IPC
+    // ... but do it after creating app, so QCoreApplication::arguments is initialized:
+    if (PaymentServer::ipcSendCommandLine())
+        exit(0);
+    PaymentServer* paymentServer = new PaymentServer(&app);
+    
+    // Install global event filter that makes sure that long tooltips can be word-wrapped
+    app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
+
+        // ... then bitcoin.conf:
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
         // This message can not be translated, as translation is not initialized yet
@@ -138,17 +164,30 @@ int main(int argc, char *argv[])
                               QString("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
         return 1;
     }
-    ReadConfigFile(mapArgs, mapMultiArgs);
-
+    try {
+        ReadConfigFile(mapArgs, mapMultiArgs);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(0, QObject::tr("HyperStake"),
+                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
+        return false;
+    }
+    
+    
     // Application identification (must be set before OptionsModel is initialized,
     // as it is used to locate QSettings)
     app.setOrganizationName("HyperStake");
     app.setOrganizationDomain("HyperStake.su");
-    if(GetBoolArg("-testnet")) // Separate UI settings for testnet
-        app.setApplicationName("HyperStake-Qt-testnet");
-    else
-        app.setApplicationName("HyperStake-Qt");
-
+    
+    QString networkIDString = "main";
+    if (GetBoolArg("-testnet")){
+        networkIDString = "test";
+    }
+    
+    QScopedPointer<const NetworkStyle> networkStyle(NetworkStyle::instantiate(networkIDString));
+    assert(!networkStyle.isNull());
+    // Allow for separate UI settings for testnets
+    QApplication::setApplicationName(networkStyle->getAppName());
+    
     // ... then GUI settings:
     OptionsModel optionsModel;
 
@@ -165,24 +204,31 @@ int main(int argc, char *argv[])
 
     // Load e.g. qt_de.qm
     if (qtTranslatorBase.load("qt_" + lang, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
         app.installTranslator(&qtTranslatorBase);
+    }
 
     // Load e.g. qt_de_DE.qm
     if (qtTranslator.load("qt_" + lang_territory, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
         app.installTranslator(&qtTranslator);
+    }
 
     // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in bitcoin.qrc)
     if (translatorBase.load(lang, ":/translations/"))
+    {
         app.installTranslator(&translatorBase);
+    }
 
     // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in bitcoin.qrc)
     if (translator.load(lang_territory, ":/translations/"))
+    {
         app.installTranslator(&translator);
+    }
 
     // Subscribe to global signals from core
     uiInterface.ThreadSafeMessageBox.connect(ThreadSafeMessageBox);
     uiInterface.ThreadSafeAskFee.connect(ThreadSafeAskFee);
-    uiInterface.ThreadSafeHandleURI.connect(ThreadSafeHandleURI);
     uiInterface.InitMessage.connect(InitMessage);
     uiInterface.QueueShutdown.connect(QueueShutdown);
     uiInterface.Translate.connect(Translate);
@@ -214,7 +260,7 @@ int main(int argc, char *argv[])
         if (GUIUtil::GetStartOnSystemStartup())
             GUIUtil::SetStartOnSystemStartup(true);
 
-        BitcoinGUI window;
+        BitcoinGUI window(networkStyle.data(),0);
         guiref = &window;
         if(AppInit2())
         {
@@ -243,9 +289,12 @@ int main(int argc, char *argv[])
                     window.show();
                 }
 
-                // Place this here as guiref has to be defined if we don't want to lose URIs
-                ipcInit(argc, argv);
-
+                // Now that initialization/startup is done, process any command-line
+                // bitcoin: URIs
+                QObject::connect(paymentServer, SIGNAL(receivedURI(QString)), &window, SLOT(handleURI(QString)));
+                QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
+                
+                
                 app.exec();
 
                 window.hide();

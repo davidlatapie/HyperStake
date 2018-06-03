@@ -18,7 +18,6 @@
 #include "util.h"
 #include "walletdb.h"
 
-extern bool fWalletUnlockMintOnly;
 class CAccountingEntry;
 class CWalletTx;
 class CReserveKey;
@@ -71,7 +70,7 @@ class CWallet : public CCryptoKeyStore
 {
 private:
     bool SelectCoins(int64 nTargetValue, unsigned int nSpendTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64& nValueRet, const CCoinControl *coinControl=NULL) const;
-
+	bool SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64 nTargetAmount) const;
     CWalletDB *pwalletdbEncryption;
 
     // the current wallet version: clients below this version are not able to load the wallet
@@ -80,19 +79,50 @@ private:
     // the maximum wallet format version: memory-only variable that specifies to what version this wallet may be upgraded
     int nWalletMaxVersion;
 
-public:
-    mutable CCriticalSection cs_wallet;
+    //how many UTXO's are eligible to be staked
+    unsigned int nMintableOutputs;
 
+public:
+	bool MintableCoins();
+    mutable CCriticalSection cs_wallet;
     bool fFileBacked;
     std::string strWalletFile;
-
-    std::set<int64> setKeyPool;
-
-
-    typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
+	std::set<int64> setKeyPool;
+	typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
+	bool fWalletUnlockMintOnly;
+    CBigNum bnStakeWeightCached;
 
+	//SplitBlock
+	bool fSplitBlock;
+	
+	//MultiSend
+	std::vector<std::pair<std::string, int> > vMultiSend;
+	bool fMultiSend;
+	bool fMultiSendCoinStake;
+	bool fMultiSendNotify;
+	std::string strMultiSendChangeAddress;
+	int nLastMultiSendHeight;
+	std::vector<std::string> vDisabledAddresses;
+	
+	// Stake Settings
+	unsigned int nHashDrift;
+	unsigned int nHashInterval;
+	uint64 nStakeSplitThreshold;
+	int nStakeSetUpdateTime;
+	bool fCombineDust;
+	
+	// DisableStake
+	bool fDisableStake;
+	std::string strDisableType;
+	std::string strDisableArg;
+	double dUserNumber;
+	bool fStakeRequirement;
+
+    // Voting
+    std::map<uint256, CVoteObject> mapVoteObjects;
+	
     CWallet()
     {
         nWalletVersion = FEATURE_BASE;
@@ -101,6 +131,33 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
+		fWalletUnlockMintOnly = false;
+		fSplitBlock = false;
+        bnStakeWeightCached = 0;
+        nMintableOutputs = 0;
+		
+		//DisableStake
+		fDisableStake = false;
+		strDisableType = "";
+		strDisableArg = "";
+		dUserNumber = 0;
+		fStakeRequirement =  false;
+		
+		// Stake Settings
+		nHashDrift = 45;
+		nStakeSplitThreshold = 2000;
+		nHashInterval = 22;
+		nStakeSetUpdateTime = 300; // 5 minutes
+		fCombineDust = true;
+		
+		//MultiSend
+		vMultiSend.clear();
+		fMultiSend = false;
+		fMultiSendCoinStake = false;
+		fMultiSendNotify = false;
+		strMultiSendChangeAddress = "";
+		nLastMultiSendHeight = 0;
+		vDisabledAddresses.clear();
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -111,6 +168,33 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
+		fWalletUnlockMintOnly = false;
+		fSplitBlock = false;
+        bnStakeWeightCached = 0;
+        nMintableOutputs = 0;
+		
+		//DisableStake
+		fDisableStake = false;
+		strDisableType = "";
+		strDisableArg = "";
+		dUserNumber = 0;
+		fStakeRequirement =  false;
+		
+		// Stake Settings
+		nHashDrift = 45;
+		nStakeSplitThreshold = 10000;
+		nHashInterval = 22;
+		nStakeSetUpdateTime = 300; // 5 minutes
+		fCombineDust = true;
+		
+		//MultiSend
+		vMultiSend.clear();
+		fMultiSend = false;
+		fMultiSendCoinStake = false;
+		fMultiSendNotify = false;
+		strMultiSendChangeAddress = "";
+		nLastMultiSendHeight = 0;
+		vDisabledAddresses.clear();
     }
 
     std::map<uint256, CWalletTx> mapWallet;
@@ -171,19 +255,23 @@ public:
     void ReacceptWalletTransactions();
     void ResendWalletTransactions();
     int64 GetBalance() const;
+	int64 GetBalanceInMainChain() const;
     int64 GetUnconfirmedBalance() const;
     int64 GetImmatureBalance() const;
     int64 GetStake() const;
     int64 GetNewMint() const;
-    bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, const CCoinControl *coinControl=NULL);
-    bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, const CCoinControl *coinControl=NULL);
+    unsigned int GetMintableOutputCount();
+	bool MultiSend();
+    bool CreateTransaction(const std::vector<std::pair<CScript, int64> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, int nSplitBlock, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
+    bool CreateTransaction(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64& nFeeRet, bool fAllowS4C=false, const CCoinControl *coinControl=NULL);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
-    bool GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight);
-	bool GetStakeWeight2(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight);
+    bool FinalizeProposal(CTransaction& txProposal);
+    bool GetStakeWeight(const CKeyStore& keystore, uint64& nMinWeight, uint64& nMaxWeight, uint64& nWeight, uint64& nAmount);
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64 nSearchInterval, CTransaction& txNew);
 	bool GetStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight);
-    std::string SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
-    std::string SendMoneyToDestination(const CTxDestination &address, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false);
+    uint64 GetTimeToNextMaturity();
+    std::string SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false, bool fAllowStakeForCharity=false);
+    std::string SendMoneyToDestination(const CTxDestination &address, int64 nValue, CWalletTx& wtxNew, bool fAskFee=false, bool fAllowStakeForCharity=false);
 
     bool NewKeyPool();
     bool TopUpKeyPool();
@@ -303,6 +391,8 @@ public:
 
     void FixSpentCoins(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound, bool fCheckOnly = false);
     void DisableTransaction(const CTransaction &tx);
+
+    bool SendProposal(const CVoteProposal& proposal, uint256& txid);
 
     /** Address book entry changed.
      * @note called with lock cs_wallet held.
@@ -633,7 +723,22 @@ public:
         return (GetDebit() > 0);
     }
 
-    bool IsConfirmed() const
+    bool IsConfirmedInMainChain() const
+    {
+        //presstab - removed code that checks walletdb for confirmation, we want blockchain info only
+		
+		// Quick answer in most cases
+        if (!IsFinal())
+            return false;
+        if (GetDepthInMainChain() >= 1)
+            return true;
+        if (!IsFromMe()) // using wtx's cached debit
+            return false;
+		
+        return false;
+    }
+
+	bool IsConfirmed() const
     {
         // Quick answer in most cases
         if (!IsFinal())
@@ -675,7 +780,7 @@ public:
         }
         return true;
     }
-
+	
     bool WriteToDisk();
 
     int64 GetTxTime() const;

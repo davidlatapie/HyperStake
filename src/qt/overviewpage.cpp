@@ -46,7 +46,11 @@ public:
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
+		#if QT_VERSION < 0x050000
         if(qVariantCanConvert<QColor>(value))
+		#else
+		if(value.canConvert<QColor>())
+		#endif
         {
             foreground = qvariant_cast<QColor>(value);
         }
@@ -164,7 +168,7 @@ void OverviewPage::setModel(WalletModel *model)
         filter->setLimit(NUM_ITEMS);
         filter->setDynamicSortFilter(true);
         filter->setSortRole(Qt::EditRole);
-        filter->sort(TransactionTableModel::Status, Qt::DescendingOrder);
+        filter->sort(TransactionTableModel::Date, Qt::DescendingOrder);
 
         ui->listTransactions->setModel(filter);
         ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);

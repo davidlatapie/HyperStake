@@ -14,6 +14,12 @@
 #include "keystore.h"
 #include "bignum.h"
 
+template <typename T>
+std::vector<unsigned char> ToByteVector(const T& in)
+{
+    return std::vector<unsigned char>(in.begin(), in.end());
+}
+
 typedef std::vector<unsigned char> valtype;
 
 class CTransaction;
@@ -27,7 +33,6 @@ enum
     SIGHASH_ANYONECANPAY = 0x80,
 };
 
-
 enum txnouttype
 {
     TX_NONSTANDARD,
@@ -36,6 +41,7 @@ enum txnouttype
     TX_PUBKEYHASH,
     TX_SCRIPTHASH,
     TX_MULTISIG,
+    TX_NULL_DATA
 };
 
 class CNoDestination {
@@ -202,8 +208,6 @@ enum opcodetype
 
 const char* GetOpName(opcodetype opcode);
 
-
-
 inline std::string ValueString(const std::vector<unsigned char>& vch)
 {
     if (vch.size() <= 4)
@@ -223,13 +227,6 @@ inline std::string StackString(const std::vector<std::vector<unsigned char> >& v
     }
     return str;
 }
-
-
-
-
-
-
-
 
 /** Serialized script, used inside transaction inputs and outputs */
 class CScript : public std::vector<unsigned char>
@@ -522,19 +519,13 @@ public:
 
     bool IsPayToScriptHash() const;
 
-    // Called by CTransaction::IsStandard
-    bool IsPushOnly() const
+    bool IsPushOnly(const_iterator pc) const;
+
+    bool IsPushOnly() const;
+
+    bool IsDataCarrier() const
     {
-        const_iterator pc = begin();
-        while (pc < end())
-        {
-            opcodetype opcode;
-            if (!GetOp(pc, opcode))
-                return false;
-            if (opcode > OP_16)
-                return false;
-        }
-        return true;
+        return (this->size() > 0 && this->at(0) == OP_RETURN);
     }
 
 

@@ -35,7 +35,7 @@ typedef unsigned long long  uint64;
 static const int64 COIN = 1000000;
 static const int64 CENT = 10000;
 
-#define loop                for (;;)
+//#define loop                for (;;)
 #define BEGIN(a)            ((char*)&(a))
 #define END(a)              ((char*)&((&(a))[1]))
 #define UBEGIN(a)           ((unsigned char*)&(a))
@@ -107,7 +107,6 @@ T* alignup(T* p)
 }
 
 #ifdef WIN32
-#define MSG_NOSIGNAL        0
 #define MSG_DONTWAIT        0
 
 #ifndef S_IRUSR
@@ -229,8 +228,6 @@ int64 GetTime();
 void SetMockTime(int64 nMockTimeIn);
 int64 GetAdjustedTime();
 long hex2long(const char* hexString);
-std::string FormatFullVersion();
-std::string FormatSubVersion(const std::string& name, int nClientVersion, const std::vector<std::string>& comments);
 void AddTimeData(const CNetAddr& ip, int64 nTime);
 void runCommand(std::string strCommand);
 
@@ -244,7 +241,7 @@ void runCommand(std::string strCommand);
 
 inline std::string i64tostr(int64 n)
 {
-    return strprintf("%"PRI64d, n);
+    return strprintf("%lld", n);
 }
 
 inline std::string itostr(int n)
@@ -309,9 +306,28 @@ std::string HexStr(const T itbegin, const T itend, bool fSpaces=false)
     return rv;
 }
 
+template <typename T>
+inline std::string HexStr(const T& vch, bool fSpaces = false)
+{
+    return HexStr(vch.begin(), vch.end(), fSpaces);
+}
+
 inline std::string HexStr(const std::vector<unsigned char>& vch, bool fSpaces=false)
 {
     return HexStr(vch.begin(), vch.end(), fSpaces);
+}
+
+/** Reverse the endianess of a string */
+inline std::string ReverseEndianString(std::string in)
+{
+    std::string out = "";
+    unsigned int s = in.size();
+    for(unsigned int i = 0; i < s; i+=2)
+    {
+        out += in.substr(s - i - 2, 2);
+    }
+
+    return out;
 }
 
 template<typename T>

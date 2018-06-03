@@ -57,7 +57,18 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
         else
         {
             in.push_back(Pair("txid", txin.prevout.hash.GetHex()));
-            in.push_back(Pair("vout", (boost::int64_t)txin.prevout.n));
+			in.push_back(Pair("vout", (boost::int64_t)txin.prevout.n));
+			
+			CTransaction txoutspent;
+			uint256 tempHash = 0;
+			if(GetTransaction( txin.prevout.hash, txoutspent, tempHash))
+			{
+				in.push_back(Pair("value", ValueFromAmount(txoutspent.vout[txin.prevout.n].nValue)));
+				CTxDestination inputAddress;
+				ExtractDestination(txoutspent.vout[txin.prevout.n].scriptPubKey, inputAddress);
+				in.push_back(Pair("addressfrom", CBitcoinAddress(inputAddress).ToString()));
+			}
+            
             Object o;
             o.push_back(Pair("asm", txin.scriptSig.ToString()));
             o.push_back(Pair("hex", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
@@ -529,4 +540,33 @@ Value sendrawtransaction(const Array& params, bool fHelp)
     RelayMessage(CInv(MSG_TX, hashTx), tx);
 
     return hashTx.GetHex();
+}
+
+Value gettxfee(const Array& params, bool fHelp)  
+{  
+    if (fHelp || params.size() != 1)   
+        throw runtime_error(  
+            "gettxfee <transaction id>\n");  
+	
+	uint256 hash;
+    hash.SetHex(params[0].get_str());
+	CTransaction tx;
+    uint256 hashBlock = 0;
+    if (!GetTransaction(hash, tx, hashBlock))
+        return "Transaction not found";
+	
+	int64 nTotalIn = 0;
+	for(unsigned int i = 0; i < tx.vin.size(); i++)
+	{
+		CTransaction tx2;
+		uint256 hashBlock2 = 0;
+		if (!GetTransaction(tx.vin[i].prevout.hash, tx2, hashBlock2))
+			return 0;
+		nTotalIn += tx2.vout[tx.vin[i].prevout.n].nValue;
+	}
+	int64 nTotalOut = 0;
+	for(unsigned int i = 0; i < tx.vout.size(); i++)
+		nTotalOut += tx.vout[i].nValue;
+	
+	return ValueFromAmount(nTotalIn - nTotalOut);
 }

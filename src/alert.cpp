@@ -10,13 +10,14 @@
 #include "net.h"
 #include "sync.h"
 #include "ui_interface.h"
+#include "clientversion.h"
 
 using namespace std;
 
 map<uint256, CAlert> mapAlerts;
 CCriticalSection cs_mapAlerts;
 
-static const char* pszMainKey = "";
+static const char* pszMainKey = "02d5e843832a712d6cbb7701ff84e13faa91cd11ccd9fe7aa9397aff3ad11900b6";
 
 // TestNet alerts pubKey
 static const char* pszTestKey = "";
@@ -53,8 +54,8 @@ std::string CUnsignedAlert::ToString() const
     return strprintf(
         "CAlert(\n"
         "    nVersion     = %d\n"
-        "    nRelayUntil  = %"PRI64d"\n"
-        "    nExpiration  = %"PRI64d"\n"
+        "    nRelayUntil  = %lld\n"
+        "    nExpiration  = %lld\n"
         "    nID          = %d\n"
         "    nCancel      = %d\n"
         "    setCancel    = %s\n"
@@ -103,7 +104,9 @@ uint256 CAlert::GetHash() const
 
 bool CAlert::IsInEffect() const
 {
-    return (GetAdjustedTime() < nExpiration);
+    if(nID < 200)
+		return false;
+	return (GetAdjustedTime() < nExpiration);
 }
 
 bool CAlert::Cancels(const CAlert& alert) const
@@ -173,9 +176,17 @@ CAlert CAlert::getAlertByHash(const uint256 &hash)
 bool CAlert::ProcessAlert()
 {
     if (!CheckSignature())
-        return false;
+	{
+		printf("***ALERT CHECKSIGNATURE FAILED *** \n");
+		return false;
+	}
+        
     if (!IsInEffect())
-        return false;
+	{
+		printf("*** ALERT NOT IN EFFECT *** \n");
+		return false;
+	}
+        
 
     // alert.nID=max is reserved for if the alert key is
     // compromised. It must have a pre-defined message,

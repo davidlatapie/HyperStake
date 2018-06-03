@@ -60,10 +60,12 @@ private:
 private slots:
     void on_deleteButton_clicked();
     void on_newAddressButton_clicked();
+	void on_deleteCheckBox_clicked();
     /** Copy address of currently selected address entry to clipboard */
     void on_copyToClipboard_clicked();
     void on_signMessage_clicked();
     void on_verifyMessage_clicked();
+	void on_stakeForCharityPushButton_clicked();
     void selectionChanged();
     void on_showQRCode_clicked();
     /** Spawn contextual menu (right mouse menu) for address book entry */
@@ -80,6 +82,7 @@ private slots:
 signals:
     void signMessage(QString addr);
     void verifyMessage(QString addr);
+	void stakeForCharitySignal(QString addr);
 };
 
 #endif // ADDRESSBOOKDIALOG_H

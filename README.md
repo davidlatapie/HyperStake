@@ -1,10 +1,6 @@
+# HyperStake
 
-
-
-HyperStake
-
-Copyright (c) 2014 HyperStake Developers
-Copyright (c) 2013-2014 hyperstake Developers
+Copyright (c) 2013-2017 HyperStake Developers
 Copyright (c) 2013 NovaCoin Developers
 Copyright (c) 2011-2012 Bitcoin Developers
 Distributed under the MIT/X11 software license, see the accompanying
@@ -35,7 +31,6 @@ or forward port
 incoming connections.  hyperstake works without incoming connections,
 but allowing incoming connections helps the hyperstake network.
 
-
 Upgrade
 -------
 All you existing coins/transactions should be intact with the upgrade.
@@ -47,6 +42,33 @@ Start up the new hyperstaked.
 
 
 See the hyperstake site:
-  http://hyperstake.org/
+  http://hyperstake.io
 for help and more information.
+
+Wallet themes
+-------
+
+| HyperBlue     | PoloniexNight | PoloniexDay   |
+| ------------- | ------------- | ------------- |
+| [![HyperBlue](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-hyperblue-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-hyperblue-theme.png) | [![PoloniexNight](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexnight-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexnight-theme.png) | [![PoloniexNight](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexday-theme-th.png)](https://github.com/zeewolfik/HyperStake/raw/master/src/qt/res/screenshots/hyperstake-poloniexday-theme.png) |
+
+
+Build Instructions (Linux)
+-------
+### Dependencies required for HyperStake with or without GUI:
+`sudo apt-get install build-essential libtool autotools-dev autoconf pkg-config libssl-dev libboost-all-dev libdb5.3-dev libdb5.3++-dev libminiupnpc-dev automake`
+
+`./autogen.sh`
+
+### Configure without GUI:
+`./configure --with-incompatible-bdb --with-gui=no`
+
+### Configure with GUI:
+`sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev`
+
+`./configure --with-incompatible-bdb --with-gui=qt5`
+
+### Compile
+`make`
+
 

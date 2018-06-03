@@ -48,7 +48,7 @@ inline std::string EncodeBase58(const unsigned char* pbegin, const unsigned char
     CBigNum rem;
     while (bn > bn0)
     {
-        if (!BN_div(&dv, &rem, &bn, &bn58, pctx))
+        if (!BN_div(dv.get(), rem.get(), bn.cget(), bn58.cget(), pctx))
             throw bignum_error("EncodeBase58 : BN_div failed");
         bn = dv;
         unsigned int c = rem.getulong();
@@ -95,7 +95,7 @@ inline bool DecodeBase58(const char* psz, std::vector<unsigned char>& vchRet)
             break;
         }
         bnChar.setulong(p1 - pszBase58);
-        if (!BN_mul(&bn, &bn, &bn58, pctx))
+        if (!BN_mul(bn.get(), bn.cget(), bn58.cget(), pctx))
             throw bignum_error("DecodeBase58 : BN_mul failed");
         bn += bnChar;
     }
@@ -123,6 +123,22 @@ inline bool DecodeBase58(const char* psz, std::vector<unsigned char>& vchRet)
 inline bool DecodeBase58(const std::string& str, std::vector<unsigned char>& vchRet)
 {
     return DecodeBase58(str.c_str(), vchRet);
+}
+
+inline std::string DecodeBase58_cstr(const char *psz)
+{
+    std::vector<unsigned char> vch;
+    DecodeBase58(psz, vch);
+    std::stringstream ss;
+    ss << std::hex;
+
+    for(unsigned int i = 0; i < vch.size(); i++)
+    {
+        unsigned char* c = &vch[i];
+        ss  << std::setw(2) << std::setfill('0') << static_cast<int>(c[0]);
+    }
+
+    return ss.str();
 }
 
 

@@ -129,7 +129,66 @@ bool WalletModel::validateAddress(const QString &address)
     return addressParsed.IsValid();
 }
 
-WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipient> &recipients, const CCoinControl *coinControl)
+bool WalletModel::sendProposal(const CVoteProposal& proposal, uint256& txid)
+{
+    CTransaction tx;
+        if (!proposal.ConstructTransaction(tx))
+            return false;
+        CWalletTx wtx(wallet, tx);
+
+        //! Get available coins and add enough to cover the proposal fee
+        std::vector<COutput> vCoins;
+        wallet->AvailableCoins(vCoins, true);
+
+        int64 nFee = 5 * COIN;
+        int64 nValueIn = 0;
+
+        std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+        if (wallet->SelectCoinsMinConf(nFee, tx.nTime, 1, 6, vCoins, setCoins, nValueIn))
+            return false;
+
+        //! Fill vin
+        for (std::pair<const CWalletTx*,unsigned int> coin : setCoins)
+            wtx.vin.push_back(CTxIn(coin.first->GetHash(),coin.second));
+
+        //! Add the min value required for an output to the proposal UTXO
+        wtx.vout[0].nValue = MIN_TXOUT_AMOUNT;
+
+        //! Figure out change amount
+        nFee -= wtx.vout[0].nValue;
+        int64 nChange = nValueIn - nFee - MIN_TXOUT_AMOUNT;
+        if (nChange > 500) {
+            //!Lookup the address of one of the inputs and return the change to that address
+            uint256 hashBlock;
+            CTransaction txPrev;
+            if(!::GetTransaction(wtx.vin[0].prevout.hash, txPrev, hashBlock))
+                return false;
+
+            CScript scriptReturn = txPrev.vout[wtx.vin[0].prevout.n].scriptPubKey;
+            CTxOut out(nChange, scriptReturn);
+
+            //!Add the change output to the new transaction
+            wtx.vout.push_back(out);
+        }
+
+        //! Sign the transaction
+        int nIn = 0;
+        for (const std::pair<const CWalletTx*,unsigned int>& coin : setCoins) {
+            if (!SignSignature(*wallet, *coin.first, wtx, nIn++))
+                return false;
+        }
+
+        //! Broadcast the transaction to the network
+        CReserveKey reserveKey = CReserveKey(wallet);
+        if (!wallet->CommitTransaction(wtx, reserveKey))
+            return false;
+
+        txid = wtx.GetHash();
+
+        return true;
+}
+
+WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipient> &recipients, int nSplitBlock, const CCoinControl *coinControl)
 {
     qint64 total = 0;
     QSet<QString> setAddress;
@@ -192,7 +251,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
         CWalletTx wtx;
         CReserveKey keyChange(wallet);
         int64 nFeeRequired = 0;
-        bool fCreated = wallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, coinControl);
+        bool fCreated = wallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nSplitBlock, false, coinControl);
 
         if(!fCreated)
         {
@@ -280,7 +339,7 @@ bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphr
     }
 }
 
-bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase)
+bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase, bool formint)
 {
     if(locked)
     {
@@ -290,7 +349,12 @@ bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase)
     else
     {
         // Unlock
-        return wallet->Unlock(passPhrase);
+        bool rc;
+		rc = wallet->Unlock(passPhrase);
+		if (rc && formint)
+			wallet->fWalletUnlockMintOnly=true;
+		return rc;
+		
     }
 }
 
@@ -310,9 +374,20 @@ bool WalletModel::backupWallet(const QString &filename)
     return BackupWallet(*wallet, filename.toLocal8Bit().data());
 }
 
+//Information for coin control
 void WalletModel::getStakeWeightFromValue(const int64& nTime, const int64& nValue, uint64& nWeight)
 {
 	wallet->GetStakeWeightFromValue(nTime, nValue, nWeight);
+}
+
+void WalletModel::setSplitBlock(bool fSplitBlock)
+{
+	wallet->fSplitBlock = fSplitBlock;
+}
+
+bool WalletModel::getSplitBlock()
+{
+	return wallet->fSplitBlock;
 }
 
 void WalletModel::checkWallet(int& nMismatchSpent, int64& nBalanceInQuestion, int& nOrphansFound)
@@ -370,6 +445,13 @@ void WalletModel::unsubscribeFromCoreSignals()
 WalletModel::UnlockContext WalletModel::requestUnlock()
 {
     bool was_locked = getEncryptionStatus() == Locked;
+	
+	if ((!was_locked) && wallet->fWalletUnlockMintOnly)
+	{
+		setWalletLocked(true);
+		was_locked = getEncryptionStatus() == Locked;
+	}
+	
     if(was_locked)
     {
         // Request UI to unlock wallet
@@ -378,7 +460,7 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
     // If wallet is still locked, unlock was failed or cancelled, mark context as invalid
     bool valid = getEncryptionStatus() != Locked;
 
-    return UnlockContext(this, valid, was_locked);
+	return UnlockContext(this, valid, was_locked && !wallet->fWalletUnlockMintOnly);
 }
 
 WalletModel::UnlockContext::UnlockContext(WalletModel *wallet, bool valid, bool relock):
@@ -469,3 +551,8 @@ void WalletModel::UnlockContext::CopyFrom(const UnlockContext& rhs)
  {
      return;
  }
+
+bool WalletModel::isMine(const CBitcoinAddress &address)
+{
+	return IsMine(*wallet, address.Get());
+}

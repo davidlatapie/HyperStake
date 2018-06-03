@@ -5,13 +5,8 @@
 
 #include "version.h"
 
-// Name of client reported in the 'version' message. Report the same name
-// for both bitcoind and bitcoin-qt, to make it harder for attackers to
-// target servers or GUI users specifically.
-const std::string CLIENT_NAME("HyperStake");
-
 // Client version number
-#define CLIENT_VERSION_SUFFIX   "HyperStake-1.0.3"
+#define CLIENT_VERSION_SUFFIX   "HyperStake-1.1.5.0"
 
 
 // The following part of the code determines the CLIENT_BUILD variable.
@@ -27,11 +22,6 @@ const std::string CLIENT_NAME("HyperStake");
 //   * if not, but GIT_COMMIT is defined, use v[maj].[min].[rev].[build]-g[commit]
 //   * otherwise, use v[maj].[min].[rev].[build]-unk
 // finally CLIENT_VERSION_SUFFIX is added
-
-// First, include build.h if requested
-#ifdef HAVE_BUILD_INFO
-#    include "build.h"
-#endif
 
 // git will put "#define GIT_ARCHIVE 1" on the next line inside archives. 
 #define GIT_ARCHIVE 1
@@ -61,6 +51,3 @@ const std::string CLIENT_NAME("HyperStake");
 #        define BUILD_DATE __DATE__ ", " __TIME__
 #    endif
 #endif
-
-const std::string CLIENT_BUILD(BUILD_DESC CLIENT_VERSION_SUFFIX);
-const std::string CLIENT_DATE(BUILD_DATE);
